@@ -2,574 +2,1042 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>EASY PROMPT AI – PRO</title>
-<meta name="description" content="EASY PROMPT AI — سازنده پرامپت. نسخه Pro با سیستم کد فعال‌سازی." />
-<link rel="icon" href="/assets/img/LOGO.jpg" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>EASY PROMPT AI — سازندهٔ پرامپت حرفه‌ای</title>
+<meta name="description" content="EASY PROMPT AI — با ۲۰ سؤال هوشمند، حرفه‌ای‌ترین پرامپت را به هر زبانی برای هر هوش مصنوعی بساز." />
+<link rel="icon" href="assets/img/logo.jpg" />
 <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
 <style>
 :root{
-  --bg-dark:#0f1114;
-  --panel:#0b0d10;
-  --muted:#9aa0a6;
-  --gold:#C8A951;
-  --gold-2:#D4B66A;
-  --accent:#8DD3D7;
-  --glass: rgba(255,255,255,0.03);
-  --card-shadow: 0 20px 50px rgba(2,6,23,0.6);
-  --radius:14px;
+  --bg:#0a0b0f;
+  --bg2:#111420;
+  --panel:rgba(255,255,255,0.035);
+  --panel-2:rgba(255,255,255,0.06);
+  --stroke:rgba(255,255,255,0.08);
+  --stroke-2:rgba(255,255,255,0.14);
+  --muted:#8b93a7;
+  --text:#eef1f7;
+  --gold:#d8b45a;
+  --gold-2:#f0d488;
+  --accent:#7fd7e0;
+  --accent-2:#8b7bff;
+  --good:#5ad1a0;
+  --bad:#f06a6a;
+  --r:18px;
+  --r-lg:26px;
+  --shadow:0 30px 80px -20px rgba(0,0,0,.75);
+  --shadow-soft:0 18px 50px -18px rgba(0,0,0,.6);
 }
-*{box-sizing:border-box;margin:0;padding:0;font-family:'Vazirmatn',system-ui,-apple-system,'Segoe UI',Tahoma;direction:rtl}
-html,body,#app{height:100%}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Vazirmatn',system-ui,-apple-system,'Segoe UI',Tahoma,sans-serif}
+html,body{height:100%}
 body{
-  background: linear-gradient(180deg,var(--bg-dark) 0%, #060607 100%);
-  color:#e6e6e6;padding:20px;-webkit-font-smoothing:antialiased;
-  -webkit-font-feature-settings: "kern";
+  color:var(--text);
+  background:var(--bg);
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  line-height:1.7;
 }
-.container{max-width:1200px;margin:10px auto;display:grid;grid-template-columns:320px 1fr;gap:18px;min-height:78vh}
-.header{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:14px;border-radius:12px;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:var(--card-shadow);border:1px solid rgba(255,255,255,0.03)}
-.brand{display:flex;gap:12px;align-items:center}
-.brand img{width:56px;height:56px;border-radius:10px;object-fit:cover;box-shadow:0 6px 18px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.03)}
-.brand .title{font-weight:900;color:var(--gold);font-size:1.15rem}
-.header .controls{display:flex;gap:10px;align-items:center}
+/* ---------- animated 3D aurora background ---------- */
+.bg{position:fixed;inset:0;z-index:-2;overflow:hidden;background:
+  radial-gradient(1200px 800px at 15% -10%, #1a1f36 0%, transparent 55%),
+  radial-gradient(1000px 700px at 95% 0%, #23182f 0%, transparent 50%),
+  linear-gradient(180deg,#0a0b0f 0%, #06070b 100%);}
+.orb{position:absolute;border-radius:50%;filter:blur(60px);opacity:.5;mix-blend-mode:screen;animation:float 18s ease-in-out infinite}
+.orb.o1{width:520px;height:520px;background:radial-gradient(circle at 30% 30%,#c8a951,#6b4f18 60%,transparent);top:-120px;right:-80px;animation-delay:0s}
+.orb.o2{width:460px;height:460px;background:radial-gradient(circle at 30% 30%,#7fd7e0,#173b3e 60%,transparent);bottom:-140px;left:-100px;animation-delay:-6s}
+.orb.o3{width:380px;height:380px;background:radial-gradient(circle at 30% 30%,#8b7bff,#221a4a 60%,transparent);top:40%;left:45%;animation-delay:-11s}
+@keyframes float{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(-30px,40px) scale(1.08)}66%{transform:translate(40px,-30px) scale(.94)}}
+.grid-lines{position:fixed;inset:0;z-index:-1;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:46px 46px;mask-image:radial-gradient(circle at 50% 30%,#000 0%,transparent 75%)}
 
-/* sidebar */
-.sidebar{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,0.02)}
-.hint{color:var(--muted);margin-bottom:12px}
-.categories{display:grid;gap:10px;max-height:68vh;overflow:auto;padding-right:6px}
-.cat{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));cursor:pointer;border:1px solid rgba(255,255,255,0.02)}
-.cat .left{display:flex;gap:10px;align-items:center}
-.cat .icon{width:46px;height:46px;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,0.01),rgba(255,255,255,0.02));display:grid;place-items:center;color:var(--muted);font-weight:800}
-.cat:hover{transform:translateY(-6px);box-shadow:0 30px 70px rgba(0,0,0,0.6)}
+/* ---------- layout ---------- */
+.wrap{max-width:1280px;margin:0 auto;padding:18px 18px 60px}
+.header{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 18px;border-radius:var(--r);
+  background:linear-gradient(120deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid var(--stroke);
+  box-shadow:var(--shadow-soft);backdrop-filter:blur(14px);position:sticky;top:12px;z-index:50}
+.brand{display:flex;gap:14px;align-items:center}
+.brand .logo{width:52px;height:52px;border-radius:14px;object-fit:cover;border:1px solid var(--stroke-2);box-shadow:0 8px 24px rgba(0,0,0,.6)}
+.brand .t1{font-weight:900;font-size:1.12rem;letter-spacing:.3px;background:linear-gradient(90deg,var(--gold-2),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand .t2{color:var(--muted);font-size:.8rem}
+.hcontrols{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;font-weight:800;font-size:.82rem;
+  border:1px solid var(--stroke-2);background:rgba(255,255,255,.04)}
+.badge.free{color:var(--accent)}
+.badge.pro{color:#081217;background:linear-gradient(90deg,var(--gold),var(--gold-2));border:none}
+.dot{width:8px;height:8px;border-radius:50%;background:currentColor;box-shadow:0 0 10px currentColor}
 
-/* main */
-.main{padding:16px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));box-shadow:var(--card-shadow);border:1px solid rgba(255,255,255,0.02)}
-.top{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:18px}
-.bot{display:flex;gap:14px;align-items:center}
-.bot-card{width:180px;border-radius:12px;padding:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));box-shadow:0 10px 40px rgba(0,0,0,0.6);display:grid;place-items:center}
-.bot-card img{width:100%;height:auto;border-radius:8px;display:block}
-.speech{padding:10px 12px;border-radius:12px;background:linear-gradient(90deg,var(--gold),var(--gold-2));color:#081217;font-weight:800;max-width:60%;box-shadow:0 6px 30px rgba(200,169,81,0.08)}
-.meta{color:var(--muted);font-size:0.95rem;margin-top:8px}
+/* buttons */
+.btn{position:relative;padding:11px 18px;border-radius:14px;border:1px solid var(--stroke-2);font-weight:800;cursor:pointer;
+  color:var(--text);background:rgba(255,255,255,.05);transition:transform .12s ease,box-shadow .2s ease,background .2s;font-size:.92rem}
+.btn:hover{transform:translateY(-2px);box-shadow:0 14px 30px -10px rgba(0,0,0,.7)}
+.btn:active{transform:translateY(1px)}
+.btn.sm{padding:8px 13px;font-size:.82rem;border-radius:11px}
+.btn.primary{background:linear-gradient(90deg,var(--gold),var(--gold-2));color:#0a0a0a;border:none;box-shadow:0 10px 28px -8px rgba(216,180,90,.5)}
+.btn.accent{background:linear-gradient(90deg,var(--accent),#57bfc9);color:#04222a;border:none}
+.btn.ghost{background:transparent;color:var(--muted)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
 
-/* card & options */
-.card{padding:18px;border-radius:12px;background:linear-gradient(180deg, rgba(0,0,0,0.25), rgba(255,255,255,0.02))}
-.options{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:12px}
-.opt{padding:12px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));cursor:pointer;border:1px solid rgba(255,255,255,0.02);display:flex;justify-content:space-between;align-items:center}
-.opt.selected{box-shadow:0 20px 60px rgba(200,169,81,0.08);border:1px solid rgba(200,169,81,0.12)}
-.controls{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+/* hero */
+.hero{margin-top:22px;text-align:center;padding:22px 10px 6px}
+.hero h1{font-size:clamp(1.7rem,4.4vw,3rem);font-weight:900;line-height:1.25;letter-spacing:-.5px}
+.hero h1 .g{background:linear-gradient(90deg,var(--gold-2),var(--gold),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--muted);max-width:640px;margin:12px auto 0;font-size:1rem}
+.hero .steps{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+.chip{padding:7px 14px;border-radius:999px;border:1px solid var(--stroke);background:var(--panel);font-size:.82rem;color:var(--muted)}
+.chip b{color:var(--gold-2)}
 
-/* buttons 3D */
-.btn{padding:10px 16px;border-radius:12px;border:none;font-weight:800;cursor:pointer;transform-style:preserve-3d;box-shadow:0 10px 30px rgba(0,0,0,0.6)}
-.btn:active{transform:translateY(6px)}
-.btn.primary{background:linear-gradient(90deg,var(--gold),var(--gold-2));color:#081217}
-.btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.03);color:var(--muted)}
-.btn.small{padding:8px 10px;border-radius:10px;font-size:0.95rem}
+/* stage container */
+.stage{margin-top:26px}
+.card{background:linear-gradient(160deg,rgba(255,255,255,.055),rgba(255,255,255,.02));border:1px solid var(--stroke);
+  border-radius:var(--r-lg);box-shadow:var(--shadow);backdrop-filter:blur(16px);padding:22px;position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;inset:0;background:radial-gradient(600px 200px at 80% -30%,rgba(216,180,90,.10),transparent);pointer-events:none}
+.section-title{font-weight:900;font-size:1.15rem;display:flex;align-items:center;gap:10px}
+.section-sub{color:var(--muted);font-size:.9rem;margin-top:4px}
 
-/* outputs */
-.output{margin-top:14px;padding:12px;border-radius:10px;background:rgba(255,255,255,0.02);font-family:monospace;white-space:pre-wrap;max-height:320px;overflow:auto}
+/* categories grid */
+.cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:20px}
+.cat{position:relative;padding:16px 14px;border-radius:18px;cursor:pointer;text-align:center;
+  background:linear-gradient(165deg,rgba(255,255,255,.06),rgba(255,255,255,.015));border:1px solid var(--stroke);
+  transition:transform .18s cubic-bezier(.2,.8,.2,1),box-shadow .25s,border-color .2s;transform-style:preserve-3d}
+.cat:hover{transform:translateY(-8px) rotateX(6deg);box-shadow:0 26px 50px -20px rgba(0,0,0,.8),0 0 0 1px rgba(216,180,90,.25);border-color:rgba(216,180,90,.3)}
+.cat .emoji{font-size:1.9rem;display:block;filter:drop-shadow(0 6px 10px rgba(0,0,0,.5))}
+.cat .name{margin-top:8px;font-weight:800;font-size:.92rem}
+.cat .meta{color:var(--muted);font-size:.72rem;margin-top:2px}
+.cat.selected{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 24px 50px -22px rgba(216,180,90,.6)}
 
-/* pro cards */
-.pro-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:12px}
-.pro-card{padding:14px;border-radius:12px;color:#081217;display:flex;flex-direction:column;gap:8px;min-height:110px;background:linear-gradient(180deg,var(--gold),var(--gold-2))}
+.search{width:100%;padding:13px 16px;border-radius:14px;background:rgba(0,0,0,.25);border:1px solid var(--stroke);
+  color:var(--text);font-size:.95rem;margin-top:16px}
+.search::placeholder{color:var(--muted)}
+.search:focus{outline:none;border-color:var(--gold)}
 
-/* admin modal */
-.modal{position:fixed;inset:0;display:grid;place-items:center;background:rgba(0,0,0,0.6);z-index:999}
-.panel{background:linear-gradient(180deg, #071116, #0b1214);padding:18px;border-radius:12px;width:720px;max-width:94%}
-.input{width:100%;padding:10px;border-radius:10px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03);color:var(--muted);margin-top:8px}
-.row{display:flex;gap:8px;align-items:center}
+/* interview */
+.interview{display:grid;grid-template-columns:250px 1fr;gap:20px}
+.side{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid var(--stroke);
+  border-radius:22px;padding:18px;display:flex;flex-direction:column;gap:14px;height:fit-content;position:sticky;top:90px}
+.bot{position:relative;width:100%;aspect-ratio:1/1.15;border-radius:18px;overflow:hidden;border:1px solid var(--stroke);
+  background:radial-gradient(circle at 50% 20%,rgba(127,215,224,.18),transparent 60%)}
+.bot img{width:100%;height:100%;object-fit:cover;animation:botfloat 5s ease-in-out infinite}
+.bot .glow{position:absolute;inset:0;box-shadow:inset 0 -60px 60px -30px rgba(216,180,90,.35)}
+@keyframes botfloat{0%,100%{transform:translateY(0) scale(1.0)}50%{transform:translateY(-8px) scale(1.02)}}
+.bot-fallback{display:grid;place-items:center;font-size:3.4rem;height:100%}
+.ring-wrap{display:flex;align-items:center;gap:12px}
+.ring{--p:0;width:64px;height:64px;border-radius:50%;flex:0 0 auto;
+  background:conic-gradient(var(--gold) calc(var(--p)*1%),rgba(255,255,255,.08) 0);display:grid;place-items:center}
+.ring::before{content:"";position:absolute;width:48px;height:48px;border-radius:50%;background:#0d0f16}
+.ring b{position:relative;font-size:.82rem;font-weight:900}
+.ring-txt{font-size:.82rem;color:var(--muted)}
+.ring-txt b{color:var(--text);display:block;font-size:.95rem}
 
-/* responsive */
-@media (max-width:980px){ .container{grid-template-columns:1fr} .bot-card{width:140px} .speech{max-width:100%} }
+.speech{background:linear-gradient(90deg,var(--gold),var(--gold-2));color:#0a0a0a;padding:11px 13px;border-radius:14px;
+  font-weight:700;font-size:.88rem;position:relative;box-shadow:0 10px 24px -12px rgba(216,180,90,.7)}
+.speech .who{font-weight:900;font-size:.82rem;margin-bottom:2px}
+
+.qpanel{min-height:340px;display:flex;flex-direction:column}
+.qhead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.qnum{color:var(--gold-2);font-weight:900;font-size:.85rem}
+.qtext{font-weight:900;font-size:1.28rem;margin-top:6px;line-height:1.5}
+.qhint{color:var(--muted);font-size:.86rem;margin-top:6px}
+.opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:11px;margin-top:18px}
+.opt{padding:14px 15px;border-radius:14px;cursor:pointer;border:1px solid var(--stroke);
+  background:linear-gradient(165deg,rgba(255,255,255,.05),rgba(255,255,255,.015));font-weight:700;font-size:.92rem;
+  transition:transform .14s,border-color .2s,box-shadow .2s;display:flex;align-items:center;gap:10px}
+.opt:hover{transform:translateY(-3px);border-color:rgba(216,180,90,.4)}
+.opt .tick{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--stroke-2);flex:0 0 auto;display:grid;place-items:center;font-size:.7rem;color:transparent}
+.opt.selected{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
+.opt.selected .tick{background:var(--gold);border-color:var(--gold);color:#0a0a0a}
+.freeinput{width:100%;margin-top:16px;padding:14px 16px;border-radius:14px;background:rgba(0,0,0,.28);border:1px solid var(--stroke);
+  color:var(--text);font-size:.95rem;min-height:56px;resize:vertical;line-height:1.7}
+.freeinput:focus{outline:none;border-color:var(--gold)}
+.multi-note{color:var(--muted);font-size:.78rem;margin-top:10px}
+
+.nav{display:flex;justify-content:space-between;gap:10px;margin-top:auto;padding-top:22px}
+
+/* result */
+.result-grid{display:grid;grid-template-columns:1fr;gap:16px}
+.prompt-box{background:#07080d;border:1px solid var(--stroke);border-radius:18px;padding:18px 18px;position:relative}
+.prompt-box pre{white-space:pre-wrap;word-break:break-word;font-family:'Vazirmatn',ui-monospace,monospace;font-size:.92rem;line-height:1.85;color:#e8ecf5;max-height:52vh;overflow:auto}
+.prompt-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+.tag{display:inline-block;padding:5px 11px;border-radius:999px;background:rgba(216,180,90,.12);color:var(--gold-2);font-size:.76rem;font-weight:700;border:1px solid rgba(216,180,90,.25);margin:0 0 0 6px}
+
+/* pro grid */
+.pro-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:16px}
+.pro-card{padding:16px;border-radius:16px;border:1px solid var(--stroke);background:linear-gradient(165deg,rgba(255,255,255,.05),rgba(255,255,255,.015))}
+.pro-card .pi{font-size:1.5rem}
+.pro-card h4{margin-top:8px;font-size:.95rem}
+.pro-card p{color:var(--muted);font-size:.82rem;margin-top:4px}
+.pro-card.locked{opacity:.55}
+.pro-card .lock{float:left;font-size:.9rem}
+
+/* select */
+.field{margin-top:14px}
+.field label{font-size:.85rem;color:var(--muted);font-weight:700}
+.field select,.field input{width:100%;margin-top:6px;padding:12px 14px;border-radius:12px;background:rgba(0,0,0,.25);
+  border:1px solid var(--stroke);color:var(--text);font-size:.92rem}
+.field select:focus,.field input:focus{outline:none;border-color:var(--gold)}
+
+/* modal */
+.modal{position:fixed;inset:0;z-index:200;display:none;place-items:center;background:rgba(3,4,8,.72);backdrop-filter:blur(6px);padding:18px}
+.modal.open{display:grid}
+.panel{width:640px;max-width:100%;max-height:88vh;overflow:auto;background:linear-gradient(180deg,#0e121c,#0a0c13);
+  border:1px solid var(--stroke-2);border-radius:22px;padding:22px;box-shadow:var(--shadow)}
+.panel h3{font-size:1.15rem;font-weight:900}
+.panel .close{float:left}
+.codeitem{padding:11px 12px;border-radius:12px;border:1px solid var(--stroke);margin-top:8px;display:flex;justify-content:space-between;align-items:center;gap:10px;background:rgba(255,255,255,.02)}
+.codeitem .c{font-family:ui-monospace,monospace;font-weight:800;letter-spacing:1px}
+.codeitem .m{color:var(--muted);font-size:.76rem}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(30px);background:#12151f;border:1px solid var(--stroke-2);
+  color:var(--text);padding:12px 20px;border-radius:14px;font-weight:700;z-index:300;opacity:0;transition:.3s;box-shadow:var(--shadow)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.ok{border-color:rgba(90,209,160,.5)}
+.toast.err{border-color:rgba(240,106,106,.5)}
+
+.footer{text-align:center;color:var(--muted);font-size:.8rem;margin-top:40px}
+.hidden{display:none!important}
+
+@media (max-width:900px){
+  .interview{grid-template-columns:1fr}
+  .side{flex-direction:row;position:static;align-items:center;flex-wrap:wrap}
+  .bot{width:120px;aspect-ratio:1/1.1}
+}
 </style>
 </head>
 <body>
-<div class="container">
-  <div class="header">
+<div class="bg"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div></div>
+<div class="grid-lines"></div>
+
+<div class="wrap">
+  <!-- HEADER -->
+  <header class="header">
     <div class="brand">
-      <img id="logo" src="/assets/img/LOGO.jpg" alt="logo" onerror="this.style.display='none'">
+      <img class="logo" src="assets/img/logo.jpg" alt="logo" onerror="this.style.display='none'">
       <div>
-        <div class="title" id="siteTitle">EASY PROMPT AI – PRO</div>
-        <div style="color:var(--muted);font-size:0.9rem">نسخه حرفه‌ای — حالت تیره و طلایی</div>
+        <div class="t1">EASY PROMPT AI</div>
+        <div class="t2">سازندهٔ پرامپت حرفه‌ای برای هر هوش مصنوعی</div>
       </div>
     </div>
-    <div class="controls">
-      <div style="color:var(--muted);font-weight:700" id="modeBadge">نسخه Pro</div>
-      <button class="btn small ghost" id="openCode">وارد کردن کد</button>
-      <button class="btn small ghost" id="openAdmin">ورود مدیر</button>
+    <div class="hcontrols">
+      <span class="badge free" id="planBadge"><span class="dot"></span> نسخهٔ رایگان</span>
+      <button class="btn sm ghost" id="btnHome">خانه</button>
+      <button class="btn sm" id="btnCode">🔑 کد فعال‌سازی</button>
+      <button class="btn sm ghost" id="btnAdmin">مدیریت</button>
     </div>
-  </div>
+  </header>
 
-  <aside class="sidebar">
-    <div class="hint">انتخاب سرفصل — روی یکی کلیک کن</div>
-    <div class="categories" id="categories"></div>
-    <div style="margin-top:12px;color:var(--muted);font-size:0.9rem">
-      در حالت Pro امکانات پیشرفته فعال است. برای دسترسی مدیریت از «ورود مدیر» استفاده کن.
+  <!-- HERO / HOME -->
+  <section id="viewHome">
+    <div class="hero">
+      <h1>در چند دقیقه، <span class="g">حرفه‌ای‌ترین پرامپت</span> را بساز</h1>
+      <p>یک موضوع را انتخاب کن، به ۲۰ پرسش هوشمند پاسخ بده و یک پرامپت دقیق، ساختاریافته و آمادهٔ استفاده — به هر زبانی که بخواهی — تحویل بگیر.</p>
+      <div class="steps">
+        <span class="chip"><b>۱.</b> انتخاب موضوع</span>
+        <span class="chip"><b>۲.</b> پاسخ به ۲۰ سؤال</span>
+        <span class="chip"><b>۳.</b> دریافت پرامپت حرفه‌ای</span>
+      </div>
     </div>
-  </aside>
 
-  <main class="main">
-    <div class="top">
-      <div class="bot">
-        <div class="bot-card">
-          <img id="dr" src="/assets/img/Dr Bot.png" alt="Dr Prompto" onerror="this.style.display='none'">
-        </div>
-        <div>
-          <div class="speech" id="speechBubble">
-            <div style="font-weight:900">🤖 دکتر پرومپتو</div>
-            <div id="speechText">سلام! روی یک سرفصل کلیک کن تا سوالاتش نمایش داده بشه.</div>
+    <div class="stage">
+      <div class="card">
+        <div class="section-title">🎯 موضوع پرامپت را انتخاب کن</div>
+        <div class="section-sub">هر موضوع، مجموعه‌ای از پرسش‌های تخصصی خودش را دارد که بر اساس پاسخ‌های تو شاخه‌شاخه می‌شوند.</div>
+        <input class="search" id="catSearch" placeholder="🔍 جستجوی موضوع… (مثلاً: طراحی تصویر، برنامه‌نویسی، بازاریابی)">
+        <div class="cats" id="cats"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INTERVIEW -->
+  <section id="viewInterview" class="stage hidden">
+    <div class="card">
+      <div class="interview">
+        <aside class="side">
+          <div class="bot">
+            <img src="assets/img/dr bot.png" alt="Dr Prompto" onerror="this.parentNode.innerHTML='<div class=&quot;bot-fallback&quot;>🤖</div>'">
+            <div class="glow"></div>
           </div>
-          <div class="meta">پیشرفت: <span id="progress">۰ / ۲۰</span></div>
+          <div class="ring-wrap">
+            <div class="ring" id="ring" style="position:relative"><b id="ringNum">0</b></div>
+            <div class="ring-txt"><b id="ringLabel">۰ از ۲۰</b>پیشرفت مصاحبه</div>
+          </div>
+          <div class="speech"><div class="who">🤖 دکتر پرومپتو</div><div id="speech">بزن بریم! هر پاسخ دقیق‌تر = پرامپت قوی‌تر.</div></div>
+          <div style="color:var(--muted);font-size:.8rem">موضوع: <b id="sideCat" style="color:var(--text)">—</b></div>
+        </aside>
+
+        <div class="qpanel">
+          <div class="qhead">
+            <div style="flex:1">
+              <div class="qnum" id="qNum">سؤال ۱ از ۲۰</div>
+              <div class="qtext" id="qText">…</div>
+              <div class="qhint" id="qHint"></div>
+            </div>
+          </div>
+          <div class="opts" id="opts"></div>
+          <textarea class="freeinput hidden" id="freeInput" placeholder="پاسخت را اینجا بنویس…"></textarea>
+          <div class="multi-note hidden" id="multiNote">✔ می‌توانی چند گزینه را انتخاب کنی.</div>
+
+          <div class="nav">
+            <button class="btn ghost" id="btnPrev">◀ قبلی</button>
+            <button class="btn primary" id="btnNext">بعدی ▶</button>
+          </div>
         </div>
-      </div>
-      <div style="text-align:left">
-        <div style="font-weight:800">سرفصل انتخاب شده: <span id="selCat">هیچ‌کدام</span></div>
-        <div style="color:var(--muted);font-size:0.95rem">کل سوالات: <span id="totalQs">0</span></div>
       </div>
     </div>
+  </section>
 
-    <section class="card">
-      <div style="font-weight:900;margin-bottom:6px" id="qTitle">انتخاب سرفصل برای نمایش سوالات</div>
-      <div style="color:var(--muted);margin-bottom:12px" id="qDesc">بعد از انتخاب سرفصل، سوالات پایه + در نسخه پرو سوالات تخصصی نمایش داده می‌شود.</div>
+  <!-- RESULT -->
+  <section id="viewResult" class="stage hidden">
+    <div class="card">
+      <div class="section-title">✨ پرامپت حرفه‌ای تو آماده است</div>
+      <div class="section-sub">این پرامپت را کپی کن و در ChatGPT، Claude، Gemini، Midjourney یا هر ابزار دیگری بچسبان.</div>
 
-      <div class="options" id="options"></div>
-
-      <div class="controls" style="margin-top:14px">
-        <button class="btn ghost" id="prev" disabled>قبلی</button>
-        <button class="btn primary" id="next" disabled>بعدی</button>
+      <div class="field" style="max-width:360px">
+        <label>زبان خروجی پرامپت</label>
+        <select id="langSel"></select>
       </div>
 
-      <div class="output" id="promptOut" style="display:none"></div>
-
-      <div class="pro-area" id="proArea" style="margin-top:16px">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div style="font-weight:900;color:var(--muted)">✨ قابلیت‌های نسخه Pro</div>
-          <div style="color:var(--muted);font-size:0.95rem">Pro فعال — امکانات حرفه‌ای</div>
+      <div class="result-grid" style="margin-top:16px">
+        <div class="prompt-box">
+          <div id="promptTags"></div>
+          <pre id="promptOut"></pre>
         </div>
+      </div>
+      <div class="prompt-actions">
+        <button class="btn primary" id="btnCopy">📋 کپی پرامپت</button>
+        <button class="btn accent" id="btnDownload">⬇ دانلود (.md)</button>
+        <button class="btn" id="btnRestart">🔄 ساخت پرامپت جدید</button>
+        <button class="btn ghost" id="btnEdit">✏ ویرایش پاسخ‌ها</button>
+      </div>
+
+      <div style="margin-top:26px">
+        <div class="section-title" style="font-size:1.02rem">🚀 امکانات نسخهٔ حرفه‌ای (Pro)</div>
         <div class="pro-grid" id="proGrid"></div>
       </div>
-    </section>
-  </main>
+    </div>
+  </section>
+
+  <div class="footer">© EASY PROMPT AI — نسخهٔ نمایشی. موتور آفلاین، بدون نیاز به اینترنت. طراحی‌شده برای فروش اکانت در فاز بعد.</div>
 </div>
 
-<!-- Modal: Enter Code -->
-<div id="codeModal" class="modal" style="display:none">
-  <div class="panel" role="dialog" aria-modal="true">
-    <div style="font-weight:900">وارد کردن کد فعال‌سازی</div>
-    <input id="inputCode" class="input" placeholder="کد فعال‌سازی را وارد کنید">
-    <div style="display:flex;gap:8px;margin-top:10px;justify-content:flex-end">
-      <button class="btn ghost" id="closeCode">لغو</button>
-      <button class="btn primary" id="submitCode">ثبت و فعال‌سازی</button>
+<!-- CODE MODAL -->
+<div class="modal" id="codeModal">
+  <div class="panel">
+    <h3>🔑 فعال‌سازی نسخهٔ حرفه‌ای <button class="btn sm ghost close" data-close>بستن</button></h3>
+    <p style="color:var(--muted);font-size:.9rem;margin-top:8px">کد فعال‌سازی خود را وارد کن تا امکانات Pro باز شود.</p>
+    <div class="field"><label>کد فعال‌سازی</label><input id="codeInput" placeholder="مثلاً 482910375641" autocomplete="off"></div>
+    <div class="nav" style="margin-top:16px">
+      <button class="btn ghost" data-close>انصراف</button>
+      <button class="btn primary" id="codeSubmit">فعال‌سازی</button>
     </div>
-    <div style="color:var(--muted);font-size:0.9rem;margin-top:8px">کد مدیر: <b>liana1392</b> (پیش‌فرض)</div>
   </div>
 </div>
 
-<!-- Modal: Admin -->
-<div id="adminModal" class="modal" style="display:none">
+<!-- ADMIN MODAL -->
+<div class="modal" id="adminModal">
   <div class="panel">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <div style="font-weight:900">پنل مدیریت</div>
-      <button class="btn ghost" id="closeAdmin">بستن</button>
+    <h3>🛠 پنل مدیریت <button class="btn sm ghost close" data-close>بستن</button></h3>
+
+    <div id="adminLogin">
+      <p style="color:var(--muted);font-size:.9rem;margin-top:8px">برای ورود، کد مدیر را وارد کن.</p>
+      <div class="field"><label>کد مدیر</label><input id="adminPass" type="password" placeholder="کد مدیر"></div>
+      <div class="nav" style="margin-top:14px">
+        <span style="align-self:center;color:var(--muted);font-size:.78rem">پیش‌فرض: liana1392</span>
+        <button class="btn primary" id="adminLoginBtn">ورود</button>
+      </div>
     </div>
 
-    <div id="adminArea" style="margin-top:12px;display:none">
-      <div style="font-weight:800">تولید کد جدید</div>
-      <div style="display:flex;gap:8px;margin-top:8px">
-        <button class="btn small primary" id="genMaster">تولید کد اصلی ۱۲ کاراکتری (حروف کوچک+اعداد)</button>
-        <button class="btn small primary" id="genFamily">تولید کد خانوادگی ۱۲ رقمی (اعداد)</button>
+    <div id="adminPanel" class="hidden">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+        <button class="btn sm primary" id="genFamily">➕ کد اشتراک (۱۲ رقمی — ۳ ماهه)</button>
+        <button class="btn sm accent" id="genLifetime">➕ کد دائمی (۱۲ حرفی)</button>
       </div>
-      <div style="margin-top:10px">
-        <div style="font-weight:800">لیست کدها</div>
-        <div id="codeList" style="margin-top:6px;color:var(--muted);max-height:200px;overflow:auto"></div>
-      </div>
-
-      <div style="margin-top:12px">
-        <div style="font-weight:800">تغییر کد مدیر</div>
-        <input id="newMaster" class="input" placeholder="کد جدید مدیر (۱۲ کاراکتر، حروف کوچک+اعداد)">
-        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
-          <button class="btn ghost" id="saveMaster">ذخیره کد مدیر</button>
+      <div class="field"><label>تغییر کد مدیر (۱۲ کاراکتر)</label>
+        <div style="display:flex;gap:8px">
+          <input id="newMaster" placeholder="کد مدیر جدید">
+          <button class="btn sm" id="saveMaster">ذخیره</button>
         </div>
       </div>
-      <div style="margin-top:12px;color:var(--muted)">توجه: تغییر کد مدیر نیاز به ورود اولیه با کد فعلی دارد.</div>
-    </div>
-
-    <div id="adminLoginArea" style="margin-top:12px">
-      <div style="font-weight:800">ورود مدیر</div>
-      <input id="adminCodeInput" class="input" placeholder="کد مدیر را وارد کنید">
-      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
-        <button class="btn ghost" id="tryAdmin">ورود</button>
-      </div>
-      <div id="adminMsg" style="color:var(--muted);margin-top:8px"></div>
+      <div style="margin-top:16px;font-weight:800">کدهای صادرشده <span class="m" id="codeCount" style="color:var(--muted);font-weight:400"></span></div>
+      <div id="codeList" style="margin-top:6px;max-height:280px;overflow:auto"></div>
+      <p style="color:var(--muted);font-size:.76rem;margin-top:14px">⚠ توجه: این نسخهٔ نمایشی داده‌ها را در مرورگر (localStorage) نگه می‌دارد. برای فروش واقعی و اعتبارسنجی امن، در فاز بعد به یک سرور/دیتابیس متصل می‌شود.</p>
     </div>
   </div>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
-/* ==========================
-   تنظیمات اولیه و داده‌ها
-   ========================== */
+"use strict";
+/* ============================================================
+   EASY PROMPT AI — offline adaptive prompt engine
+   ============================================================ */
 
-// Default master code (initial) — can be changed by admin
-const DEFAULT_MASTER = "liana1392";
-const MASTER_KEY = "ep_master_code"; // localStorage key for master code
-const CODES_KEY = "ep_codes";        // localStorage key for stored codes (array)
-const ACTIVATIONS_KEY = "ep_activations"; // activations per IP/device
-
-// load or initialize master code
-function getMasterCode(){
-  return localStorage.getItem(MASTER_KEY) || DEFAULT_MASTER;
-}
-function setMasterCode(c){ localStorage.setItem(MASTER_KEY, c); }
-
-// codes structure: [{code: "123...", type:"family"|"master"|"custom", createdAt:ts, expiresAt: ts|null, note:""}]
-function loadCodes(){ try{ return JSON.parse(localStorage.getItem(CODES_KEY) || "[]"); }catch(e){ return []; } }
-function saveCodes(arr){ localStorage.setItem(CODES_KEY, JSON.stringify(arr)); }
-
-// activations: [{code: "xxx", ip:"1.2.3.4", activatedAt:ts, expiresAt:ts}]
-function loadActivations(){ try{ return JSON.parse(localStorage.getItem(ACTIVATIONS_KEY) || "[]"); }catch(e){ return []; } }
-function saveActivations(arr){ localStorage.setItem(ACTIVATIONS_KEY, JSON.stringify(arr)); }
-
-/* ==========================
-   تولید کدها
-   ========================== */
-function randMasterCode(){
-  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-  let s=''; for(let i=0;i<12;i++) s+=chars.charAt(Math.floor(Math.random()*chars.length));
-  return s;
-}
-function randFamilyCode(){
-  const digits='0123456789';
-  let s=''; for(let i=0;i<12;i++) s+=digits.charAt(Math.floor(Math.random()*digits.length));
-  return s;
-}
-function addCode(code, type, months=3, note=""){
-  const now = Date.now();
-  const expires = (type==="family") ? new Date(now).setMonth(new Date(now).getMonth()+months) : null;
-  const arr = loadCodes();
-  arr.unshift({code, type, createdAt: now, expiresAt: expires, note});
-  saveCodes(arr);
-  return arr;
-}
-
-/* ==========================
-   بررسی و فعال‌سازی کد
-   ========================== */
-// Try to get public IP (best-effort). If fails, use "local" fingerprint.
-async function getPublicIP(){
-  try{
-    const res = await fetch("https://api.ipify.org?format=json");
-    if(!res.ok) throw new Error("no ip");
-    const j = await res.json();
-    return j.ip;
-  }catch(e){
-    // fallback: approximate by userAgent hash
-    return "local-"+(navigator.userAgent||"unknown").slice(0,80);
-  }
-}
-
-async function activateWithCode(inputCode){
-  const codes = loadCodes();
-  const master = getMasterCode();
-  const now = Date.now();
-
-  // direct master code check (explicit master in storage or default)
-  if(inputCode === master || inputCode === DEFAULT_MASTER){
-    // mark permanent activation for this client (local)
-    const acts = loadActivations();
-    acts.push({code: inputCode, ip: await getPublicIP(), activatedAt: now, expiresAt: null, permanent:true});
-    saveActivations(acts);
-    localStorage.setItem("ep_pro_active","true");
-    return {ok:true, message:"نسخه Pro به صورت دائمی فعال شد (کد مدیر)." };
-  }
-
-  // find code in stored codes
-  const found = codes.find(c=>c.code === inputCode);
-  if(!found){
-    return {ok:false, message:"کد معتبر یافت نشد."};
-  }
-
-  if(found.type === "family" || found.type === "custom"){
-    // check expiry of the code itself (if set)
-    if(found.expiresAt && Date.now() > found.expiresAt){
-      return {ok:false, message:"این کد منقضی شده است."};
-    }
-    // register activation for this IP and set expiry 3 months from now (per requirement)
-    const ip = await getPublicIP();
-    const activatedAt = now;
-    const expiresAt = new Date(activatedAt).setMonth(new Date(activatedAt).getMonth()+3);
-    const acts = loadActivations();
-    acts.push({code: inputCode, ip, activatedAt, expiresAt, permanent:false});
-    saveActivations(acts);
-    localStorage.setItem("ep_pro_active","true");
-    return {ok:true, message:"نسخه Pro تا سه ماه (از این IP) فعال شد."};
-  }
-
-  return {ok:false, message:"کد قابل استفاده نیست."};
-}
-
-/* ==========================
-   چک فعال بودن Pro
-   ========================== */
-async function checkProActive(){
-  // if local flag set (from previous), still must check expiry for family codes
-  const proLocal = localStorage.getItem("ep_pro_active") === "true";
-  if(!proLocal) return false;
-  // check activations array for any non-expired activation for this IP or permanent
-  const acts = loadActivations();
-  if(acts.length===0) return false;
-  const ip = await getPublicIP();
-  const now = Date.now();
-  for(const a of acts){
-    if(a.permanent) return true;
-    if(a.ip === ip && (!a.expiresAt || now <= a.expiresAt)) return true;
-  }
-  // nothing valid
-  localStorage.removeItem("ep_pro_active");
-  return false;
-}
-
-/* ==========================
-   UI / DOM Binding
-   ========================== */
-const CATS = ["نویسندگی","طراحی و ساخت تصویر","ساخت و تدوین ویدئو","ساخت انیمیشن","طراحی معماری داخلی و خارجی",
-"طراحی سازه","روانشناسی","سرمایه‌گذاری","امور مالی","پزشکی","گردشگری","دانش‌آموزی","دانشجویی","سلامت",
-"چاقی و لاغری","ورزش","سرگرمی","بازی","تولید محتوا","شبکه‌های اجتماعی","حیوانات","زبان‌شناسی","آموزش",
-"IT","کامپیوتر","برنامه‌نویسی","مد و فشن","عکاسی","وسیله نقلیه","تعمیرات","کاردستی و خلاقیت","ایده‌پردازی",
-"کسب درآمد","غذا","خوردنی و نوشیدنی","تحقیق","نویسندگی تخصصی","مشاوره"];
-
-// DOM refs
-const categoriesEl = document.getElementById('categories');
-const optionsEl = document.getElementById('options');
-const qTitle = document.getElementById('qTitle');
-const qDesc = document.getElementById('qDesc');
-const selCat = document.getElementById('selCat');
-const totalQs = document.getElementById('totalQs');
-const progressEl = document.getElementById('progress');
-const speechText = document.getElementById('speechText');
-const proArea = document.getElementById('proArea');
-const proGrid = document.getElementById('proGrid');
-const modeBadge = document.getElementById('modeBadge');
-
-// build categories list (cards)
-CATS.forEach((c,i)=>{
-  const d = document.createElement('div');
-  d.className='cat';
-  d.innerHTML = `<div class="left"><div class="icon">${c.substring(0,2)}</div><div><div style="font-weight:800">${c}</div><div style="color:var(--muted);font-size:0.85rem">۲۰ سوال</div></div></div>`;
-  d.onclick = ()=> selectCategory(c,d);
-  categoriesEl.appendChild(d);
-});
-
-let state = {cat:null,qIndex:0,questions:[],isPro:true,answers:[]};
-function generateQuestions(cat){ const arr=[]; for(let i=1;i<=20;i++) arr.push(`${cat} — سوال پایه شماره ${i}`); return arr; }
-function selectCategory(c,el){
-  document.querySelectorAll('.cat').forEach(x=>x.classList.remove('active'));
-  el.classList.add('active');
-  state.cat=c; state.qIndex=0; state.questions = generateQuestions(c);
-  selCat.textContent = c; totalQs.textContent = state.questions.length + (state.isPro ? 20 : 0);
-  renderQuestion();
-  animateDr();
-}
-function renderQuestion(){
-  const total = state.questions.length + (state.isPro ? 20 : 0);
-  const q = state.qIndex < state.questions.length ? state.questions[state.qIndex] : `سوال پرو شماره ${state.qIndex - state.questions.length + 1}`;
-  qTitle.textContent = q;
-  qDesc.textContent = "یک گزینه انتخاب کن یا پاسخ بنویس.";
-  optionsEl.innerHTML = '';
-  const opts = ['بله','خیر','توضیح بیشتر','نیاز به مثال'];
-  opts.forEach(o=>{
-    const b = document.createElement('div'); b.className='opt'; b.innerHTML = `<div>${o}</div><div style="color:var(--muted)">✓</div>`;
-    b.onclick = ()=>{ document.querySelectorAll('.opt').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); state.answers[state.qIndex]=o; };
-    optionsEl.appendChild(b);
-  });
-  document.getElementById('prev').disabled = state.qIndex===0;
-  document.getElementById('next').disabled = false;
-  updateProgress();
-}
-function updateProgress(){ const total = state.questions.length + (state.isPro ? 20 : 0); progressEl.textContent = `${Math.min(state.qIndex+1,total)} / ${total}`; }
-
-// next/prev
-document.getElementById('next').onclick = ()=>{ const total = state.questions.length + (state.isPro ? 20 : 0); if(state.qIndex < total-1){ state.qIndex++; renderQuestion(); } else showPrompt(); animateDr(); };
-document.getElementById('prev').onclick = ()=>{ if(state.qIndex>0){ state.qIndex--; renderQuestion(); animateDr(); } };
-
-// show generated prompt
-function showPrompt(){
-  const lines = []; lines.push("### EASY PROMPT AI — Generated Prompt"); lines.push("سرفصل: " + (state.cat||'—')); lines.push(""); lines.push("پرسش‌ها و پاسخ‌های کاربر:");
-  state.answers.forEach((a,i)=> lines.push(`${i+1}. ${a || '—'}`));
-  lines.push("");
-  proArea.style.display = 'block';
-  document.getElementById('promptOut').style.display='block';
-  document.getElementById('promptOut').textContent = lines.join("\n");
-}
-
-// dr animation
-function animateDr(){
-  const dr = document.getElementById('dr');
-  if(!dr) return;
-  dr.animate([{transform:'translateY(0)'},{transform:'translateY(-10px)'},{transform:'translateY(0)'}],{duration:700});
-  speechText.innerText = ["آفرین! ادامه بده","عالیه — کمی دقیق‌تر توضیح بده","خوبه! حالا مورد بعدی رو بزن"][Math.floor(Math.random()*3)];
-}
-
-/* ==========================
-   Pro state and admin UI
-   ========================== */
-const codeModal = document.getElementById('codeModal');
-const adminModal = document.getElementById('adminModal');
-const openCode = document.getElementById('openCode');
-const openAdmin = document.getElementById('openAdmin');
-const closeCode = document.getElementById('closeCode');
-const submitCode = document.getElementById('submitCode');
-const inputCode = document.getElementById('inputCode');
-
-// admin elements
-const adminLoginArea = document.getElementById('adminLoginArea');
-const adminArea = document.getElementById('adminArea');
-const adminCodeInput = document.getElementById('adminCodeInput');
-const tryAdmin = document.getElementById('tryAdmin');
-const adminMsg = document.getElementById('adminMsg');
-const codeList = document.getElementById('codeList');
-const genMaster = document.getElementById('genMaster');
-const genFamily = document.getElementById('genFamily');
-const saveMaster = document.getElementById('saveMaster');
-const newMaster = document.getElementById('newMaster');
-const closeAdminBtn = document.getElementById('closeAdmin');
-
-openCode.onclick = ()=>{ codeModal.style.display='grid'; inputCode.value=''; };
-closeCode.onclick = ()=>{ codeModal.style.display='none'; };
-submitCode.onclick = async ()=>{
-  const v = inputCode.value.trim();
-  if(!v){ alert("کد را وارد کنید."); return; }
-  const res = await activateWithCode(v);
-  alert(res.message);
-  codeModal.style.display='none';
-  const active = await checkProActive();
-  setProState(active);
+/* ---------- persistence helpers ---------- */
+const LS = {
+  master:'epai_master', codes:'epai_codes', pro:'epai_pro_until', proPerm:'epai_pro_perm'
 };
+const DEFAULT_MASTER = 'liana1392';
+const load = (k,d)=>{ try{ return JSON.parse(localStorage.getItem(k)) ?? d }catch(e){ return d } };
+const save = (k,v)=> localStorage.setItem(k,JSON.stringify(v));
+const getMaster = ()=> localStorage.getItem(LS.master) || DEFAULT_MASTER;
+
+/* ---------- toast ---------- */
+const toastEl = document.getElementById('toast');
+let toastT;
+function toast(msg,type=''){ toastEl.textContent=msg; toastEl.className='toast show '+type; clearTimeout(toastT); toastT=setTimeout(()=>toastEl.className='toast',2600); }
+
+/* ---------- Pro state ---------- */
+function isPro(){
+  if(localStorage.getItem(LS.proPerm)==='1') return true;
+  const until = Number(localStorage.getItem(LS.pro)||0);
+  return until && Date.now() < until;
+}
+function refreshPlanBadge(){
+  const b=document.getElementById('planBadge');
+  if(isPro()){ b.className='badge pro'; b.innerHTML='<span class="dot"></span> نسخهٔ حرفه‌ای (Pro)'; }
+  else { b.className='badge free'; b.innerHTML='<span class="dot"></span> نسخهٔ رایگان'; }
+}
+
+/* ============================================================
+   CATEGORIES  (emoji + domain "kind" used by the engine)
+   ============================================================ */
+const CATEGORIES = [
+  {n:'نویسندگی و محتوا', e:'✍️', k:'writing'},
+  {n:'نویسندگی تخصصی', e:'📝', k:'writing'},
+  {n:'تولید محتوا', e:'🎬', k:'writing'},
+  {n:'شبکه‌های اجتماعی', e:'📱', k:'social'},
+  {n:'طراحی و ساخت تصویر', e:'🎨', k:'image'},
+  {n:'عکاسی', e:'📷', k:'image'},
+  {n:'مد و فشن', e:'👗', k:'image'},
+  {n:'ساخت و تدوین ویدئو', e:'🎥', k:'video'},
+  {n:'ساخت انیمیشن', e:'🌀', k:'video'},
+  {n:'بازی‌سازی', e:'🎮', k:'game'},
+  {n:'برنامه‌نویسی', e:'💻', k:'code'},
+  {n:'IT و کامپیوتر', e:'🖥️', k:'code'},
+  {n:'کسب‌وکار و بازاریابی', e:'📈', k:'business'},
+  {n:'کسب درآمد', e:'💰', k:'business'},
+  {n:'سرمایه‌گذاری', e:'📊', k:'finance'},
+  {n:'امور مالی', e:'🏦', k:'finance'},
+  {n:'مشاوره', e:'🧭', k:'advice'},
+  {n:'روانشناسی', e:'🧠', k:'advice'},
+  {n:'پزشکی و سلامت', e:'⚕️', k:'health'},
+  {n:'چاقی و لاغری', e:'🥗', k:'health'},
+  {n:'ورزش و تناسب اندام', e:'🏋️', k:'health'},
+  {n:'آموزش و تدریس', e:'📚', k:'education'},
+  {n:'دانش‌آموزی', e:'🎒', k:'education'},
+  {n:'دانشجویی', e:'🎓', k:'education'},
+  {n:'تحقیق و پژوهش', e:'🔬', k:'research'},
+  {n:'زبان‌شناسی و ترجمه', e:'🗣️', k:'language'},
+  {n:'طراحی داخلی و خارجی', e:'🏠', k:'design3d'},
+  {n:'طراحی سازه و معماری', e:'🏗️', k:'design3d'},
+  {n:'گردشگری و سفر', e:'✈️', k:'travel'},
+  {n:'غذا و آشپزی', e:'🍳', k:'food'},
+  {n:'خوردنی و نوشیدنی', e:'🍹', k:'food'},
+  {n:'حیوانات', e:'🐾', k:'general'},
+  {n:'وسیله نقلیه و تعمیرات', e:'🚗', k:'general'},
+  {n:'کاردستی و خلاقیت', e:'🧶', k:'general'},
+  {n:'ایده‌پردازی', e:'💡', k:'general'},
+  {n:'سرگرمی', e:'🎲', k:'general'},
+  {n:'سلامت روان', e:'🌿', k:'advice'},
+  {n:'موضوع دلخواه (عمومی)', e:'⭐', k:'general'},
+];
+
+/* ============================================================
+   QUESTION ENGINE
+   Each question: {id,text,hint,type:'single'|'multi'|'text',
+                   options:[...], when:(a)=>bool, kinds:[...]}
+   The engine builds EXACTLY 20 questions, adapting to answers.
+   ============================================================ */
+
+// universal option helper
+const O = (...arr)=>arr;
+
+// core questions asked for (almost) every topic
+const CORE = [
+  {id:'goal', type:'text', text:'دقیقاً می‌خواهی هوش مصنوعی چه چیزی برایت بسازد یا انجام دهد؟',
+   hint:'در یک یا دو جمله هدف اصلی را بنویس. مثال: «یک ایمیل فروش برای محصول X».'},
+  {id:'topic', type:'text', text:'موضوع یا سوژهٔ دقیق چیست؟',
+   hint:'هرچه دقیق‌تر، بهتر. نام محصول، شخصیت، مکان، مفهوم…'},
+  {id:'audience', type:'single', text:'مخاطب اصلی این خروجی چه کسی است؟',
+   options:O('عموم مردم','متخصصان و حرفه‌ای‌ها','مبتدی‌ها','کودکان/نوجوانان','مشتریان بالقوه','خودم برای استفادهٔ شخصی','سایر (توضیح می‌دهم)')},
+  {id:'audience_x', type:'text', text:'کمی دربارهٔ مخاطبت بگو.', hint:'سن، سطح دانش، علاقه‌مندی…',
+   when:a=>a.audience==='سایر (توضیح می‌دهم)'},
+  {id:'tone', type:'single', text:'لحن و حال‌وهوای خروجی چطور باشد؟',
+   options:O('حرفه‌ای و رسمی','دوستانه و صمیمی','هیجان‌انگیز و انگیزشی','علمی و دقیق','طنز و بازیگوش','لوکس و مجلل','خنثی و بی‌طرف')},
+  {id:'depth', type:'single', text:'چه سطحی از جزئیات می‌خواهی؟',
+   options:O('کوتاه و خلاصه','متوسط و متعادل','کامل و مفصل','بسیار عمیق و تخصصی')},
+  {id:'constraints', type:'text', text:'چه محدودیت‌ها یا قوانینی باید رعایت شود؟',
+   hint:'مثلاً: از کلمات خاص استفاده نکن، بودجه محدود، سقف تعداد کلمات… (اگر نداری خالی بگذار)'},
+  {id:'avoid', type:'text', text:'چه چیزهایی را حتماً نباید انجام دهد؟',
+   hint:'چیزهایی که دوست نداری در خروجی باشند. (اختیاری)'},
+  {id:'examples', type:'single', text:'آیا نمونه یا مرجعی داری که سبکش را دوست داشته باشی؟',
+   options:O('بله، توضیح می‌دهم','نه، خودت خلاقیت به خرج بده')},
+  {id:'examples_x', type:'text', text:'آن نمونه/مرجع را توصیف کن.', when:a=>a.examples==='بله، توضیح می‌دهم'},
+  {id:'format', type:'single', text:'خروجی در چه قالبی باشد؟',
+   options:O('متن پیوسته','فهرست نکته‌ای (Bullet)','جدول','مرحله‌به‌مرحله','پرسش و پاسخ','کد/فنی','قالب را خودت انتخاب کن')},
+  {id:'length', type:'single', text:'طول تقریبی خروجی چقدر باشد؟',
+   options:O('خیلی کوتاه','یک پاراگراف','چند پاراگراف','یک صفحهٔ کامل','هر چقدر لازم است')},
+  {id:'persona', type:'single', text:'هوش مصنوعی نقش چه متخصصی را بازی کند؟',
+   options:O('بگذار موتور بهترین نقش را انتخاب کند','یک متخصص ارشد همان حوزه','یک مربی/معلم','یک منتقد سخت‌گیر','یک دوست خلاق','خودم نقش را تعیین می‌کنم')},
+  {id:'persona_x', type:'text', text:'نقش دلخواهت را بنویس.', when:a=>a.persona==='خودم نقش را تعیین می‌کنم'},
+];
+
+// domain-specific question banks by "kind"
+const DOMAIN = {
+  image:[
+    {id:'img_style', type:'multi', text:'چه سبک بصری‌ای می‌خواهی؟',
+     options:O('واقع‌گرایانه (Photorealistic)','سه‌بعدی (3D Render)','مینیمال','سینمایی','نقاشی دیجیتال','آبرنگ','انیمه/کارتونی','سایبرپانک','رئال فانتزی','رترو/وینتیج')},
+    {id:'img_light', type:'single', text:'نورپردازی و اتمسفر چطور باشد؟',
+     options:O('نور طلایی غروب','نور نئون شبانه','نور نرم استودیویی','نور دراماتیک و کنتراست بالا','نور طبیعی روز','مه‌آلود و مرموز')},
+    {id:'img_palette', type:'text', text:'پالت رنگی یا رنگ‌های اصلی چه باشد؟', hint:'مثلاً: مشکی و طلایی، پاستل، سرد و آبی…'},
+    {id:'img_ratio', type:'single', text:'نسبت ابعاد تصویر؟',
+     options:O('مربع 1:1','عمودی 9:16','افقی 16:9','سینمایی 21:9','پرتره 4:5')},
+    {id:'img_detail', type:'multi', text:'چه جزئیاتی حتماً در تصویر باشد؟',
+     options:O('جزئیات چهره واقعی','بافت و متریال دقیق','عمق میدان (بوکه)','بازتاب و انعکاس','کمپوزیسیون قرینه','فضای منفی زیاد')},
+  ],
+  video:[
+    {id:'vid_type', type:'single', text:'نوع ویدئو چیست؟',
+     options:O('تبلیغاتی','آموزشی','داستانی/سینمایی','ولاگ','موشن‌گرافیک','تیزر کوتاه شبکه اجتماعی')},
+    {id:'vid_len', type:'single', text:'مدت زمان تقریبی؟',
+     options:O('کمتر از ۱۵ ثانیه','۱۵ تا ۳۰ ثانیه','۳۰ تا ۶۰ ثانیه','۱ تا ۳ دقیقه','بلندتر')},
+    {id:'vid_mood', type:'single', text:'حال‌وهوای ویدئو؟',
+     options:O('پرانرژی و سریع','آرام و احساسی','مرموز و پرتعلیق','شاد و رنگارنگ','لوکس و مینیمال')},
+    {id:'vid_scene', type:'text', text:'صحنه‌ها یا شاتهای کلیدی را توصیف کن.', hint:'چه چیزی در تصویر ببینیم؟'},
+    {id:'vid_music', type:'single', text:'موسیقی/صداگذاری؟',
+     options:O('بدون موسیقی','موسیقی حماسی','لوفای/آرام','الکترونیک','گفتار (Voiceover)','خودت پیشنهاد بده')},
+  ],
+  code:[
+    {id:'code_lang', type:'text', text:'زبان برنامه‌نویسی یا تکنولوژی مورد نظر؟', hint:'مثلاً: Python، React، SQL…'},
+    {id:'code_task', type:'single', text:'چه کاری باید انجام شود؟',
+     options:O('نوشتن کد از صفر','رفع باگ','بهینه‌سازی/ری‌فکتور','توضیح کد','نوشتن تست','طراحی معماری')},
+    {id:'code_level', type:'single', text:'سطح توضیحات همراه کد؟',
+     options:O('فقط کد','کد + کامنت','کد + توضیح کامل قدم‌به‌قدم')},
+    {id:'code_env', type:'text', text:'محیط، نسخه‌ها یا محدودیت‌های فنی؟', hint:'مثلاً: Node 18، بدون کتابخانه بیرونی… (اختیاری)'},
+  ],
+  writing:[
+    {id:'wr_type', type:'single', text:'چه نوع نوشته‌ای؟',
+     options:O('مقاله','پست وبلاگ','ایمیل','کپشن','داستان','سناریو','متن تبلیغاتی','رزومه/نامه اداری','شعر')},
+    {id:'wr_hook', type:'single', text:'شروع متن چطور باشد؟',
+     options:O('با یک سؤال','با یک آمار/واقعیت','با یک داستان کوتاه','مستقیم سر اصل مطلب','با یک نقل‌قول')},
+    {id:'wr_cta', type:'text', text:'در پایان مخاطب چه کاری انجام دهد؟', hint:'دعوت به اقدام (CTA). (اختیاری)'},
+    {id:'wr_keywords', type:'text', text:'کلمات کلیدی یا عبارات مهم که باید بیایند؟', hint:'برای سئو یا تأکید. (اختیاری)'},
+  ],
+  social:[
+    {id:'soc_platform', type:'multi', text:'برای کدام پلتفرم؟',
+     options:O('اینستاگرام','لینکدین','تیک‌تاک','یوتیوب','ایکس (توییتر)','تلگرام')},
+    {id:'soc_goal', type:'single', text:'هدف پست چیست؟',
+     options:O('افزایش تعامل','فروش','آموزش','برندسازی','رشد فالوور','وایرال شدن')},
+    {id:'soc_hashtag', type:'single', text:'هشتگ و ایموجی؟',
+     options:O('بله، پیشنهاد بده','بدون هشتگ','فقط ایموجی','هیچ‌کدام')},
+  ],
+  business:[
+    {id:'biz_type', type:'single', text:'خروجی برای چه چیزی است؟',
+     options:O('طرح کسب‌وکار','استراتژی بازاریابی','ایده درآمدزایی','تحلیل رقبا','قیمت‌گذاری','پیشنهاد فروش')},
+    {id:'biz_budget', type:'single', text:'بودجه/مقیاس؟',
+     options:O('صفر تا کم','متوسط','بالا','مهم نیست')},
+    {id:'biz_market', type:'text', text:'بازار هدف و موقعیت جغرافیایی؟', hint:'مثلاً: ایران، خاورمیانه، جهانی…'},
+  ],
+  finance:[
+    {id:'fin_goal', type:'single', text:'هدف مالی چیست؟',
+     options:O('تحلیل سرمایه‌گذاری','برنامه پس‌انداز','مدیریت ریسک','آموزش مفهوم مالی','تحلیل بازار')},
+    {id:'fin_risk', type:'single', text:'میزان ریسک‌پذیری؟',
+     options:O('محافظه‌کار','متعادل','تهاجمی')},
+    {id:'fin_note', type:'text', text:'زمینه یا اعداد مهم؟', hint:'مبلغ، بازهٔ زمانی، دارایی… (اختیاری)'},
+  ],
+  health:[
+    {id:'hl_goal', type:'single', text:'هدف سلامتی چیست؟',
+     options:O('برنامه تغذیه','برنامه تمرینی','کاهش وزن','افزایش وزن/عضله','سبک زندگی سالم','اطلاعات آموزشی')},
+    {id:'hl_profile', type:'text', text:'مشخصات مهم (سن، قد، وزن، شرایط)؟', hint:'اختیاری — هرچه بگویی برنامه دقیق‌تر می‌شود.'},
+    {id:'hl_limit', type:'text', text:'محدودیت یا حساسیت خاصی داری؟', hint:'آلرژی، بیماری، رژیم گیاهی… (اختیاری)'},
+  ],
+  education:[
+    {id:'ed_level', type:'single', text:'سطح یادگیرنده؟',
+     options:O('مبتدی','متوسط','پیشرفته','دانش‌آموز مدرسه','دانشجو')},
+    {id:'ed_style', type:'single', text:'روش تدریس دلخواه؟',
+     options:O('با مثال‌های ساده','گام‌به‌گام','با تمرین و آزمون','با تشبیه و استعاره','خلاصه و سریع')},
+    {id:'ed_out', type:'single', text:'خروجی آموزشی چه باشد؟',
+     options:O('درسنامه','خلاصه','سؤالات تمرینی','فلش‌کارت','برنامهٔ مطالعه')},
+  ],
+  research:[
+    {id:'rs_type', type:'single', text:'نوع کار پژوهشی؟',
+     options:O('مرور ادبیات','تحلیل داده','فرضیه‌سازی','خلاصهٔ مقاله','روش‌شناسی','نقد علمی')},
+    {id:'rs_field', type:'text', text:'رشته یا حوزهٔ دقیق؟'},
+    {id:'rs_cite', type:'single', text:'به منبع و استناد نیاز داری؟',
+     options:O('بله، با ذکر منبع','نه')},
+  ],
+  language:[
+    {id:'lg_task', type:'single', text:'چه کاری لازم داری؟',
+     options:O('ترجمه','ویرایش و روان‌سازی','یادگیری زبان','تصحیح گرامر','تبدیل لحن')},
+    {id:'lg_from', type:'text', text:'از چه زبانی؟'},
+    {id:'lg_to', type:'text', text:'به چه زبانی؟'},
+  ],
+  design3d:[
+    {id:'d3_space', type:'text', text:'چه فضایی طراحی شود؟', hint:'مثلاً: نشیمن، نمای ساختمان، دفتر کار…'},
+    {id:'d3_style', type:'multi', text:'سبک طراحی؟',
+     options:O('مینیمال مدرن','کلاسیک','صنعتی (Industrial)','اسکاندیناوی','لوکس','ارگانیک/طبیعی','فوتوریستیک')},
+    {id:'d3_material', type:'text', text:'متریال و رنگ‌های اصلی؟', hint:'چوب، بتن، طلایی، سفید…'},
+    {id:'d3_light', type:'single', text:'نورپردازی فضا؟',
+     options:O('نور طبیعی زیاد','نور گرم دنج','نور نئونی مدرن','ترکیبی')},
+  ],
+  game:[
+    {id:'gm_type', type:'single', text:'خروجی برای چه بخشی از بازی است؟',
+     options:O('ایدهٔ بازی','داستان و شخصیت','طراحی مرحله','مکانیک بازی','دیالوگ','توضیح جهان بازی')},
+    {id:'gm_genre', type:'text', text:'ژانر و سبک بازی؟', hint:'اکشن، معمایی، RPG…'},
+    {id:'gm_platform', type:'single', text:'پلتفرم؟',
+     options:O('موبایل','کامپیوتر/کنسول','مرورگر','واقعیت مجازی','مهم نیست')},
+  ],
+  travel:[
+    {id:'tr_dest', type:'text', text:'مقصد یا نوع سفر؟'},
+    {id:'tr_days', type:'single', text:'مدت سفر؟',
+     options:O('۱ تا ۲ روز','۳ تا ۵ روز','یک هفته','بیشتر از یک هفته')},
+    {id:'tr_style', type:'single', text:'سبک سفر؟',
+     options:O('اقتصادی','لوکس','ماجراجویانه','فرهنگی','استراحت و آرامش','خانوادگی')},
+  ],
+  food:[
+    {id:'fd_type', type:'single', text:'چه می‌خواهی؟',
+     options:O('دستور پخت','ایده منو','برنامه غذایی','معرفی نوشیدنی','ترفند آشپزی')},
+    {id:'fd_diet', type:'text', text:'محدودیت غذایی یا سلیقه؟', hint:'گیاهی، بدون گلوتن، تند… (اختیاری)'},
+    {id:'fd_time', type:'single', text:'زمان/سختی آماده‌سازی؟',
+     options:O('سریع و آسان','متوسط','حرفه‌ای و زمان‌بر')},
+  ],
+  advice:[
+    {id:'ad_topic', type:'text', text:'موضوع مشاوره دقیقاً چیست؟'},
+    {id:'ad_style', type:'single', text:'چه نوع کمکی می‌خواهی؟',
+     options:O('راهکار عملی','گوش دادن و همدلی','تحلیل موقعیت','برنامهٔ گام‌به‌گام','دیدگاه‌های مختلف')},
+    {id:'ad_ctx', type:'text', text:'کمی از شرایط و پیشینه بگو.', hint:'اختیاری'},
+  ],
+  general:[
+    {id:'gn_use', type:'text', text:'این خروجی را کجا و چطور استفاده می‌کنی؟'},
+    {id:'gn_must', type:'text', text:'مهم‌ترین نکته‌ای که حتماً باید رعایت شود؟'},
+  ],
+};
+
+// closing questions (always near the end)
+const CLOSERS = [
+  {id:'creativity', type:'single', text:'چقدر خلاقیت و ریسک در خروجی می‌خواهی؟',
+   options:O('کاملاً مطمئن و کلاسیک','متعادل','خلاقانه و جسورانه','کاملاً آزاد و تجربی')},
+  {id:'iterate', type:'single', text:'دوست داری هوش مصنوعی قبل از شروع، سؤال بپرسد؟',
+   options:O('بله، اگر چیزی مبهم بود بپرسد','نه، مستقیم شروع کند')},
+  {id:'extra', type:'text', text:'چیز دیگری هست که بخواهی اضافه کنی؟',
+   hint:'هر نکتهٔ خاص، آخرین خواسته… (اختیاری)'},
+];
+
+/* Build an adaptive plan of exactly 20 questions given the category kind.
+   Because some 'when' questions may or may not appear, we over-provision the
+   pool and stop once 20 *shown* questions are answered. */
+function buildPool(kind){
+  const dom = DOMAIN[kind] || DOMAIN.general;
+  // interleave: goal/topic first, then domain, then rest of core, then closers
+  const pool = [];
+  const core = [...CORE];
+  const push = q => pool.push(q);
+  // opening
+  push(core.shift()); // goal
+  push(core.shift()); // topic
+  // domain block
+  dom.forEach(push);
+  // remaining core
+  core.forEach(push);
+  // closers
+  CLOSERS.forEach(push);
+  return pool;
+}
+
+/* ============================================================
+   STATE + FLOW
+   ============================================================ */
+const state = { cat:null, kind:null, pool:[], order:[], idx:0, answers:{}, done:false };
+const TARGET = 20;
+
+const el = id => document.getElementById(id);
+const views = { home:el('viewHome'), interview:el('viewInterview'), result:el('viewResult') };
+function showView(name){ Object.entries(views).forEach(([k,v])=> v.classList.toggle('hidden', k!==name)); window.scrollTo({top:0,behavior:'smooth'}); }
+
+/* render categories */
+function renderCats(filter=''){
+  const box = el('cats'); box.innerHTML='';
+  CATEGORIES.filter(c=>c.n.includes(filter.trim())).forEach(c=>{
+    const d=document.createElement('div'); d.className='cat';
+    d.innerHTML=`<span class="emoji">${c.e}</span><div class="name">${c.n}</div><div class="meta">۲۰ سؤال هوشمند</div>`;
+    d.onclick=()=>startInterview(c);
+    box.appendChild(d);
+  });
+  if(!box.children.length) box.innerHTML='<div style="color:var(--muted);padding:20px">موضوعی پیدا نشد. «موضوع دلخواه» را امتحان کن.</div>';
+}
+
+function startInterview(cat){
+  state.cat=cat; state.kind=cat.k; state.pool=buildPool(cat.k);
+  state.idx=0; state.answers={}; state.order=[]; state.done=false;
+  el('sideCat').textContent=cat.e+' '+cat.n;
+  showView('interview');
+  nextRender(true);
+}
+
+/* find the next visible question index in pool, honoring `when` */
+function visibleFrom(poolIdx){
+  for(let i=poolIdx;i<state.pool.length;i++){
+    const q=state.pool[i];
+    if(!q.when || q.when(state.answers)) return i;
+  }
+  return -1;
+}
+// count of questions shown so far (for numbering)
+function shownCount(){ return state.order.length; }
+
+let cursor=-1; // current pool index being displayed
+
+function nextRender(first){
+  // determine next pool index
+  let start = first ? 0 : cursor+1;
+  const vi = visibleFrom(start);
+  const reached = shownCount()>=TARGET || vi===-1;
+  if(reached){ finish(); return; }
+  cursor=vi;
+  if(!state.order.includes(cursor)) state.order.push(cursor);
+  renderQuestion();
+}
+
+function renderQuestion(){
+  const q=state.pool[cursor];
+  const n=state.order.indexOf(cursor)+1;
+  el('qNum').textContent=`سؤال ${toFa(n)} از ${toFa(TARGET)}`;
+  el('qText').textContent=q.text;
+  el('qHint').textContent=q.hint||'';
+  el('qHint').style.display=q.hint?'block':'none';
+
+  const optsBox=el('opts'); optsBox.innerHTML='';
+  const free=el('freeInput'); const multiNote=el('multiNote');
+  const cur=state.answers[q.id];
+
+  if(q.type==='text'){
+    optsBox.classList.add('hidden');
+    free.classList.remove('hidden');
+    free.value = cur||'';
+    multiNote.classList.add('hidden');
+    setTimeout(()=>free.focus(),50);
+  } else {
+    free.classList.add('hidden');
+    optsBox.classList.remove('hidden');
+    multiNote.classList.toggle('hidden', q.type!=='multi');
+    q.options.forEach(opt=>{
+      const d=document.createElement('div'); d.className='opt';
+      const selected = q.type==='multi' ? (Array.isArray(cur)&&cur.includes(opt)) : cur===opt;
+      if(selected) d.classList.add('selected');
+      d.innerHTML=`<span class="tick">✔</span><span>${opt}</span>`;
+      d.onclick=()=>{
+        if(q.type==='multi'){
+          let arr = Array.isArray(state.answers[q.id])?[...state.answers[q.id]]:[];
+          if(arr.includes(opt)) arr=arr.filter(x=>x!==opt); else arr.push(opt);
+          state.answers[q.id]=arr;
+          d.classList.toggle('selected');
+        } else {
+          state.answers[q.id]=opt;
+          [...optsBox.children].forEach(c=>c.classList.remove('selected'));
+          d.classList.add('selected');
+        }
+      };
+      optsBox.appendChild(d);
+    });
+  }
+
+  // progress ring
+  const done=state.order.indexOf(cursor); // questions before this
+  const pct=Math.round((done/TARGET)*100);
+  const ring=el('ring'); ring.style.setProperty('--p',pct);
+  el('ringNum').textContent=toFa(n);
+  el('ringLabel').textContent=`${toFa(n)} از ${toFa(TARGET)}`;
+  el('btnPrev').disabled = state.order.indexOf(cursor)===0;
+  el('btnNext').textContent = n>=TARGET ? 'ساخت پرامپت ✨' : 'بعدی ▶';
+  el('speech').textContent = SPEECHES[Math.floor(Math.random()*SPEECHES.length)];
+
+  // animate
+  el('qText').animate([{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'none'}],{duration:280,easing:'ease'});
+}
+
+const SPEECHES=['هرچه دقیق‌تر بگی، پرامپت قوی‌تره!','عالیه، همینطور ادامه بده.','این جواب کمکم می‌کنه دقیق‌تر بسازم.','آفرین! داریم به یه پرامپت حرفه‌ای می‌رسیم.','می‌تونی رد بشی، ولی جزئیات بیشتر = نتیجهٔ بهتر.'];
+
+function saveTextAnswer(){
+  const q=state.pool[cursor];
+  if(q && q.type==='text') state.answers[q.id]=el('freeInput').value.trim();
+}
+
+el('btnNext').onclick=()=>{ saveTextAnswer(); nextRender(false); };
+el('btnPrev').onclick=()=>{
+  saveTextAnswer();
+  const pos=state.order.indexOf(cursor);
+  if(pos>0){ cursor=state.order[pos-1]; renderQuestion(); }
+};
+
+/* ============================================================
+   PROMPT BUILDER  (multi-language scaffolding)
+   ============================================================ */
+const LANGS=[
+  {c:'fa',n:'فارسی'},{c:'en',n:'English (انگلیسی)'},{c:'ar',n:'العربية (عربی)'},
+  {c:'tr',n:'Türkçe (ترکی استانبولی)'},{c:'fr',n:'Français (فرانسوی)'},{c:'de',n:'Deutsch (آلمانی)'},
+  {c:'es',n:'Español (اسپانیایی)'},{c:'it',n:'Italiano (ایتالیایی)'},{c:'ru',n:'Русский (روسی)'},
+  {c:'zh',n:'中文 (چینی)'},{c:'ja',n:'日本語 (ژاپنی)'},{c:'hi',n:'हिन्दी (هندی)'},{c:'pt',n:'Português (پرتغالی)'}
+];
+
+// localized section labels; fallback → en
+const LABELS={
+  en:{role:'ROLE',obj:'OBJECTIVE',ctx:'CONTEXT',task:'TASK & REQUIREMENTS',con:'CONSTRAINTS',avoid:'AVOID',fmt:'OUTPUT FORMAT',tone:'TONE & STYLE',qual:'QUALITY BAR',lang:'LANGUAGE',
+    roleTxt:'You are a world-class expert. Adopt the persona of',
+    respond:'Write your entire response in',
+    think:'Think step by step and prioritize accuracy, usefulness, and clarity.',
+    ask:'If any requirement is ambiguous, ask a brief clarifying question before you begin.',
+    noask:'Do not ask questions — produce the best possible result directly.',
+    best:'a top senior specialist in this exact field'},
+  fa:{role:'نقش',obj:'هدف',ctx:'زمینه و اطلاعات',task:'وظیفه و خواسته‌ها',con:'محدودیت‌ها',avoid:'از این‌ها پرهیز کن',fmt:'قالب خروجی',tone:'لحن و سبک',qual:'استاندارد کیفیت',lang:'زبان',
+    roleTxt:'تو یک متخصص جهانی‌تراز هستی. نقش این فرد را بازی کن:',
+    respond:'کل پاسخ را به این زبان بنویس:',
+    think:'گام‌به‌گام فکر کن و دقت، کاربردی بودن و شفافیت را در اولویت بگذار.',
+    ask:'اگر بخشی از خواسته مبهم بود، قبل از شروع یک سؤال کوتاه بپرس.',
+    noask:'سؤالی نپرس — مستقیم بهترین نتیجهٔ ممکن را تولید کن.',
+    best:'یک متخصص ارشد و درجه‌یک در همین حوزه'},
+  ar:{role:'الدور',obj:'الهدف',ctx:'السياق',task:'المهمة والمتطلبات',con:'القيود',avoid:'تجنب',fmt:'صيغة المخرجات',tone:'الأسلوب والنبرة',qual:'معيار الجودة',lang:'اللغة',
+    roleTxt:'أنت خبير عالمي المستوى. تقمّص شخصية',
+    respond:'اكتب ردك بالكامل بهذه اللغة:',
+    think:'فكّر خطوة بخطوة وأعطِ الأولوية للدقة والفائدة والوضوح.',
+    ask:'إذا كان أي متطلب غامضًا، اطرح سؤالاً توضيحياً موجزاً قبل البدء.',
+    noask:'لا تطرح أسئلة — قدّم أفضل نتيجة مباشرة.',
+    best:'خبير أول متخصص في هذا المجال بالتحديد'},
+};
+function L(code){ return LABELS[code]||LABELS.en; }
+
+// language display name in the prompt
+function langName(code){ const m={fa:'Persian (فارسی)',en:'English',ar:'Arabic',tr:'Turkish',fr:'French',de:'German',es:'Spanish',it:'Italian',ru:'Russian',zh:'Chinese',ja:'Japanese',hi:'Hindi',pt:'Portuguese'}; return m[code]||code; }
+
+function val(id){ const v=state.answers[id]; if(Array.isArray(v)) return v.join('، '); return (v||'').toString().trim(); }
+function has(id){ return val(id).length>0; }
+
+function buildPrompt(langCode){
+  const a=state.answers, lab=L(langCode), lname=langName(langCode);
+  const cat=state.cat;
+
+  // persona
+  let persona;
+  if(a.persona==='خودم نقش را تعیین می‌کنم' && has('persona_x')) persona=val('persona_x');
+  else if(a.persona && a.persona!=='بگذار موتور بهترین نقش را انتخاب کند') persona=a.persona+' — '+lab.best;
+  else persona=lab.best+' ('+cat.n+')';
+
+  const goal = has('goal')?val('goal'):cat.n;
+  const audience = a.audience==='سایر (توضیح می‌دهم)'?val('audience_x'):(val('audience')||'general audience');
+
+  // gather context lines from ALL answered questions (skip control/meta)
+  const skip=new Set(['goal','persona','persona_x','audience','audience_x','tone','depth','constraints','avoid','examples','examples_x','format','length','creativity','iterate','extra']);
+  const ctxLines=[];
+  state.order.forEach(pi=>{
+    const q=state.pool[pi];
+    if(skip.has(q.id)) return;
+    if(has(q.id)) ctxLines.push('• '+q.text.replace(/[؟?]/g,'')+': '+val(q.id));
+  });
+  ctxLines.unshift('• '+ (langCode==='fa'?'مخاطب':'Audience') +': '+audience);
+
+  // requirements / task lines
+  const task=[];
+  task.push((langCode==='fa'?'خواستهٔ اصلی: ':'Primary request: ')+goal);
+  if(has('examples')&&a.examples==='بله، توضیح می‌دهم'&&has('examples_x')) task.push((langCode==='fa'?'از این نمونه الهام بگیر: ':'Take inspiration from: ')+val('examples_x'));
+  if(has('extra')) task.push(val('extra'));
+
+  // format + length + tone + depth
+  const fmt = val('format')||'Best structured format for the goal';
+  const len = val('length')||'As needed';
+  const tone = val('tone')||'Professional';
+  const depth = val('depth')||'Balanced';
+  const creativity = val('creativity')||'Balanced';
+
+  const constraints=[];
+  if(has('constraints')) constraints.push(val('constraints'));
+  constraints.push((langCode==='fa'?'سطح جزئیات: ':'Detail level: ')+depth);
+  constraints.push((langCode==='fa'?'طول تقریبی: ':'Approx length: ')+len);
+  constraints.push((langCode==='fa'?'میزان خلاقیت: ':'Creativity: ')+creativity);
+
+  const avoid = has('avoid')?val('avoid'):(langCode==='fa'?'هر چیز نامرتبط، مبهم یا کلی‌گویی':'anything irrelevant, vague, or generic');
+
+  const askLine = a.iterate==='نه، مستقیم شروع کند' ? lab.noask : lab.ask;
+
+  // assemble
+  const S=[];
+  S.push(`# ${lab.role}`);
+  S.push(`${lab.roleTxt} ${persona}.`);
+  S.push('');
+  S.push(`# ${lab.obj}`);
+  S.push(goal);
+  S.push('');
+  S.push(`# ${lab.ctx}`);
+  S.push(ctxLines.join('\n'));
+  S.push('');
+  S.push(`# ${lab.task}`);
+  S.push(task.map(t=>'- '+t).join('\n'));
+  S.push('');
+  S.push(`# ${lab.tone}`);
+  S.push('- '+tone);
+  S.push('');
+  S.push(`# ${lab.fmt}`);
+  S.push('- '+fmt);
+  S.push('');
+  S.push(`# ${lab.con}`);
+  S.push(constraints.map(c=>'- '+c).join('\n'));
+  S.push('');
+  S.push(`# ${lab.avoid}`);
+  S.push('- '+avoid);
+  S.push('');
+  S.push(`# ${lab.qual}`);
+  S.push('- '+lab.think);
+  S.push('- '+askLine);
+  S.push('');
+  S.push(`# ${lab.lang}`);
+  S.push(`${lab.respond} ${lname}.`);
+  return S.join('\n');
+}
+
+/* ============================================================
+   RESULT VIEW
+   ============================================================ */
+function finish(){
+  state.done=true;
+  // build language selector
+  const sel=el('langSel');
+  if(!sel.children.length){ LANGS.forEach(l=>{ const o=document.createElement('option'); o.value=l.c; o.textContent=l.n; sel.appendChild(o); }); sel.value='fa'; }
+  renderResult();
+  renderPro();
+  showView('result');
+}
+function renderResult(){
+  const code=el('langSel').value;
+  const p=buildPrompt(code);
+  el('promptOut').textContent=p;
+  el('promptTags').innerHTML=
+    `<span class="tag">${state.cat.e} ${state.cat.n}</span>`+
+    `<span class="tag">${toFa(TARGET)} پاسخ</span>`+
+    `<span class="tag">زبان: ${langName(code)}</span>`+
+    (isPro()?'<span class="tag">Pro</span>':'');
+}
+el('langSel')?.addEventListener?.('change',renderResult);
+// (langSel exists after finish; attach via delegation)
+document.addEventListener('change',e=>{ if(e.target&&e.target.id==='langSel') renderResult(); });
+
+el('btnCopy').onclick=async()=>{
+  try{ await navigator.clipboard.writeText(el('promptOut').textContent); toast('✅ پرامپت کپی شد!','ok'); }
+  catch(e){ const r=document.createRange(); r.selectNode(el('promptOut')); getSelection().removeAllRanges(); getSelection().addRange(r); document.execCommand('copy'); toast('کپی شد','ok'); }
+};
+el('btnDownload').onclick=()=>{
+  const blob=new Blob([el('promptOut').textContent],{type:'text/markdown'});
+  const url=URL.createObjectURL(blob); const a=document.createElement('a');
+  a.href=url; a.download='easy-prompt-ai.md'; a.click(); URL.revokeObjectURL(url);
+  toast('⬇ فایل دانلود شد','ok');
+};
+el('btnRestart').onclick=()=>{ showView('home'); };
+el('btnEdit').onclick=()=>{ showView('interview'); cursor=state.order[state.order.length-1]; renderQuestion(); };
+
+/* ============================================================
+   PRO features grid
+   ============================================================ */
+const PRO_FEATURES=[
+  {i:'🔗',t:'اتصال مستقیم به هوش مصنوعی',d:'اجرای پرامپت روی ChatGPT / Claude / Gemini بدون کپی‌کردن'},
+  {i:'🖼️',t:'تولید تصویر از پرامپت',d:'ساخت خروجی تصویری مستقیم با مدل‌های تصویر'},
+  {i:'📄',t:'خروجی Word و PDF',d:'دریافت پرامپت و نتیجه در قالب فایل حرفه‌ای'},
+  {i:'🌍',t:'ترجمهٔ هوشمند خروجی',d:'بازنویسی روان به‌جای ترجمهٔ کلمه‌به‌کلمه'},
+  {i:'💾',t:'ذخیرهٔ ابری و تاریخچه',d:'همهٔ پرامپت‌هایت همیشه در دسترس'},
+  {i:'🧩',t:'کتابخانهٔ قالب‌های آماده',d:'ده‌ها قالب حرفه‌ای برای هر حوزه'},
+  {i:'📊',t:'داشبورد تحلیلی',d:'ببین کدام پرامپت‌ها بهترین نتیجه را دادند'},
+  {i:'⚡',t:'سؤالات تخصصی نامحدود',d:'فراتر از ۲۰ سؤال، عمق تخصصی بیشتر'},
+];
+function renderPro(){
+  const box=el('proGrid'); box.innerHTML=''; const pro=isPro();
+  PRO_FEATURES.forEach(f=>{
+    const d=document.createElement('div'); d.className='pro-card'+(pro?'':' locked');
+    d.innerHTML=`${pro?'':'<span class="lock">🔒</span>'}<div class="pi">${f.i}</div><h4>${f.t}</h4><p>${f.d}</p>`;
+    box.appendChild(d);
+  });
+}
+
+/* ============================================================
+   CODE ACTIVATION + ADMIN
+   ============================================================ */
+function loadCodes(){ return load(LS.codes,[]); }
+function saveCodes(a){ save(LS.codes,a); }
+
+function randDigits(n){ let s=''; for(let i=0;i<n;i++) s+=Math.floor(Math.random()*10); return s; }
+function randAlnum(n){ const c='abcdefghijklmnopqrstuvwxyz0123456789'; let s=''; for(let i=0;i<n;i++) s+=c[Math.floor(Math.random()*c.length)]; return s; }
+
+function activate(code){
+  code=code.trim();
+  if(!code) return {ok:false,m:'کد را وارد کن.'};
+  if(code===getMaster()){ localStorage.setItem(LS.proPerm,'1'); return {ok:true,m:'نسخهٔ حرفه‌ای به‌صورت دائمی فعال شد (کد مدیر).'}; }
+  const codes=loadCodes(); const f=codes.find(c=>c.code===code);
+  if(!f) return {ok:false,m:'کد نامعتبر است.'};
+  if(f.revoked) return {ok:false,m:'این کد باطل شده است.'};
+  if(f.type==='lifetime'){ localStorage.setItem(LS.proPerm,'1'); return {ok:true,m:'نسخهٔ حرفه‌ای دائمی فعال شد.'}; }
+  // family/subscription: 3 months from first activation
+  const now=Date.now();
+  if(!f.firstUsed){ f.firstUsed=now; f.expires=now+90*24*3600*1000; saveCodes(codes); }
+  if(Date.now()>f.expires){ return {ok:false,m:'اعتبار این کد به پایان رسیده است.'}; }
+  localStorage.setItem(LS.pro,String(f.expires));
+  const days=Math.ceil((f.expires-Date.now())/(24*3600*1000));
+  return {ok:true,m:`نسخهٔ حرفه‌ای فعال شد — ${toFa(days)} روز اعتبار باقی‌ست.`};
+}
+
+// code modal
+function openModal(id){ el(id).classList.add('open'); }
+function closeModals(){ document.querySelectorAll('.modal').forEach(m=>m.classList.remove('open')); }
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=closeModals);
+document.querySelectorAll('.modal').forEach(m=>m.addEventListener('mousedown',e=>{ if(e.target===m) closeModals(); }));
+
+el('btnCode').onclick=()=>{ el('codeInput').value=''; openModal('codeModal'); setTimeout(()=>el('codeInput').focus(),60); };
+el('codeSubmit').onclick=()=>{
+  const r=activate(el('codeInput').value);
+  toast(r.m, r.ok?'ok':'err');
+  if(r.ok){ closeModals(); refreshPlanBadge(); if(state.done) renderResult(),renderPro(); }
+};
+el('codeInput')?.addEventListener?.('keydown',e=>{ if(e.key==='Enter') el('codeSubmit').click(); });
+
+el('btnHome').onclick=()=>showView('home');
 
 // admin
-openAdmin.onclick = ()=>{ adminModal.style.display='grid'; adminMsg.textContent=''; adminLoginArea.style.display='block'; adminArea.style.display='none'; adminCodeInput.value=''; };
-closeAdminBtn.onclick = ()=>{ adminModal.style.display='none'; };
-
-tryAdmin.onclick = async ()=>{
-  const v = adminCodeInput.value.trim();
-  if(!v){ adminMsg.textContent='کد را وارد کنید.'; return; }
-  const master = getMasterCode();
-  if(v === master || v === DEFAULT_MASTER){
-    adminMsg.textContent = 'ورود موفق — پنل مدیریت فعال شد.';
-    adminLoginArea.style.display='none';
-    adminArea.style.display='block';
-    refreshCodeList();
-  } else {
-    adminMsg.textContent = 'کد مدیر نادرست است.';
-  }
+el('btnAdmin').onclick=()=>{ el('adminPass').value=''; el('adminLogin').classList.remove('hidden'); el('adminPanel').classList.add('hidden'); openModal('adminModal'); };
+el('adminLoginBtn').onclick=()=>{
+  if(el('adminPass').value.trim()===getMaster()){ el('adminLogin').classList.add('hidden'); el('adminPanel').classList.remove('hidden'); renderCodeList(); }
+  else toast('کد مدیر نادرست است.','err');
 };
+el('adminPass')?.addEventListener?.('keydown',e=>{ if(e.key==='Enter') el('adminLoginBtn').click(); });
 
-// generate codes
-genMaster.onclick = ()=>{
-  const c = randMasterCode();
-  addCode(c,"master",null,"generated-master");
-  refreshCodeList();
-  alert("کد اصلی ساخته شد:\n"+c);
-};
-genFamily.onclick = ()=>{
-  const c = randFamilyCode();
-  addCode(c,"family",3,"generated-family");
-  refreshCodeList();
-  alert("کد خانوادگی ساخته شد:\n"+c+"\n(منقضی در ۳ ماه از اولین استفاده)");
-};
+el('genFamily').onclick=()=>{ const codes=loadCodes(); const code=randDigits(12); codes.unshift({code,type:'family',created:Date.now(),firstUsed:null,expires:null,revoked:false}); saveCodes(codes); renderCodeList(); toast('کد اشتراک ساخته شد: '+code,'ok'); };
+el('genLifetime').onclick=()=>{ const codes=loadCodes(); const code=randAlnum(12); codes.unshift({code,type:'lifetime',created:Date.now(),revoked:false}); saveCodes(codes); renderCodeList(); toast('کد دائمی ساخته شد: '+code,'ok'); };
+el('saveMaster').onclick=()=>{ const v=el('newMaster').value.trim(); if(v.length<6){ toast('کد مدیر حداقل ۶ کاراکتر باشد.','err'); return; } localStorage.setItem(LS.master,v); el('newMaster').value=''; toast('کد مدیر تغییر کرد.','ok'); };
 
-// refresh code list
-function refreshCodeList(){
-  const arr = loadCodes();
-  codeList.innerHTML='';
-  if(arr.length===0) codeList.innerHTML = "<div style='color:var(--muted)'>هیچ کدی ذخیره نشده.</div>";
-  arr.forEach((it,idx)=>{
-    const el = document.createElement('div');
-    const ex = it.expiresAt ? new Date(it.expiresAt).toLocaleString() : "—";
-    el.style.padding='8px';
-    el.style.borderBottom='1px dashed rgba(255,255,255,0.02)';
-    el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:800">${it.code}</div><div style="font-size:0.85rem;color:var(--muted)">${it.type} — ساخته شده: ${new Date(it.createdAt).toLocaleString()} — انقضا: ${ex}</div></div><div><button class="btn small ghost" data-idx="${idx}" onclick="revokeCode(event)">ابطال</button></div></div>`;
-    codeList.appendChild(el);
+function renderCodeList(){
+  const codes=loadCodes(); const box=el('codeList'); box.innerHTML='';
+  el('codeCount').textContent=`(${toFa(codes.length)} کد)`;
+  if(!codes.length){ box.innerHTML='<div style="color:var(--muted);padding:10px">هنوز کدی ساخته نشده.</div>'; return; }
+  codes.forEach((c,i)=>{
+    const status = c.revoked?'باطل‌شده': c.type==='lifetime'?'دائمی': (c.firstUsed? 'فعال تا '+new Date(c.expires).toLocaleDateString('fa-IR') : 'استفاده‌نشده (۳ ماهه)');
+    const d=document.createElement('div'); d.className='codeitem';
+    d.innerHTML=`<div><div class="c">${c.code}</div><div class="m">${c.type==='lifetime'?'دائمی':'اشتراکی'} • ${status}</div></div>
+      <div style="display:flex;gap:6px">
+        <button class="btn sm ghost" data-copy="${c.code}">کپی</button>
+        <button class="btn sm ghost" data-revoke="${i}" style="color:#f08a8a">${c.revoked?'حذف':'ابطال'}</button>
+      </div>`;
+    box.appendChild(d);
+  });
+  box.querySelectorAll('[data-copy]').forEach(b=>b.onclick=()=>{ navigator.clipboard?.writeText(b.dataset.copy); toast('کپی شد','ok'); });
+  box.querySelectorAll('[data-revoke]').forEach(b=>b.onclick=()=>{
+    const codes=loadCodes(); const i=+b.dataset.revoke;
+    if(codes[i].revoked){ codes.splice(i,1); } else { codes[i].revoked=true; }
+    saveCodes(codes); renderCodeList();
   });
 }
 
-// revoke code
-function revokeCode(e){
-  const idx = Number(e.currentTarget.getAttribute('data-idx'));
-  const arr = loadCodes();
-  if(!arr[idx]) return;
-  if(!confirm("آیا مطمئنی این کد را باطل کنی؟\n"+arr[idx].code)) return;
-  arr.splice(idx,1);
-  saveCodes(arr);
-  refreshCodeList();
-}
+/* ============================================================
+   utils + init
+   ============================================================ */
+function toFa(n){ return String(n).replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[d]); }
 
-// save new master (only if logged in)
-saveMaster.onclick = ()=>{
-  const v = newMaster.value.trim();
-  if(!v || v.length !== 12){ alert("کد مدیر باید ۱۲ کاراکتر باشد."); return; }
-  setMasterCode(v);
-  alert("کد مدیر تغییر کرد به:\n"+v);
-  newMaster.value='';
-};
+el('catSearch').addEventListener('input',e=>renderCats(e.target.value));
 
-// admin modal close handler
-document.getElementById('closeAdmin').onclick = ()=>{ adminModal.style.display='none'; };
-
-/* ==========================
-   Restore Pro state on load
-   ========================== */
-
-(async function init(){
-  // ensure there is at least master code in storage
-  if(!localStorage.getItem(MASTER_KEY)) setMasterCode(DEFAULT_MASTER);
-
-  // populate pro features (cards)
-  const feats = [
-    {t:'اتصال به مدل‌های AI', d:'اتصال مستقیم به ChatGPT, Gemini, Claude'},
-    {t:'خروجی فایل', d:'Word / PDF / Markdown'},
-    {t:'ساخت تصویر از پرامپت', d:'تولید تصویر با DALL·E / Midjourney'},
-    {t:'ترجمه خودکار', d:'پشتیبانی چندزبانه'},
-    {t:'فضه ابری', d:'ذخیره و همگام‌سازی'},
-    {t:'API برای توسعه‌دهندگان', d:'دسترسی به API اختصاصی'},
-    {t:'داشبورد تحلیلی', d:'گزارش‌گیری و تحلیل'},
-    {t:'چک‌لیست و تست‌ها', d:'تست‌ها و اعتبارسنجی'}
-  ];
-  feats.forEach(f=>{
-    const c = document.createElement('div'); c.className='pro-card';
-    c.innerHTML = `<div style="font-weight:800">${f.t}</div><div style="opacity:0.95">${f.d}</div>`;
-    proGrid.appendChild(c);
-  });
-
-  // default select first cat
-  setTimeout(()=>{ const first = document.querySelector('.cat'); if(first) first.click(); },220);
-
-  // set Pro state based on activations
-  const active = await checkProActive();
-  setProState(active);
+(function init(){
+  if(!localStorage.getItem(LS.master)) localStorage.setItem(LS.master,DEFAULT_MASTER);
+  renderCats();
+  refreshPlanBadge();
+  showView('home');
 })();
-
-// set UI depending on pro state
-function setProState(active){
-  state.isPro = !!active;
-  if(state.isPro){
-    document.getElementById('siteTitle').textContent = 'EASY PROMPT AI – PRO';
-    modeBadge.textContent = 'نسخه Pro';
-    document.getElementById('btnSwitch')?.remove?.(); // optional
-    proArea.style.display = 'block';
-  } else {
-    document.getElementById('siteTitle').textContent = 'EASY PROMPT AI';
-    modeBadge.textContent = 'نسخه رایگان';
-    proArea.style.display = 'none';
-  }
-  // re-render current question
-  if(state.cat) renderQuestion();
-}
-
-/* ==========================
-   Expose revokeCode to global (used in inline onclicks)
-   ========================== */
-window.revokeCode = revokeCode;
-
 </script>
 </body>
 </html>
