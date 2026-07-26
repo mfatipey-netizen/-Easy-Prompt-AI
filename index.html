@@ -193,6 +193,27 @@ body{
 .footer{text-align:center;color:var(--muted);font-size:.8rem;margin-top:40px}
 .hidden{display:none!important}
 
+/* ---------- PRO premium theme (applied when body[data-plan="pro"]) ---------- */
+body[data-plan="pro"]{
+  --gold:#e8c46a; --gold-2:#ffe6a1; --accent:#5ad1a0;
+}
+body[data-plan="pro"] .bg{
+  background:
+    radial-gradient(1200px 800px at 15% -10%, #2a2410 0%, transparent 55%),
+    radial-gradient(1000px 700px at 95% 0%, #10241d 0%, transparent 50%),
+    linear-gradient(180deg,#0b0a06 0%, #05060a 100%);
+}
+body[data-plan="pro"] .orb.o1{background:radial-gradient(circle at 30% 30%,#e8c46a,#7a5a12 60%,transparent);opacity:.6}
+body[data-plan="pro"] .orb.o2{background:radial-gradient(circle at 30% 30%,#5ad1a0,#134a37 60%,transparent)}
+body[data-plan="pro"] .card{border-color:rgba(232,196,106,.32);box-shadow:var(--shadow),0 0 0 1px rgba(232,196,106,.18)}
+body[data-plan="pro"] .card::before{background:radial-gradient(600px 220px at 80% -30%,rgba(232,196,106,.16),transparent)}
+body[data-plan="pro"] .cat.selected{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 24px 50px -22px rgba(232,196,106,.7)}
+body[data-plan="pro"] .header{box-shadow:var(--shadow-soft),0 0 0 1px rgba(232,196,106,.14)}
+.pro-ribbon{display:none}
+body[data-plan="pro"] .pro-ribbon{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;
+  background:linear-gradient(90deg,var(--gold),var(--gold-2));color:#141007;font-weight:900;font-size:.76rem;
+  box-shadow:0 8px 20px -8px rgba(232,196,106,.7);margin-inline-start:8px}
+
 @media (max-width:900px){
   .interview{grid-template-columns:1fr}
   .side{flex-direction:row;position:static;align-items:center;flex-wrap:wrap}
@@ -210,7 +231,7 @@ body{
     <div class="brand">
       <img class="logo" src="assets/img/logo.jpg" alt="logo" onerror="this.style.display='none'">
       <div>
-        <div class="t1">EASY PROMPT AI</div>
+        <div class="t1">EASY PROMPT AI <span class="pro-ribbon">★ PRO</span></div>
         <div class="t2">سازندهٔ پرامپت حرفه‌ای برای هر هوش مصنوعی</div>
       </div>
     </div>
@@ -229,7 +250,7 @@ body{
       <p>یک موضوع را انتخاب کن، به ۲۰ پرسش هوشمند پاسخ بده و یک پرامپت دقیق، ساختاریافته و آمادهٔ استفاده — به هر زبانی که بخواهی — تحویل بگیر.</p>
       <div class="steps">
         <span class="chip"><b>۱.</b> انتخاب موضوع</span>
-        <span class="chip"><b>۲.</b> پاسخ به ۲۰ سؤال</span>
+        <span class="chip"><b>۲.</b> پاسخ به <span id="heroQn">۲۰</span> سؤال</span>
         <span class="chip"><b>۳.</b> دریافت پرامپت حرفه‌ای</span>
       </div>
     </div>
@@ -390,9 +411,12 @@ function isPro(){
   return until && Date.now() < until;
 }
 function refreshPlanBadge(){
+  const pro=isPro();
   const b=document.getElementById('planBadge');
-  if(isPro()){ b.className='badge pro'; b.innerHTML='<span class="dot"></span> نسخهٔ حرفه‌ای (Pro)'; }
+  if(pro){ b.className='badge pro'; b.innerHTML='<span class="dot"></span> نسخهٔ حرفه‌ای (Pro)'; }
   else { b.className='badge free'; b.innerHTML='<span class="dot"></span> نسخهٔ رایگان'; }
+  document.body.dataset.plan = pro ? 'pro' : 'free';
+  const hq=document.getElementById('heroQn'); if(hq) hq.textContent = pro ? '۳۰' : '۲۰';
 }
 
 /* ============================================================
@@ -619,12 +643,51 @@ const CLOSERS = [
    hint:'هر نکتهٔ خاص، آخرین خواسته… (اختیاری)'},
 ];
 
-/* Build an adaptive plan of exactly 20 questions given the category kind.
+// PRO-only deep-dive questions (advanced prompt engineering). Shown only in Pro.
+const PRO_EXTRA = [
+  {id:'reasoning', type:'single', text:'هوش مصنوعی چطور به نتیجه برسد؟',
+   options:O('مستقیم و سریع','گام‌به‌گام و با استدلال','چند رویکرد را بسنجد و بهترین را انتخاب کند','اول نقشه بریزد بعد اجرا کند')},
+  {id:'priorities', type:'single', text:'مهم‌ترین اولویت خروجی چیست؟',
+   options:O('دقت و درستی','خلاقیت و تازگی','سرعت و سادگی','کامل و جامع بودن')},
+  {id:'terminology', type:'single', text:'سطح واژگان و اصطلاحات تخصصی؟',
+   options:O('ساده و همه‌فهم','متعادل','کاملاً تخصصی و فنی')},
+  {id:'structure_sections', type:'text', text:'خروجی دقیقاً چه بخش‌هایی داشته باشد؟',
+   hint:'مثلاً: مقدمه، سه بخش اصلی، جمع‌بندی، فراخوان اقدام. (اختیاری)'},
+  {id:'format_detail', type:'text', text:'جزئیات دقیق قالب یا سبک نوشتار؟',
+   hint:'مثلاً: پاراگراف‌های کوتاه، با ایموجی، لحن اول‌شخص… (اختیاری)'},
+  {id:'variations', type:'single', text:'چند نسخهٔ متفاوت از خروجی می‌خواهی؟',
+   options:O('فقط یک نسخهٔ نهایی','۲ نسخهٔ متفاوت','۳ نسخهٔ متفاوت','چند گزینه با سبک‌های مختلف')},
+  {id:'fewshot', type:'single', text:'می‌خواهی یک نمونهٔ ورودی/خروجی به‌عنوان الگو بدهی؟',
+   options:O('بله، الگو می‌دهم','نه، لازم نیست')},
+  {id:'fewshot_x', type:'text', text:'الگوی نمونه (ورودی → خروجی دلخواه) را بنویس.',
+   when:a=>a.fewshot==='بله، الگو می‌دهم'},
+  {id:'edgecases', type:'text', text:'موارد خاص، استثناها یا اشتباهات رایج که باید پوشش دهد؟',
+   hint:'چیزهایی که معمولاً از قلم می‌افتند. (اختیاری)'},
+  {id:'successcriteria', type:'text', text:'از نظر تو، خروجیِ «عالی» چه ویژگی‌ای دارد؟',
+   hint:'معیار موفقیت. این کمک می‌کند دقیقاً به هدفت برسد.'},
+  {id:'selfcheck', type:'single', text:'قبل از تحویل، خودش را نقد و بازبینی کند؟',
+   options:O('بله، با چک‌لیست کیفیت بازبینی کند','نه، همان نسخهٔ اول کافی است')},
+];
+
+// Generic filler questions — used only to guarantee the target count (20/30)
+// is always reached even when a category's conditional questions don't trigger.
+const FILLER = [
+  {id:'fl_context', type:'text', text:'چه اطلاعات پس‌زمینه‌ای هست که به نتیجهٔ بهتر کمک می‌کند؟', hint:'هر چیزی که فکر می‌کنی مهم است. (اختیاری)'},
+  {id:'fl_platform', type:'text', text:'این خروجی کجا منتشر یا استفاده می‌شود؟', hint:'مثلاً: اینستاگرام، وب‌سایت، ارائه… (اختیاری)'},
+  {id:'fl_feeling', type:'text', text:'دوست داری مخاطب بعد از دیدن خروجی چه حسی داشته باشد؟', hint:'(اختیاری)'},
+  {id:'fl_key', type:'text', text:'یک نکتهٔ کلیدی که اگر رعایت شود خیلی برایت مهم است؟', hint:'(اختیاری)'},
+  {id:'fl_avoid2', type:'text', text:'چیزی هست که تجربهٔ بدی ازش داشته‌ای و نمی‌خواهی تکرار شود؟', hint:'(اختیاری)'},
+  {id:'fl_more', type:'text', text:'هر جزئیات دیگری که به ذهنت می‌رسد را اینجا بنویس.', hint:'(اختیاری)'},
+  {id:'fl_ref', type:'text', text:'اگر لینک، نام یا مرجع خاصی مدنظرت هست بنویس.', hint:'(اختیاری)'},
+  {id:'fl_tone2', type:'text', text:'کلمه یا عبارتی هست که دوست داری حتماً به کار برود؟', hint:'(اختیاری)'},
+];
+
+/* Build an adaptive plan of questions given the category kind (20 free / 30 pro).
    Because some 'when' questions may or may not appear, we over-provision the
    pool and stop once 20 *shown* questions are answered. */
-function buildPool(kind){
+function buildPool(kind, pro){
   const dom = DOMAIN[kind] || DOMAIN.general;
-  // interleave: goal/topic first, then domain, then rest of core, then closers
+  // interleave: goal/topic first, then domain, then rest of core, [pro deep-dive,] then closers
   const pool = [];
   const core = [...CORE];
   const push = q => pool.push(q);
@@ -635,8 +698,12 @@ function buildPool(kind){
   dom.forEach(push);
   // remaining core
   core.forEach(push);
+  // pro-only expert deep-dive
+  if(pro) PRO_EXTRA.forEach(push);
   // closers
   CLOSERS.forEach(push);
+  // generic filler to guarantee the target count is always reachable
+  FILLER.forEach(push);
   return pool;
 }
 
@@ -644,7 +711,7 @@ function buildPool(kind){
    STATE + FLOW
    ============================================================ */
 const state = { cat:null, kind:null, pool:[], order:[], idx:0, answers:{}, done:false };
-const TARGET = 20;
+let TARGET = 20;   // 20 free / 30 pro — set when an interview starts
 
 const el = id => document.getElementById(id);
 const views = { home:el('viewHome'), interview:el('viewInterview'), result:el('viewResult') };
@@ -653,9 +720,10 @@ function showView(name){ Object.entries(views).forEach(([k,v])=> v.classList.tog
 /* render categories */
 function renderCats(filter=''){
   const box = el('cats'); box.innerHTML='';
+  const qn = isPro()?'۳۰':'۲۰';
   CATEGORIES.filter(c=>c.n.includes(filter.trim())).forEach(c=>{
     const d=document.createElement('div'); d.className='cat';
-    d.innerHTML=`<span class="emoji">${c.e}</span><div class="name">${c.n}</div><div class="meta">۲۰ سؤال هوشمند</div>`;
+    d.innerHTML=`<span class="emoji">${c.e}</span><div class="name">${c.n}</div><div class="meta">${qn} سؤال هوشمند</div>`;
     d.onclick=()=>startInterview(c);
     box.appendChild(d);
   });
@@ -663,7 +731,9 @@ function renderCats(filter=''){
 }
 
 function startInterview(cat){
-  state.cat=cat; state.kind=cat.k; state.pool=buildPool(cat.k);
+  const pro=isPro();
+  state.cat=cat; state.kind=cat.k; state.pool=buildPool(cat.k, pro);
+  TARGET = pro ? 30 : 20;
   state.idx=0; state.answers={}; state.order=[]; state.done=false;
   el('sideCat').textContent=cat.e+' '+cat.n;
   showView('interview');
@@ -821,7 +891,8 @@ function buildPrompt(langCode){
   const audience = a.audience==='سایر (توضیح می‌دهم)'?val('audience_x'):(val('audience')||'general audience');
 
   // gather context lines from ALL answered questions (skip control/meta)
-  const skip=new Set(['goal','persona','persona_x','audience','audience_x','tone','depth','constraints','avoid','examples','examples_x','format','length','creativity','iterate','extra']);
+  const skip=new Set(['goal','persona','persona_x','audience','audience_x','tone','depth','constraints','avoid','examples','examples_x','format','length','creativity','iterate','extra',
+    'reasoning','fewshot','fewshot_x','edgecases','successcriteria','variations','selfcheck']);
   const ctxLines=[];
   state.order.forEach(pi=>{
     const q=state.pool[pi];
@@ -882,6 +953,20 @@ function buildPrompt(langCode){
   S.push(`# ${lab.qual}`);
   S.push('- '+lab.think);
   S.push('- '+askLine);
+
+  // ---- PRO-only advanced sections ----
+  if(isPro()){
+    const fa = langCode==='fa';
+    const sec=(h,b)=>{ S.push(''); S.push('# '+h); S.push(b); };
+    if(has('reasoning')) sec(fa?'شیوهٔ استدلال':'REASONING APPROACH','- '+val('reasoning'));
+    if(a.fewshot==='بله، الگو می‌دهم' && has('fewshot_x')) sec(fa?'نمونهٔ الگو (Few-shot)':'FEW-SHOT EXAMPLE', val('fewshot_x'));
+    if(has('edgecases')) sec(fa?'موارد خاص و استثناها':'EDGE CASES','- '+val('edgecases'));
+    if(has('successcriteria')) sec(fa?'معیار خروجی عالی':'SUCCESS CRITERIA','- '+val('successcriteria'));
+    if(has('variations') && val('variations')!=='فقط یک نسخهٔ نهایی') sec(fa?'تعداد نسخه‌ها':'VARIATIONS','- '+val('variations'));
+    if(a.selfcheck && a.selfcheck.indexOf('بله')===0) sec(fa?'خودارزیابی':'SELF-EVALUATION',
+      fa?'- پس از تولید، خروجی را با یک چک‌لیست کیفیت بازبینی کن، نقاط ضعف را پیدا کن و نسخهٔ نهاییِ اصلاح‌شده را ارائه بده.'
+        :'- After producing the output, review it against a quality checklist, identify weaknesses, and deliver a refined final version.');
+  }
   S.push('');
   S.push(`# ${lab.lang}`);
   S.push(`${lab.respond} ${lname}.`);
@@ -906,9 +991,9 @@ function renderResult(){
   el('promptOut').textContent=p;
   el('promptTags').innerHTML=
     `<span class="tag">${state.cat.e} ${state.cat.n}</span>`+
-    `<span class="tag">${toFa(TARGET)} پاسخ</span>`+
+    `<span class="tag">${toFa(state.order.length)} پاسخ</span>`+
     `<span class="tag">زبان: ${langName(code)}</span>`+
-    (isPro()?'<span class="tag">Pro</span>':'');
+    (isPro()?'<span class="tag">★ Pro</span>':'');
 }
 el('langSel')?.addEventListener?.('change',renderResult);
 // (langSel exists after finish; attach via delegation)
@@ -985,7 +1070,13 @@ el('btnCode').onclick=()=>{ el('codeInput').value=''; openModal('codeModal'); se
 el('codeSubmit').onclick=()=>{
   const r=activate(el('codeInput').value);
   toast(r.m, r.ok?'ok':'err');
-  if(r.ok){ closeModals(); refreshPlanBadge(); if(state.done) renderResult(),renderPro(); }
+  if(r.ok){
+    closeModals();
+    refreshPlanBadge();      // sets Pro theme + badge
+    renderCats();            // category cards now show ۳۰ سؤال
+    if(state.done){ renderResult(); renderPro(); }
+    setTimeout(()=>toast('✨ نسخهٔ حرفه‌ای فعال شد: تم طلایی + ۳۰ سؤال تخصصی. یک موضوع جدید انتخاب کن تا ببینی!','ok'), 1600);
+  }
 };
 el('codeInput')?.addEventListener?.('keydown',e=>{ if(e.key==='Enter') el('codeSubmit').click(); });
 
