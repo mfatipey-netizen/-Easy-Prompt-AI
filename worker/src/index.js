@@ -1,0 +1,264 @@
+/*!
+ * EASY PROMPT AI — Cloudflare Worker API (secure backend)
+ * Copyright (c) 2026 MOHIFERI (mfatipey). All Rights Reserved.
+ *
+ * Keeps the prompt engine and pricing logic server-side so they can never be
+ * copied from the browser. The frontend is a thin client that talks to these
+ * endpoints only.
+ *
+ * Bindings / secrets (see wrangler.toml + README):
+ *   DB                 D1 database
+ *   ALLOWED_ORIGIN     e.g. https://mfatipey-netizen.github.io
+ *   ADMIN_TOKEN        secret — admin auth for code generation
+ *   ANTHROPIC_API_KEY  secret — for live AI (Claude)
+ *   PAYPAL_CLIENT_ID / PAYPAL_SECRET / PAYPAL_ENV   PayPal (env: 'live'|'sandbox')
+ *   USDT_TRC20_ADDRESS / USDT_ERC20_ADDRESS         your receiving wallets
+ *   PRICE_USDT         subscription price in USDT (e.g. "9")
+ *   ETHERSCAN_KEY      secret — for ERC-20 verification (optional)
+ */
+
+import { nextQuestion, generatePrompt, publicCategories } from './engine.js';
+
+const USDT_TRON_CONTRACT = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t';
+const USDT_ETH_CONTRACT  = '0xdac17f958d2ee523a2206206994597c13d831ec7';
+
+/* ----------------------------- helpers ----------------------------- */
+function cors(env, extra = {}) {
+  return {
+    'Access-Control-Allow-Origin': env.ALLOWED_ORIGIN || '*',
+    'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+    'Access-Control-Max-Age': '86400',
+    ...extra,
+  };
+}
+const json = (env, data, status = 200) =>
+  new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json', ...cors(env) } });
+
+const now = () => Date.now();
+const rand = (chars, n) => { let s = ''; for (let i = 0; i < n; i++) s += chars[Math.floor(Math.random() * chars.length)]; return s; };
+const newSubCode = () => rand('0123456789', 12);
+const newLifeCode = () => rand('abcdefghijklmnopqrstuvwxyz0123456789', 12);
+
+// Determine entitlement (Pro?) from the Authorization: Bearer <code> header.
+async function entitlement(request, env) {
+  const auth = request.headers.get('Authorization') || '';
+  const code = auth.startsWith('Bearer ') ? auth.slice(7).trim() : '';
+  if (!code) return { pro: false, code: null };
+  if (env.ADMIN_TOKEN && code === env.ADMIN_TOKEN) return { pro: true, code: 'admin' };
+  const row = await env.DB.prepare('SELECT * FROM codes WHERE code=?').bind(code).first();
+  if (!row || row.revoked) return { pro: false, code: null };
+  if (row.type === 'lifetime') return { pro: true, code };
+  // subscription: start clock on first use, 90 days
+  if (!row.first_used) {
+    const exp = now() + 90 * 24 * 3600 * 1000;
+    await env.DB.prepare('UPDATE codes SET first_used=?, expires_at=? WHERE code=?').bind(now(), exp, code).run();
+    return { pro: true, code };
+  }
+  if (row.expires_at && now() > row.expires_at) return { pro: false, code: null };
+  return { pro: true, code };
+}
+
+async function readJson(request) { try { return await request.json(); } catch { return {}; } }
+
+/* --------------------------- payments ------------------------------ */
+async function grantCode(env, type, method, payId, amount) {
+  const code = type === 'lifetime' ? newLifeCode() : newSubCode();
+  const ts = now();
+  const expires = type === 'subscription' ? ts + 90 * 24 * 3600 * 1000 : null;
+  await env.DB.prepare('INSERT INTO codes (code,type,created_at,first_used,expires_at,revoked,note) VALUES (?,?,?,?,?,0,?)')
+    .bind(code, type, ts, type === 'subscription' ? ts : null, expires, method).run();
+  await env.DB.prepare('INSERT OR REPLACE INTO payments (id,method,amount,status,code,created_at) VALUES (?,?,?,?,?,?)')
+    .bind(payId, method, String(amount ?? ''), 'completed', code, ts).run();
+  return code;
+}
+
+// Verify a PayPal order server-side, then grant a code.
+async function verifyPaypal(env, orderID) {
+  if (!env.PAYPAL_CLIENT_ID || !env.PAYPAL_SECRET) return { ok: false, error: 'paypal_not_configured' };
+  const base = env.PAYPAL_ENV === 'live' ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com';
+  const auth = btoa(`${env.PAYPAL_CLIENT_ID}:${env.PAYPAL_SECRET}`);
+  const tok = await fetch(`${base}/v1/oauth2/token`, {
+    method: 'POST', headers: { Authorization: `Basic ${auth}`, 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'grant_type=client_credentials',
+  }).then(r => r.json());
+  if (!tok.access_token) return { ok: false, error: 'paypal_auth_failed' };
+  const order = await fetch(`${base}/v2/checkout/orders/${orderID}`, {
+    headers: { Authorization: `Bearer ${tok.access_token}` },
+  }).then(r => r.json());
+  if (order.status !== 'COMPLETED' && order.status !== 'APPROVED') return { ok: false, error: 'not_paid', status: order.status };
+  // capture if only approved
+  if (order.status === 'APPROVED') {
+    const cap = await fetch(`${base}/v2/checkout/orders/${orderID}/capture`, {
+      method: 'POST', headers: { Authorization: `Bearer ${tok.access_token}`, 'Content-Type': 'application/json' },
+    }).then(r => r.json());
+    if (cap.status !== 'COMPLETED') return { ok: false, error: 'capture_failed', status: cap.status };
+  }
+  return { ok: true, amount: order?.purchase_units?.[0]?.amount?.value };
+}
+
+// Verify a USDT (Tether) transfer on TRON (TRC-20) or Ethereum (ERC-20).
+async function verifyUsdt(env, chain, txid) {
+  const price = parseFloat(env.PRICE_USDT || '9');
+  if (chain === 'trc20') {
+    const to = (env.USDT_TRC20_ADDRESS || '').trim();
+    if (!to) return { ok: false, error: 'trc20_not_configured' };
+    const info = await fetch(`https://apilist.tronscanapi.com/api/transaction-info?hash=${encodeURIComponent(txid)}`)
+      .then(r => r.json()).catch(() => null);
+    if (!info || !info.contractRet) return { ok: false, error: 'tx_not_found' };
+    if (info.contractRet !== 'SUCCESS') return { ok: false, error: 'tx_failed' };
+    const t = (info.trc20TransferInfo || [])[0] || info.tokenTransferInfo;
+    if (!t) return { ok: false, error: 'no_transfer' };
+    const contractOk = (t.contract_address || t.contractAddress) === USDT_TRON_CONTRACT;
+    const toOk = (t.to_address || t.toAddress) === to;
+    const amt = parseFloat(t.amount_str || t.amount || '0') / 1e6;
+    if (!contractOk) return { ok: false, error: 'not_usdt' };
+    if (!toOk) return { ok: false, error: 'wrong_recipient' };
+    if (amt + 1e-6 < price) return { ok: false, error: 'amount_too_low', got: amt, need: price };
+    return { ok: true, amount: amt };
+  }
+  if (chain === 'erc20') {
+    const to = (env.USDT_ERC20_ADDRESS || '').trim().toLowerCase();
+    if (!to) return { ok: false, error: 'erc20_not_configured' };
+    if (!env.ETHERSCAN_KEY) return { ok: false, error: 'etherscan_key_missing' };
+    const r = await fetch(`https://api.etherscan.io/api?module=proxy&action=eth_getTransactionReceipt&txhash=${txid}&apikey=${env.ETHERSCAN_KEY}`)
+      .then(x => x.json()).catch(() => null);
+    const logs = r?.result?.logs || [];
+    // Transfer(address,address,uint256) topic
+    const TRANSFER = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
+    for (const lg of logs) {
+      if ((lg.address || '').toLowerCase() !== USDT_ETH_CONTRACT) continue;
+      if ((lg.topics?.[0] || '') !== TRANSFER) continue;
+      const toAddr = '0x' + (lg.topics?.[2] || '').slice(26).toLowerCase();
+      if (toAddr !== to) continue;
+      const amt = parseInt(lg.data, 16) / 1e6;
+      if (amt + 1e-6 >= price) return { ok: true, amount: amt };
+      return { ok: false, error: 'amount_too_low', got: amt, need: price };
+    }
+    return { ok: false, error: 'no_matching_transfer' };
+  }
+  return { ok: false, error: 'unknown_chain' };
+}
+
+/* ------------------------------ AI --------------------------------- */
+async function runClaude(env, prompt) {
+  if (!env.ANTHROPIC_API_KEY) return { ok: false, error: 'ai_not_configured' };
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': env.ANTHROPIC_API_KEY,
+      'anthropic-version': '2023-06-01',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: env.AI_MODEL || 'claude-haiku-4-5-20251001',
+      max_tokens: 2048,
+      messages: [{ role: 'user', content: prompt }],
+    }),
+  });
+  const data = await res.json();
+  if (!res.ok) return { ok: false, error: data?.error?.message || 'ai_error' };
+  const text = (data.content || []).map(c => c.text || '').join('');
+  return { ok: true, text };
+}
+
+/* ----------------------------- router ------------------------------ */
+export default {
+  async fetch(request, env) {
+    const url = new URL(request.url);
+    const path = url.pathname.replace(/\/+$/, '') || '/';
+    if (request.method === 'OPTIONS') return new Response(null, { headers: cors(env) });
+
+    try {
+      if (path === '/' || path === '/api/health')
+        return json(env, { ok: true, service: 'easy-prompt-ai', time: now() });
+
+      if (path === '/api/categories')
+        return json(env, { categories: publicCategories() });
+
+      if (path === '/api/next' && request.method === 'POST') {
+        const { category, answers = {} } = await readJson(request);
+        if (!category) return json(env, { error: 'category_required' }, 400);
+        const ent = await entitlement(request, env);
+        return json(env, { ...nextQuestion(category, answers, ent.pro), pro: ent.pro });
+      }
+
+      if (path === '/api/generate' && request.method === 'POST') {
+        const { category, answers = {}, lang = 'en' } = await readJson(request);
+        if (!category) return json(env, { error: 'category_required' }, 400);
+        const ent = await entitlement(request, env);
+        const prompt = generatePrompt(category, answers, lang, ent.pro);
+        return json(env, { prompt, pro: ent.pro });
+      }
+
+      // Live AI (Pro only)
+      if (path === '/api/ai/run' && request.method === 'POST') {
+        const ent = await entitlement(request, env);
+        if (!ent.pro) return json(env, { error: 'pro_required' }, 402);
+        const { prompt } = await readJson(request);
+        if (!prompt) return json(env, { error: 'prompt_required' }, 400);
+        return json(env, await runClaude(env, prompt));
+      }
+
+      // Payment config (public) — addresses + price for the client to render
+      if (path === '/api/pay/config')
+        return json(env, {
+          price_usdt: env.PRICE_USDT || '9',
+          paypal_client_id: env.PAYPAL_CLIENT_ID || null,
+          usdt: {
+            trc20: env.USDT_TRC20_ADDRESS || null,
+            erc20: env.USDT_ERC20_ADDRESS || null,
+          },
+        });
+
+      // Verify PayPal order -> grant code
+      if (path === '/api/pay/paypal/verify' && request.method === 'POST') {
+        const { orderID } = await readJson(request);
+        if (!orderID) return json(env, { error: 'orderID_required' }, 400);
+        const seen = await env.DB.prepare('SELECT code FROM payments WHERE id=?').bind('paypal:' + orderID).first();
+        if (seen) return json(env, { ok: true, code: seen.code, reused: true });
+        const v = await verifyPaypal(env, orderID);
+        if (!v.ok) return json(env, v, 402);
+        const code = await grantCode(env, 'subscription', 'paypal', 'paypal:' + orderID, v.amount);
+        return json(env, { ok: true, code });
+      }
+
+      // Verify USDT transaction -> grant code
+      if (path === '/api/pay/usdt/verify' && request.method === 'POST') {
+        const { chain, txid } = await readJson(request);
+        if (!chain || !txid) return json(env, { error: 'chain_and_txid_required' }, 400);
+        const payId = `usdt-${chain}:${txid}`;
+        const seen = await env.DB.prepare('SELECT code FROM payments WHERE id=?').bind(payId).first();
+        if (seen) return json(env, { ok: true, code: seen.code, reused: true });
+        const v = await verifyUsdt(env, chain, txid);
+        if (!v.ok) return json(env, v, 402);
+        const code = await grantCode(env, 'subscription', 'usdt-' + chain, payId, v.amount);
+        return json(env, { ok: true, code });
+      }
+
+      // Admin: generate a code manually (protected)
+      if (path === '/api/admin/gen' && request.method === 'POST') {
+        const auth = request.headers.get('Authorization') || '';
+        if (!env.ADMIN_TOKEN || auth !== 'Bearer ' + env.ADMIN_TOKEN)
+          return json(env, { error: 'unauthorized' }, 401);
+        const { type = 'subscription' } = await readJson(request);
+        const code = type === 'lifetime' ? newLifeCode() : newSubCode();
+        const ts = now();
+        const expires = type === 'subscription' ? null : null;
+        await env.DB.prepare('INSERT INTO codes (code,type,created_at,first_used,expires_at,revoked,note) VALUES (?,?,?,?,?,0,?)')
+          .bind(code, type, ts, null, expires, 'admin').run();
+        return json(env, { ok: true, code, type });
+      }
+
+      // Check current entitlement for a code
+      if (path === '/api/me') {
+        const ent = await entitlement(request, env);
+        return json(env, ent);
+      }
+
+      return json(env, { error: 'not_found' }, 404);
+    } catch (e) {
+      return json(env, { error: 'server_error', detail: String(e && e.message || e) }, 500);
+    }
+  },
+};

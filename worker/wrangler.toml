@@ -1,0 +1,27 @@
+name = "easy-prompt-ai"
+main = "src/index.js"
+compatibility_date = "2024-11-01"
+
+# Public, non-secret configuration (safe to commit).
+[vars]
+ALLOWED_ORIGIN = "https://mfatipey-netizen.github.io"
+PAYPAL_ENV = "sandbox"        # switch to "live" when ready
+PRICE_USDT = "9"
+AI_MODEL = "claude-haiku-4-5-20251001"
+# Your receiving USDT wallets (fill these in — you'll provide two chains):
+USDT_TRC20_ADDRESS = ""       # TRON  (TRC-20)
+USDT_ERC20_ADDRESS = ""       # Ethereum (ERC-20)
+
+# D1 database binding. Create it with:  npx wrangler d1 create easy-prompt-ai
+# then paste the returned database_id below.
+[[d1_databases]]
+binding = "DB"
+database_name = "easy-prompt-ai"
+database_id = "REPLACE_WITH_YOUR_D1_ID"
+
+# Secrets are NOT stored here. Set them with `npx wrangler secret put NAME`:
+#   ADMIN_TOKEN          admin auth for /api/admin/gen
+#   ANTHROPIC_API_KEY    live AI (Claude)
+#   PAYPAL_CLIENT_ID     PayPal REST app client id
+#   PAYPAL_SECRET        PayPal REST app secret
+#   ETHERSCAN_KEY        (optional) for ERC-20 verification
