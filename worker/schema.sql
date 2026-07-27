@@ -22,4 +22,10 @@ CREATE TABLE IF NOT EXISTS payments (
   created_at  INTEGER NOT NULL
 );
 
+-- Cache of AI-translated question strings (key = "questionId|lang")
+CREATE TABLE IF NOT EXISTS i18n (
+  k TEXT PRIMARY KEY,
+  v TEXT
+);
+
 CREATE INDEX IF NOT EXISTS idx_codes_expires ON codes(expires_at);

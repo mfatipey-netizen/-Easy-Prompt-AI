@@ -178,6 +178,50 @@ async function runClaude(env, prompt) {
   return { ok: true, text };
 }
 
+/* --------------------- question localization ----------------------- */
+const LANG_NAMES = { en:'English', ar:'Arabic', tr:'Turkish', fr:'French', de:'German', es:'Spanish', zh:'Chinese (Simplified)', it:'Italian', ru:'Russian', ja:'Japanese', hi:'Hindi', pt:'Portuguese' };
+
+function extractJson(s){ if(!s) return null; const a=s.indexOf('{'), b=s.lastIndexOf('}'); return (a>=0&&b>a)? s.slice(a,b+1) : null; }
+
+// Translate a question's display strings to `lang` (Persian stays the value key). Cached in D1.
+async function cachedTranslate(env, q, lang){
+  if(!env.ANTHROPIC_API_KEY) return null;
+  const target = LANG_NAMES[lang]; if(!target) return null;
+  const key = q.id + '|' + lang;
+  try{
+    const hit = await env.DB.prepare('SELECT v FROM i18n WHERE k=?').bind(key).first();
+    if(hit && hit.v) return JSON.parse(hit.v);
+  }catch(e){
+    try{ await env.DB.prepare('CREATE TABLE IF NOT EXISTS i18n (k TEXT PRIMARY KEY, v TEXT)').run(); }catch(_){}
+  }
+  const payload = { text: q.text, hint: q.hint || '', options: q.options || [] };
+  const prompt = `Translate the string VALUES in this JSON from Persian to ${target}. Keep translations natural, concise and suitable as questionnaire UI text. Keep the same JSON shape and the options array in the same order and length. Return ONLY the JSON, no explanation.\n\n${JSON.stringify(payload)}`;
+  const r = await runClaude(env, prompt);
+  if(!r.ok) return null;
+  let parsed; try{ parsed = JSON.parse(extractJson(r.text)); }catch(e){ return null; }
+  if(!parsed || typeof parsed.text !== 'string') return null;
+  try{ await env.DB.prepare('INSERT OR REPLACE INTO i18n (k,v) VALUES (?,?)').bind(key, JSON.stringify(parsed)).run(); }catch(e){}
+  return parsed;
+}
+
+// Reshape a question for the client: options become {v: fa-value, l: display-label}.
+async function localizeQuestion(env, q, lang){
+  const baseOpts = (q.options || []).map(o => ({ v:o, l:o }));
+  let text = q.text, hint = q.hint || '';
+  if(q.type !== 'text' && lang && lang !== 'fa'){
+    const tr = await cachedTranslate(env, q, lang);
+    if(tr){
+      text = tr.text || text; hint = (typeof tr.hint==='string'? tr.hint : hint);
+      if(Array.isArray(tr.options) && tr.options.length === baseOpts.length)
+        tr.options.forEach((l,i)=>{ if(l) baseOpts[i].l = String(l); });
+    }
+  } else if(q.type === 'text' && lang && lang !== 'fa'){
+    const tr = await cachedTranslate(env, q, lang);
+    if(tr){ text = tr.text || text; hint = (typeof tr.hint==='string'? tr.hint : hint); }
+  }
+  return { id:q.id, type:q.type, text, hint, options: q.type==='text' ? null : baseOpts };
+}
+
 /* ----------------------------- router ------------------------------ */
 export default {
   async fetch(request, env) {
@@ -193,10 +237,12 @@ export default {
         return json(env, { categories: publicCategories() });
 
       if (path === '/api/next' && request.method === 'POST') {
-        const { category, answers = {} } = await readJson(request);
+        const { category, answers = {}, lang = 'fa' } = await readJson(request);
         if (!category) return json(env, { error: 'category_required' }, 400);
         const ent = await entitlement(request, env);
-        return json(env, { ...nextQuestion(category, answers, ent.pro), pro: ent.pro });
+        const res = nextQuestion(category, answers, ent.pro);
+        if (res.question) res.question = await localizeQuestion(env, res.question, lang);
+        return json(env, { ...res, pro: ent.pro });
       }
 
       if (path === '/api/generate' && request.method === 'POST') {

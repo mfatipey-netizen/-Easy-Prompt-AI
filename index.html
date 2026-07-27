@@ -487,7 +487,7 @@ async function startInterview(cat){
 }
 
 async function fetchNext(){
-  const d = await api('/api/next', { category: state.cat, answers: state.answers });
+  const d = await api('/api/next', { category: state.cat, answers: state.answers, lang: LANG });
   IS_PRO = !!d.pro; state.total = d.total || state.total; refreshPlan();
   if(d.done){ return finish(); }
   state.q = d.question;
@@ -511,14 +511,16 @@ function renderQuestion(index, total){
   } else {
     free.classList.add('hidden'); opts.classList.remove('hidden'); opts.innerHTML='';
     multiNote.classList.toggle('hidden', q.type!=='multi'); multiNote.textContent=t('multi');
-    (q.options||[]).forEach(o=>{
+    (q.options||[]).forEach(opt=>{
+      const val = (opt && typeof opt==='object') ? opt.v : opt;   // fa value (sent to server)
+      const label = (opt && typeof opt==='object') ? opt.l : opt; // localized display
       const d=document.createElement('div'); d.className='opt';
-      const sel = q.type==='multi' ? (Array.isArray(cur)&&cur.includes(o)) : cur===o;
+      const sel = q.type==='multi' ? (Array.isArray(cur)&&cur.includes(val)) : cur===val;
       if(sel) d.classList.add('selected');
-      d.innerHTML=`<span class="tick">✔</span><span>${o}</span>`;
+      d.innerHTML=`<span class="tick">✔</span><span>${label}</span>`;
       d.onclick=()=>{
-        if(q.type==='multi'){ let a=Array.isArray(state.cache[q.id])?[...state.cache[q.id]]:[]; a.includes(o)?a=a.filter(x=>x!==o):a.push(o); state.cache[q.id]=a; d.classList.toggle('selected'); }
-        else { state.cache[q.id]=o; [...opts.children].forEach(c=>c.classList.remove('selected')); d.classList.add('selected'); }
+        if(q.type==='multi'){ let a=Array.isArray(state.cache[q.id])?[...state.cache[q.id]]:[]; a.includes(val)?a=a.filter(x=>x!==val):a.push(val); state.cache[q.id]=a; d.classList.toggle('selected'); }
+        else { state.cache[q.id]=val; [...opts.children].forEach(c=>c.classList.remove('selected')); d.classList.add('selected'); }
       };
       opts.appendChild(d);
     });
