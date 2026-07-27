@@ -630,7 +630,14 @@ function fillLangSelects(){
 el('introLang').onchange=e=>{ LANG=e.target.value; applyLang(); };
 el('uiLang').onchange=e=>{ LANG=e.target.value; localStorage.setItem('epai_ui_lang',LANG); el('introLang').value=LANG; applyLang(); renderCats(el('catSearch').value);
   if(state.cat){ state.catLabel=catLabel(state.cat); el('sideCat').innerHTML = state.catEmoji+' <b style="color:var(--text)">'+state.catLabel+'</b>'; }
-  if(state.q) renderQuestion(state.order.indexOf(state.q.id)+1, state.total); };
+  // if mid-interview, re-fetch the current question translated to the new language
+  const inInterview = !el('viewInterview').classList.contains('hidden');
+  if(state.q && inInterview){
+    if(state.q.type==='text') state.cache[state.q.id]=el('freeInput').value; // keep uncommitted text
+    el('qText').innerHTML='<div class="spin"></div>'; el('opts').innerHTML=''; el('freeInput').classList.add('hidden');
+    fetchNext();
+  }
+};
 el('catSearch').oninput=e=>renderCats(e.target.value);
 
 el('introGo').onclick=()=>{ localStorage.setItem('epai_ui_lang',LANG); el('intro').classList.add('hidden'); el('app').classList.remove('hidden'); };
