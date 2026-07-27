@@ -1,0 +1,5 @@
+# GitHub Pages (Jekyll) config — publish only the web app, never the server source.
+exclude:
+  - worker
+  - README.md
+  - LICENSE
