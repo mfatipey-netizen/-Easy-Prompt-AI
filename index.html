@@ -360,6 +360,49 @@ const t = k => (T[LANG] && T[LANG][k]) || T.en[k] || k;
 /* output prompt languages (for the generated prompt) */
 const OUT_LANGS = [['en','English'],['fa','فارسی'],['ar','العربية'],['tr','Türkçe'],['fr','Français'],['de','Deutsch'],['es','Español'],['it','Italiano'],['ru','Русский'],['zh','中文'],['ja','日本語'],['hi','हिन्दी'],['pt','Português']];
 
+/* category display names by language (server key stays Persian) */
+const CAT_I18N = {
+ 'نویسندگی و محتوا':{en:'Writing & Content',ar:'الكتابة والمحتوى',tr:'Yazı & İçerik',fr:'Écriture & Contenu',de:'Schreiben & Inhalt',es:'Escritura y Contenido',zh:'写作与内容'},
+ 'نویسندگی تخصصی':{en:'Professional Writing',ar:'الكتابة الاحترافية',tr:'Profesyonel Yazı',fr:'Rédaction Pro',de:'Fachtexte',es:'Escritura Profesional',zh:'专业写作'},
+ 'تولید محتوا':{en:'Content Creation',ar:'صناعة المحتوى',tr:'İçerik Üretimi',fr:'Création de Contenu',de:'Content-Erstellung',es:'Creación de Contenido',zh:'内容创作'},
+ 'شبکه‌های اجتماعی':{en:'Social Media',ar:'وسائل التواصل',tr:'Sosyal Medya',fr:'Réseaux Sociaux',de:'Soziale Medien',es:'Redes Sociales',zh:'社交媒体'},
+ 'طراحی و ساخت تصویر':{en:'Image Design',ar:'تصميم الصور',tr:'Görsel Tasarım',fr:"Design d'Images",de:'Bilddesign',es:'Diseño de Imágenes',zh:'图像设计'},
+ 'عکاسی':{en:'Photography',ar:'التصوير',tr:'Fotoğrafçılık',fr:'Photographie',de:'Fotografie',es:'Fotografía',zh:'摄影'},
+ 'مد و فشن':{en:'Fashion',ar:'الموضة',tr:'Moda',fr:'Mode',de:'Mode',es:'Moda',zh:'时尚'},
+ 'ساخت و تدوین ویدئو':{en:'Video & Editing',ar:'الفيديو والمونتاج',tr:'Video & Montaj',fr:'Vidéo & Montage',de:'Video & Schnitt',es:'Vídeo y Edición',zh:'视频与剪辑'},
+ 'ساخت انیمیشن':{en:'Animation',ar:'الرسوم المتحركة',tr:'Animasyon',fr:'Animation',de:'Animation',es:'Animación',zh:'动画'},
+ 'بازی‌سازی':{en:'Game Development',ar:'تطوير الألعاب',tr:'Oyun Geliştirme',fr:'Développement de Jeux',de:'Spieleentwicklung',es:'Desarrollo de Juegos',zh:'游戏开发'},
+ 'برنامه‌نویسی':{en:'Programming',ar:'البرمجة',tr:'Programlama',fr:'Programmation',de:'Programmierung',es:'Programación',zh:'编程'},
+ 'IT و کامپیوتر':{en:'IT & Computers',ar:'تقنية المعلومات',tr:'BT & Bilgisayar',fr:'Informatique',de:'IT & Computer',es:'TI y Computadoras',zh:'IT与计算机'},
+ 'کسب‌وکار و بازاریابی':{en:'Business & Marketing',ar:'الأعمال والتسويق',tr:'İş & Pazarlama',fr:'Business & Marketing',de:'Business & Marketing',es:'Negocios y Marketing',zh:'商业与营销'},
+ 'کسب درآمد':{en:'Making Money',ar:'كسب المال',tr:'Para Kazanma',fr:"Gagner de l'Argent",de:'Geld Verdienen',es:'Ganar Dinero',zh:'赚钱'},
+ 'سرمایه‌گذاری':{en:'Investing',ar:'الاستثمار',tr:'Yatırım',fr:'Investissement',de:'Investieren',es:'Inversión',zh:'投资'},
+ 'امور مالی':{en:'Finance',ar:'المالية',tr:'Finans',fr:'Finance',de:'Finanzen',es:'Finanzas',zh:'金融'},
+ 'مشاوره':{en:'Consulting',ar:'الاستشارات',tr:'Danışmanlık',fr:'Conseil',de:'Beratung',es:'Consultoría',zh:'咨询'},
+ 'روانشناسی':{en:'Psychology',ar:'علم النفس',tr:'Psikoloji',fr:'Psychologie',de:'Psychologie',es:'Psicología',zh:'心理学'},
+ 'پزشکی و سلامت':{en:'Medical & Health',ar:'الطب والصحة',tr:'Tıp & Sağlık',fr:'Médecine & Santé',de:'Medizin & Gesundheit',es:'Medicina y Salud',zh:'医疗与健康'},
+ 'چاقی و لاغری':{en:'Weight Management',ar:'إدارة الوزن',tr:'Kilo Yönetimi',fr:'Gestion du Poids',de:'Gewichtsmanagement',es:'Control de Peso',zh:'体重管理'},
+ 'ورزش و تناسب اندام':{en:'Fitness',ar:'اللياقة البدنية',tr:'Fitness',fr:'Fitness',de:'Fitness',es:'Fitness',zh:'健身'},
+ 'آموزش و تدریس':{en:'Teaching & Education',ar:'التعليم والتدريس',tr:'Eğitim & Öğretim',fr:'Enseignement',de:'Lehren & Bildung',es:'Enseñanza',zh:'教学与教育'},
+ 'دانش‌آموزی':{en:'School Students',ar:'طلاب المدارس',tr:'Okul Öğrencileri',fr:'Élèves',de:'Schüler',es:'Estudiantes Escolares',zh:'中小学生'},
+ 'دانشجویی':{en:'University Students',ar:'طلاب الجامعة',tr:'Üniversite Öğrencileri',fr:'Étudiants',de:'Studierende',es:'Universitarios',zh:'大学生'},
+ 'تحقیق و پژوهش':{en:'Research',ar:'البحث العلمي',tr:'Araştırma',fr:'Recherche',de:'Forschung',es:'Investigación',zh:'研究'},
+ 'زبان‌شناسی و ترجمه':{en:'Language & Translation',ar:'اللغة والترجمة',tr:'Dil & Çeviri',fr:'Langue & Traduction',de:'Sprache & Übersetzung',es:'Idiomas y Traducción',zh:'语言与翻译'},
+ 'طراحی داخلی و خارجی':{en:'Interior & Exterior Design',ar:'التصميم الداخلي والخارجي',tr:'İç & Dış Tasarım',fr:'Design Intérieur',de:'Innen- & Außendesign',es:'Diseño Interior',zh:'室内外设计'},
+ 'طراحی سازه و معماری':{en:'Architecture',ar:'الهندسة المعمارية',tr:'Mimari',fr:'Architecture',de:'Architektur',es:'Arquitectura',zh:'建筑设计'},
+ 'گردشگری و سفر':{en:'Travel',ar:'السياحة والسفر',tr:'Seyahat',fr:'Voyage',de:'Reisen',es:'Viajes',zh:'旅游'},
+ 'غذا و آشپزی':{en:'Food & Cooking',ar:'الطعام والطبخ',tr:'Yemek & Pişirme',fr:'Cuisine',de:'Essen & Kochen',es:'Comida y Cocina',zh:'美食与烹饪'},
+ 'خوردنی و نوشیدنی':{en:'Food & Drinks',ar:'المأكولات والمشروبات',tr:'Yiyecek & İçecek',fr:'Aliments & Boissons',de:'Speisen & Getränke',es:'Comidas y Bebidas',zh:'饮食与饮品'},
+ 'حیوانات':{en:'Animals',ar:'الحيوانات',tr:'Hayvanlar',fr:'Animaux',de:'Tiere',es:'Animales',zh:'动物'},
+ 'وسیله نقلیه و تعمیرات':{en:'Vehicles & Repairs',ar:'المركبات والإصلاح',tr:'Araçlar & Tamir',fr:'Véhicules & Réparations',de:'Fahrzeuge & Reparatur',es:'Vehículos y Reparaciones',zh:'车辆与维修'},
+ 'کاردستی و خلاقیت':{en:'Crafts & Creativity',ar:'الحرف والإبداع',tr:'El Sanatları',fr:'Loisirs Créatifs',de:'Basteln & Kreativität',es:'Manualidades',zh:'手工与创意'},
+ 'ایده‌پردازی':{en:'Ideation',ar:'توليد الأفكار',tr:'Fikir Üretme',fr:'Idéation',de:'Ideenfindung',es:'Ideación',zh:'创意构思'},
+ 'سرگرمی':{en:'Entertainment',ar:'الترفيه',tr:'Eğlence',fr:'Divertissement',de:'Unterhaltung',es:'Entretenimiento',zh:'娱乐'},
+ 'سلامت روان':{en:'Mental Health',ar:'الصحة النفسية',tr:'Ruh Sağlığı',fr:'Santé Mentale',de:'Psychische Gesundheit',es:'Salud Mental',zh:'心理健康'},
+ 'موضوع دلخواه (عمومی)':{en:'Custom Topic (General)',ar:'موضوع مخصص (عام)',tr:'Özel Konu (Genel)',fr:'Sujet Libre (Général)',de:'Eigenes Thema',es:'Tema Libre (General)',zh:'自定义主题（通用）'},
+};
+function catLabel(fa){ if(LANG==='fa') return fa; const m=CAT_I18N[fa]; return (m && (m[LANG]||m.en)) || fa; }
+
 /* ---------------- state / helpers ---------------- */
 const el = id => document.getElementById(id);
 const getCode = () => localStorage.getItem('epai_code') || '';
@@ -422,9 +465,10 @@ async function loadCats(){
 }
 function renderCats(filter){
   const box = el('cats'); box.innerHTML='';
-  CATS.filter(c=>!filter || c.n.includes(filter)).forEach(c=>{
+  const f=(filter||'').trim().toLowerCase();
+  CATS.filter(c=>!f || c.n.includes(filter) || catLabel(c.n).toLowerCase().includes(f)).forEach(c=>{
     const d=document.createElement('div'); d.className='cat';
-    d.innerHTML=`<div class="emoji">${c.e}</div><div class="name">${c.n}</div>`;
+    d.innerHTML=`<div class="emoji">${c.e}</div><div class="name">${catLabel(c.n)}</div>`;
     d.onclick=()=>startInterview(c);
     box.appendChild(d);
   });
@@ -435,8 +479,8 @@ function renderCats(filter){
 function show(view){ ['viewHome','viewInterview','viewResult'].forEach(v=>el(v).classList.toggle('hidden', v!==view)); window.scrollTo({top:0,behavior:'smooth'}); }
 
 async function startInterview(cat){
-  state = { cat:cat.n, catEmoji:cat.e, answers:{}, cache:{}, order:[], q:null, total: IS_PRO?30:20 };
-  el('sideCat').innerHTML = cat.e+' <b style="color:var(--text)">'+cat.n+'</b>';
+  state = { cat:cat.n, catEmoji:cat.e, catLabel:catLabel(cat.n), answers:{}, cache:{}, order:[], q:null, total: IS_PRO?30:20 };
+  el('sideCat').innerHTML = cat.e+' <b style="color:var(--text)">'+state.catLabel+'</b>';
   show('viewInterview');
   el('qText').innerHTML = '<div class="spin"></div>'; el('opts').innerHTML=''; el('freeInput').classList.add('hidden');
   await fetchNext();
@@ -517,7 +561,7 @@ async function renderResult(){
   IS_PRO=!!d.pro; refreshPlan();
   el('promptOut').textContent = d.prompt||t('error');
   const on = (OUT_LANGS.find(l=>l[0]===el('langSel').value)||[])[1]||'';
-  el('promptTags').innerHTML = `<span class="tag">${state.catEmoji} ${state.cat}</span><span class="tag">${on}</span>`+(IS_PRO?'<span class="tag">★ Pro</span>':'');
+  el('promptTags').innerHTML = `<span class="tag">${state.catEmoji} ${state.catLabel||state.cat}</span><span class="tag">${on}</span>`+(IS_PRO?'<span class="tag">★ Pro</span>':'');
 }
 el('langSel').onchange=renderResult;
 el('btnCopy').onclick=async()=>{ try{ await navigator.clipboard.writeText(el('promptOut').textContent); toast(t('copied'),'ok'); }catch(e){ toast(t('copied'),'ok'); } };
@@ -582,7 +626,9 @@ function fillLangSelects(){
   [el('introLang'), el('uiLang')].forEach(s=>{ s.innerHTML=''; LANGS.forEach(([c,n])=>{ const o=document.createElement('option'); o.value=c; o.textContent=n; s.appendChild(o); }); s.value=LANG; });
 }
 el('introLang').onchange=e=>{ LANG=e.target.value; applyLang(); };
-el('uiLang').onchange=e=>{ LANG=e.target.value; localStorage.setItem('epai_ui_lang',LANG); el('introLang').value=LANG; applyLang(); renderCats(el('catSearch').value); if(state.q) renderQuestion(state.order.indexOf(state.q.id)+1, state.total); };
+el('uiLang').onchange=e=>{ LANG=e.target.value; localStorage.setItem('epai_ui_lang',LANG); el('introLang').value=LANG; applyLang(); renderCats(el('catSearch').value);
+  if(state.cat){ state.catLabel=catLabel(state.cat); el('sideCat').innerHTML = state.catEmoji+' <b style="color:var(--text)">'+state.catLabel+'</b>'; }
+  if(state.q) renderQuestion(state.order.indexOf(state.q.id)+1, state.total); };
 el('catSearch').oninput=e=>renderCats(e.target.value);
 
 el('introGo').onclick=()=>{ localStorage.setItem('epai_ui_lang',LANG); el('intro').classList.add('hidden'); el('app').classList.remove('hidden'); };
