@@ -28,4 +28,15 @@ CREATE TABLE IF NOT EXISTS i18n (
   v TEXT
 );
 
+-- Per-user prompt history (keyed by activation code), synced across devices
+CREATE TABLE IF NOT EXISTS history (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  code       TEXT,
+  category   TEXT,
+  lang       TEXT,
+  prompt     TEXT,
+  created_at INTEGER
+);
+CREATE INDEX IF NOT EXISTS idx_history_code ON history(code, id);
+
 CREATE INDEX IF NOT EXISTS idx_codes_expires ON codes(expires_at);

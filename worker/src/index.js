@@ -335,6 +335,27 @@ export default {
         return json(env, ent);
       }
 
+      // Cloud history (per activation code) — synced across devices for Pro users
+      if (path === '/api/history') {
+        const code = (request.headers.get('Authorization') || '').replace(/^Bearer\s+/, '').trim();
+        if (!code) return json(env, { items: [] });
+        try {
+          await env.DB.prepare('CREATE TABLE IF NOT EXISTS history (id INTEGER PRIMARY KEY AUTOINCREMENT, code TEXT, category TEXT, lang TEXT, prompt TEXT, created_at INTEGER)').run();
+        } catch (e) {}
+        if (request.method === 'POST') {
+          const { category = '', lang = '', prompt = '' } = await readJson(request);
+          if (!prompt) return json(env, { error: 'prompt_required' }, 400);
+          await env.DB.prepare('INSERT INTO history (code,category,lang,prompt,created_at) VALUES (?,?,?,?,?)')
+            .bind(code, String(category), String(lang), String(prompt), now()).run();
+          // keep only the latest 50 per code
+          await env.DB.prepare('DELETE FROM history WHERE code=? AND id NOT IN (SELECT id FROM history WHERE code=? ORDER BY id DESC LIMIT 50)')
+            .bind(code, code).run().catch(() => {});
+          return json(env, { ok: true });
+        }
+        const rows = await env.DB.prepare('SELECT category,lang,prompt,created_at FROM history WHERE code=? ORDER BY id DESC LIMIT 50').bind(code).all().catch(() => ({ results: [] }));
+        return json(env, { items: rows.results || [] });
+      }
+
       return json(env, { error: 'not_found' }, 404);
     } catch (e) {
       return json(env, { error: 'server_error', detail: String(e && e.message || e) }, 500);
