@@ -5,7 +5,7 @@ compatibility_date = "2024-11-01"
 # Public, non-secret configuration (safe to commit).
 [vars]
 ALLOWED_ORIGIN = "https://easypromptai.net,https://www.easypromptai.net,https://mfatipey-netizen.github.io"
-PAYPAL_ENV = "sandbox"        # switch to "live" when ready
+PAYPAL_ENV = "live"           # real payments (use a Live PayPal app)
 PRICE_USDT = "9"
 AI_MODEL = "claude-haiku-4-5-20251001"
 # Receiving USDT/USDC wallets (public addresses — customers pay to these).
