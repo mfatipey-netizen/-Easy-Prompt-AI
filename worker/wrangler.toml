@@ -8,9 +8,11 @@ ALLOWED_ORIGIN = "https://mfatipey-netizen.github.io"
 PAYPAL_ENV = "sandbox"        # switch to "live" when ready
 PRICE_USDT = "9"
 AI_MODEL = "claude-haiku-4-5-20251001"
-# Your receiving USDT wallets (fill these in — you'll provide two chains):
-USDT_TRC20_ADDRESS = ""       # TRON  (TRC-20)
-USDT_ERC20_ADDRESS = ""       # Ethereum (ERC-20)
+# Receiving USDT/USDC wallets (public addresses — customers pay to these).
+USDT_TRC20_ADDRESS = "TKapHqn3SfLMcNeKcnF85tWknza2y3tL8V"          # TRON (TRC-20)
+USDT_ERC20_ADDRESS = "0x1D7890d49cc240ee6E4c3E7EE4FC4bB7dFdF30DA"  # Ethereum (ERC-20)
+USDT_BEP20_ADDRESS = "0x1D7890d49cc240ee6E4c3E7EE4FC4bB7dFdF30DA"  # BNB Chain (BEP-20)
+USDT_ARB_ADDRESS   = "0x1D7890d49cc240ee6E4c3E7EE4FC4bB7dFdF30DA"  # Arbitrum
 
 # D1 database binding. Create it with:  npx wrangler d1 create easy-prompt-ai
 # then paste the returned database_id below.

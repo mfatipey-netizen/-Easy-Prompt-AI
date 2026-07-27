@@ -19,8 +19,20 @@
 
 import { nextQuestion, generatePrompt, publicCategories } from './engine.js';
 
-const USDT_TRON_CONTRACT = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t';
-const USDT_ETH_CONTRACT  = '0xdac17f958d2ee523a2206206994597c13d831ec7';
+const USDT_TRON_CONTRACT = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t'; // USDT on TRON (6 decimals)
+
+// EVM chains supported for on-chain verification (Etherscan V2 multichain API).
+const EVM_CHAINS = {
+  erc20:    { id: 1,     addrVar: 'USDT_ERC20_ADDRESS' },
+  bep20:    { id: 56,    addrVar: 'USDT_BEP20_ADDRESS' },
+  arbitrum: { id: 42161, addrVar: 'USDT_ARB_ADDRESS' },
+};
+// token contract (lowercase) + decimals, per chain id
+const TOKENS = {
+  usdt: { 1:['0xdac17f958d2ee523a2206206994597c13d831ec7',6], 56:['0x55d398326f99059ff775485246999027b3197955',18], 42161:['0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9',6] },
+  usdc: { 1:['0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',6], 56:['0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d',18], 42161:['0xaf88d065e77c8cc2239327c5edb3a432268e5831',6] },
+};
+const TRANSFER_TOPIC = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
 
 /* ----------------------------- helpers ----------------------------- */
 function cors(env, extra = {}) {
@@ -97,9 +109,10 @@ async function verifyPaypal(env, orderID) {
   return { ok: true, amount: order?.purchase_units?.[0]?.amount?.value };
 }
 
-// Verify a USDT (Tether) transfer on TRON (TRC-20) or Ethereum (ERC-20).
-async function verifyUsdt(env, chain, txid) {
+// Verify a USDT/USDC transfer on TRON (TRC-20) or any supported EVM chain.
+async function verifyUsdt(env, chain, txid, token = 'usdt') {
   const price = parseFloat(env.PRICE_USDT || '9');
+
   if (chain === 'trc20') {
     const to = (env.USDT_TRC20_ADDRESS || '').trim();
     if (!to) return { ok: false, error: 'trc20_not_configured' };
@@ -109,29 +122,32 @@ async function verifyUsdt(env, chain, txid) {
     if (info.contractRet !== 'SUCCESS') return { ok: false, error: 'tx_failed' };
     const t = (info.trc20TransferInfo || [])[0] || info.tokenTransferInfo;
     if (!t) return { ok: false, error: 'no_transfer' };
-    const contractOk = (t.contract_address || t.contractAddress) === USDT_TRON_CONTRACT;
-    const toOk = (t.to_address || t.toAddress) === to;
+    if ((t.contract_address || t.contractAddress) !== USDT_TRON_CONTRACT) return { ok: false, error: 'not_usdt' };
+    if ((t.to_address || t.toAddress) !== to) return { ok: false, error: 'wrong_recipient' };
     const amt = parseFloat(t.amount_str || t.amount || '0') / 1e6;
-    if (!contractOk) return { ok: false, error: 'not_usdt' };
-    if (!toOk) return { ok: false, error: 'wrong_recipient' };
     if (amt + 1e-6 < price) return { ok: false, error: 'amount_too_low', got: amt, need: price };
     return { ok: true, amount: amt };
   }
-  if (chain === 'erc20') {
-    const to = (env.USDT_ERC20_ADDRESS || '').trim().toLowerCase();
-    if (!to) return { ok: false, error: 'erc20_not_configured' };
+
+  const evm = EVM_CHAINS[chain];
+  if (evm) {
+    const to = (env[evm.addrVar] || '').trim().toLowerCase();
+    if (!to) return { ok: false, error: chain + '_not_configured' };
     if (!env.ETHERSCAN_KEY) return { ok: false, error: 'etherscan_key_missing' };
-    const r = await fetch(`https://api.etherscan.io/api?module=proxy&action=eth_getTransactionReceipt&txhash=${txid}&apikey=${env.ETHERSCAN_KEY}`)
-      .then(x => x.json()).catch(() => null);
+    const tokenMap = TOKENS[token] || TOKENS.usdt;
+    const spec = tokenMap[evm.id];
+    if (!spec) return { ok: false, error: 'token_not_supported_on_chain' };
+    const [contract, decimals] = spec;
+    // Etherscan V2 multichain endpoint (one API key covers ETH, BSC, Arbitrum, …)
+    const url = `https://api.etherscan.io/v2/api?chainid=${evm.id}&module=proxy&action=eth_getTransactionReceipt&txhash=${txid}&apikey=${env.ETHERSCAN_KEY}`;
+    const r = await fetch(url).then(x => x.json()).catch(() => null);
     const logs = r?.result?.logs || [];
-    // Transfer(address,address,uint256) topic
-    const TRANSFER = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
     for (const lg of logs) {
-      if ((lg.address || '').toLowerCase() !== USDT_ETH_CONTRACT) continue;
-      if ((lg.topics?.[0] || '') !== TRANSFER) continue;
+      if ((lg.address || '').toLowerCase() !== contract) continue;
+      if ((lg.topics?.[0] || '') !== TRANSFER_TOPIC) continue;
       const toAddr = '0x' + (lg.topics?.[2] || '').slice(26).toLowerCase();
       if (toAddr !== to) continue;
-      const amt = parseInt(lg.data, 16) / 1e6;
+      const amt = parseInt(lg.data, 16) / Math.pow(10, decimals);
       if (amt + 1e-6 >= price) return { ok: true, amount: amt };
       return { ok: false, error: 'amount_too_low', got: amt, need: price };
     }
@@ -205,9 +221,11 @@ export default {
         return json(env, {
           price_usdt: env.PRICE_USDT || '9',
           paypal_client_id: env.PAYPAL_CLIENT_ID || null,
-          usdt: {
-            trc20: env.USDT_TRC20_ADDRESS || null,
-            erc20: env.USDT_ERC20_ADDRESS || null,
+          wallets: {
+            trc20:    env.USDT_TRC20_ADDRESS || null,
+            erc20:    env.USDT_ERC20_ADDRESS || null,
+            bep20:    env.USDT_BEP20_ADDRESS || null,
+            arbitrum: env.USDT_ARB_ADDRESS || null,
           },
         });
 
