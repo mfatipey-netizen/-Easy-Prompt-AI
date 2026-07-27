@@ -4,7 +4,7 @@ compatibility_date = "2024-11-01"
 
 # Public, non-secret configuration (safe to commit).
 [vars]
-ALLOWED_ORIGIN = "https://mfatipey-netizen.github.io"
+ALLOWED_ORIGIN = "https://easypromptai.net,https://www.easypromptai.net,https://mfatipey-netizen.github.io"
 PAYPAL_ENV = "sandbox"        # switch to "live" when ready
 PRICE_USDT = "9"
 AI_MODEL = "claude-haiku-4-5-20251001"

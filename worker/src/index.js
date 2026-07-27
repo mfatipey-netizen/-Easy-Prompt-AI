@@ -35,15 +35,25 @@ const TOKENS = {
 const TRANSFER_TOPIC = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
 
 /* ----------------------------- helpers ----------------------------- */
-function cors(env, extra = {}) {
+// ALLOWED_ORIGIN may be a comma-separated list; echo back the matching origin.
+function pickOrigin(request, env) {
+  const list = (env.ALLOWED_ORIGIN || '*').split(',').map(s => s.trim()).filter(Boolean);
+  if (list.includes('*')) return '*';
+  const o = request.headers.get('Origin') || '';
+  return list.includes(o) ? o : (list[0] || '*');
+}
+function corsFor(origin, extra = {}) {
   return {
-    'Access-Control-Allow-Origin': env.ALLOWED_ORIGIN || '*',
+    'Access-Control-Allow-Origin': origin,
+    'Vary': 'Origin',
     'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type,Authorization',
     'Access-Control-Max-Age': '86400',
     ...extra,
   };
 }
+// module-level fallbacks (shadowed per-request inside fetch)
+function cors(env, extra = {}) { return corsFor((env.ALLOWED_ORIGIN || '*').split(',')[0].trim() || '*', extra); }
 const json = (env, data, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json', ...cors(env) } });
 
@@ -227,6 +237,11 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const path = url.pathname.replace(/\/+$/, '') || '/';
+    // per-request CORS bound to the caller's origin (shadows the module helpers)
+    const _origin = pickOrigin(request, env);
+    const cors = (env, extra = {}) => corsFor(_origin, extra);
+    const json = (env, data, status = 200) =>
+      new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json', ...corsFor(_origin) } });
     if (request.method === 'OPTIONS') return new Response(null, { headers: cors(env) });
 
     try {
