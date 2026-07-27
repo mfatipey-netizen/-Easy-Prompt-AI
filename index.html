@@ -161,6 +161,8 @@ body{color:var(--text);background:var(--bg);overflow-x:hidden;-webkit-font-smoot
     <div class="hc">
       <span class="badge free" id="planBadge"><span class="dot"></span> <span id="planText"></span></span>
       <select class="langsel" id="uiLang" title="Language"></select>
+      <button class="btn sm ghost" id="btnVoice" title="Voice / accessibility" aria-pressed="false">🔊</button>
+      <button class="btn sm ghost" id="btnHistory"></button>
       <button class="btn sm" id="btnUpgrade"></button>
       <button class="btn sm ghost" id="btnCode"></button>
       <button class="btn sm ghost" id="btnHome"></button>
@@ -194,6 +196,10 @@ body{color:var(--text);background:var(--bg);overflow-x:hidden;-webkit-font-smoot
           <div class="qnum" id="qNum"></div>
           <div class="qtext" id="qText"></div>
           <div class="qhint" id="qHint"></div>
+          <div id="voiceBar" style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+            <button class="btn sm ghost" id="btnListen"></button>
+            <button class="btn sm ghost hidden" id="btnMic"></button>
+          </div>
           <div class="opts" id="opts"></div>
           <textarea class="freeinput hidden" id="freeInput"></textarea>
           <div class="multi-note hidden" id="multiNote"></div>
@@ -241,6 +247,13 @@ body{color:var(--text);background:var(--bg);overflow-x:hidden;-webkit-font-smoot
   <h3 id="payTitle"></h3>
   <p class="section-sub" id="paySub" style="margin-top:8px"></p>
   <div id="payBody"><div class="spin"></div></div>
+  <div class="nav" style="margin-top:16px"><button class="btn ghost" data-close></button></div>
+</div></div>
+
+<!-- HISTORY MODAL -->
+<div class="modal" id="historyModal"><div class="panel">
+  <h3 id="histTitle"></h3>
+  <div id="histBody" style="margin-top:12px"></div>
   <div class="nav" style="margin-top:16px"><button class="btn ghost" data-close></button></div>
 </div></div>
 
@@ -354,8 +367,14 @@ const T = {
     copied:"已复制 ✓",activated:"专业版已激活！🎉",invalid:"无效的兑换码。",verifying:"正在链上验证…",payFail:"暂未找到付款。请确认交易已确认后重试。",
     loading:"加载中…",error:"出错了，请重试。",contact:"广告与合作：m.f.atipey@gmail.com",aiPro:"实时 AI 为专业版功能。",aiSoon:"实时 AI 尚未配置。"},
 };
+// extra strings for voice + history (en/fa native; other langs fall back to en)
+Object.assign(T.en,{history:'🕘 History',histTitle:'Your prompt history',histEmpty:'No saved prompts yet. Generate one and it will appear here.',listen:'🔊 Listen',stopListen:'⏹ Stop',speak:'🎤 Speak answer',listening:'🎤 Listening…',reuse:'Reuse',view:'View',voiceOn:'Auto read-aloud: ON',voiceOff:'Auto read-aloud: OFF',noVoice:'Voice not supported in this browser.'});
+Object.assign(T.fa,{history:'🕘 تاریخچه',histTitle:'تاریخچهٔ پرامپت‌های تو',histEmpty:'هنوز پرامپتی ذخیره نشده. یکی بساز تا اینجا نمایش داده شود.',listen:'🔊 شنیدن',stopListen:'⏹ توقف',speak:'🎤 پاسخ صوتی',listening:'🎤 در حال شنیدن…',reuse:'استفادهٔ مجدد',view:'مشاهده',voiceOn:'خواندن خودکار: روشن',voiceOff:'خواندن خودکار: خاموش',noVoice:'مرورگر از صدا پشتیبانی نمی‌کند.'});
 let LANG = localStorage.getItem('epai_ui_lang') || 'en';
 const t = k => (T[LANG] && T[LANG][k]) || T.en[k] || k;
+
+// BCP-47 codes for speech
+const BCP47 = {en:'en-US',fa:'fa-IR',ar:'ar-SA',tr:'tr-TR',fr:'fr-FR',de:'de-DE',es:'es-ES',zh:'zh-CN'};
 
 /* output prompt languages (for the generated prompt) */
 const OUT_LANGS = [['en','English'],['fa','فارسی'],['ar','العربية'],['tr','Türkçe'],['fr','Français'],['de','Deutsch'],['es','Español'],['it','Italiano'],['ru','Русский'],['zh','中文'],['ja','日本語'],['hi','हिन्दी'],['pt','Português']];
@@ -433,6 +452,11 @@ function applyLang(){
   el('btnUpgrade').textContent = t('upgrade');
   el('btnCode').textContent = t('enterCode');
   el('btnHome').textContent = t('home');
+  el('btnHistory').textContent = t('history');
+  el('histTitle').textContent = t('histTitle');
+  el('btnVoice').title = autoRead ? t('voiceOn') : t('voiceOff');
+  el('btnVoice').setAttribute('aria-pressed', autoRead ? 'true':'false');
+  if(state.q){ el('btnListen').textContent = t('listen'); el('btnMic').textContent = t('speak'); }
   el('homeTitle').innerHTML = t('homeTitle');
   el('homeSub').textContent = t('homeSub');
   el('chooseTopic').textContent = t('chooseTopic');
@@ -532,7 +556,82 @@ function renderQuestion(index, total){
   el('btnNext').textContent = index>=total ? t('build') : t('next');
   el('speech').textContent = SPEECH()[Math.floor(Math.random()*SPEECH().length)];
   el('qText').animate([{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'none'}],{duration:260});
+  voiceSetup();
 }
+
+/* ---------------- voice / accessibility ---------------- */
+let autoRead = localStorage.getItem('epai_voice')==='1';
+const TTS = window.speechSynthesis;
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recog = null;
+function stopSpeak(){ try{ TTS && TTS.cancel(); }catch(e){} }
+function speak(text){
+  if(!TTS || !text) return;
+  stopSpeak();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = BCP47[LANG] || 'en-US'; u.rate = .98;
+  TTS.speak(u);
+}
+function questionSpeech(){
+  const q = state.q; if(!q) return '';
+  let s = q.text + '. ';
+  if(q.type!=='text' && Array.isArray(q.options)) s += q.options.map(o=>(o&&typeof o==='object')?o.l:o).join('. ');
+  return s;
+}
+function voiceSetup(){
+  if(!TTS){ el('voiceBar').style.display='none'; return; }
+  el('voiceBar').style.display='flex';
+  el('btnListen').textContent = t('listen');
+  const isText = state.q && state.q.type==='text';
+  const mic = el('btnMic');
+  if(isText && SR){ mic.classList.remove('hidden'); mic.textContent = t('speak'); } else { mic.classList.add('hidden'); }
+  if(autoRead) setTimeout(()=>speak(questionSpeech()), 150);
+}
+el('btnListen').onclick=()=>{ if(TTS && TTS.speaking){ stopSpeak(); el('btnListen').textContent=t('listen'); } else { speak(questionSpeech()); el('btnListen').textContent=t('stopListen'); } };
+el('btnMic').onclick=()=>{
+  if(!SR){ toast(t('noVoice'),'err'); return; }
+  const free = el('freeInput');
+  try{
+    recog && recog.abort();
+    recog = new SR(); recog.lang = BCP47[LANG]||'en-US'; recog.interimResults=false; recog.maxAlternatives=1;
+    el('btnMic').textContent = t('listening');
+    recog.onresult = e=>{ const txt = e.results[0][0].transcript; free.value = (free.value? free.value+' ':'')+txt; };
+    recog.onerror = ()=>{ toast(t('noVoice'),'err'); };
+    recog.onend = ()=>{ el('btnMic').textContent = t('speak'); };
+    recog.start();
+  }catch(e){ toast(t('noVoice'),'err'); }
+};
+el('btnVoice').onclick=()=>{ autoRead=!autoRead; localStorage.setItem('epai_voice', autoRead?'1':'0'); el('btnVoice').setAttribute('aria-pressed',autoRead?'true':'false'); el('btnVoice').title = autoRead?t('voiceOn'):t('voiceOff'); toast(autoRead?t('voiceOn'):t('voiceOff'),'ok'); if(autoRead && state.q) speak(questionSpeech()); else stopSpeak(); };
+
+/* ---------------- history ---------------- */
+function localHistory(){ try{ return JSON.parse(localStorage.getItem('epai_history')||'[]'); }catch(e){ return []; } }
+function saveHistory(entry){
+  const arr = localHistory(); arr.unshift(entry); localStorage.setItem('epai_history', JSON.stringify(arr.slice(0,50)));
+  if(getCode()) api('/api/history', { category: entry.category, lang: entry.lang, prompt: entry.prompt }).catch(()=>{});
+}
+async function openHistory(){
+  openModal('historyModal');
+  const box = el('histBody'); box.innerHTML='<div class="spin"></div>';
+  let items = localHistory().map(h=>({category:h.category,lang:h.lang,prompt:h.prompt,created_at:h.ts}));
+  if(getCode()){ try{ const d=await api('/api/history'); if(d.items && d.items.length) items = d.items; }catch(e){} }
+  if(!items.length){ box.innerHTML='<div style="color:var(--muted);padding:14px">'+t('histEmpty')+'</div>'; return; }
+  box.innerHTML='';
+  items.forEach(it=>{
+    const d=document.createElement('div'); d.className='wallet';
+    const date = new Date(it.created_at||Date.now()).toLocaleString();
+    const snip = (it.prompt||'').slice(0,90).replace(/</g,'&lt;');
+    d.innerHTML = `<div class="c"><div><div class="net">${it.category||''} · ${it.lang||''}</div><div class="m" style="color:var(--muted);font-size:.72rem">${date}</div></div>
+      <div style="display:flex;gap:6px"><button class="btn sm">${t('view')}</button></div></div>
+      <div class="addr" style="margin-top:8px">${snip}${(it.prompt||'').length>90?'…':''}</div>`;
+    d.querySelector('button').onclick=()=>{
+      closeModals(); show('viewResult'); el('promptOut').textContent = it.prompt;
+      el('promptTags').innerHTML = `<span class="tag">${it.category||''}</span><span class="tag">${it.lang||''}</span>`;
+      el('aiOut').classList.add('hidden');
+    };
+    box.appendChild(d);
+  });
+}
+el('btnHistory').onclick=openHistory;
 
 function commitAnswer(){
   const q=state.q; if(!q) return;
@@ -556,6 +655,11 @@ async function finish(){
   if(!sel.children.length){ OUT_LANGS.forEach(([c,n])=>{ const o=document.createElement('option'); o.value=c; o.textContent=n; sel.appendChild(o); }); sel.value=LANG; }
   el('aiOut').classList.add('hidden');
   await renderResult();
+  const p = el('promptOut').textContent;
+  if(p && p.length>20 && p!==t('loading') && p!==t('error')){
+    const on = (OUT_LANGS.find(l=>l[0]===el('langSel').value)||[])[1]||el('langSel').value;
+    saveHistory({ ts: Date.now(), category: state.catLabel||state.cat, lang: on, prompt: p });
+  }
 }
 async function renderResult(){
   el('promptOut').textContent = t('loading');
