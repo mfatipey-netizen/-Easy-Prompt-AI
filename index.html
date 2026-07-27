@@ -710,7 +710,7 @@ async function renderPay(){
   html += `</select></div><div id="walletWrap"></div>`;
   html += `<div class="field" style="max-width:100%"><label>TxID</label><input id="txid" placeholder="${t('txidPh')}"></div>`;
   html += `<button class="btn primary" id="verifyBtn" style="margin-top:12px;width:100%">${t('verify')}</button>`;
-  html += `<div style="text-align:center;color:var(--muted);font-size:.8rem;margin-top:14px">— ${t('paypalSoon')} —</div>`;
+  html += `<div id="paypalArea" style="margin-top:16px"></div>`;
   body.innerHTML=html;
   const wallets=cfg.wallets||{};
   function showWallet(){ const k=el('payChain').value; const addr=wallets[k]||''; el('walletWrap').innerHTML=
@@ -725,6 +725,34 @@ async function renderPay(){
     if(d.ok && d.code){ setCode(d.code); IS_PRO=true; refreshPlan(); closeModals(); toast(t('activated'),'ok'); }
     else { toast(t('payFail'),'err'); el('verifyBtn').disabled=false; el('verifyBtn').textContent=t('verify'); }
   };
+  // PayPal button (only when configured on the server)
+  if(cfg.paypal_client_id){
+    el('paypalArea').innerHTML='<div style="text-align:center;color:var(--muted);font-size:.78rem;margin-bottom:8px">— PayPal —</div><div id="paypalBtns"></div>';
+    loadPaypal(cfg.paypal_client_id);
+  } else {
+    el('paypalArea').innerHTML='<div style="text-align:center;color:var(--muted);font-size:.8rem">— '+t('paypalSoon')+' —</div>';
+  }
+}
+function loadPaypal(clientId){
+  function render(){
+    if(!window.paypal || !el('paypalBtns')) return;
+    try{
+      paypal.Buttons({
+        style:{color:'gold',shape:'pill',height:44,label:'pay'},
+        createOrder: ()=> api('/api/pay/paypal/create').then(d=>{ if(!d.id) throw new Error('no_order'); return d.id; }),
+        onApprove: (data)=> api('/api/pay/paypal/verify',{orderID:data.orderID}).then(d=>{
+          if(d.ok && d.code){ setCode(d.code); IS_PRO=true; refreshPlan(); closeModals(); toast(t('activated'),'ok'); }
+          else toast(t('payFail'),'err');
+        }),
+        onError: ()=> toast(t('error'),'err'),
+      }).render('#paypalBtns');
+    }catch(e){}
+  }
+  if(window.paypal){ render(); return; }
+  const s=document.createElement('script');
+  s.src='https://www.paypal.com/sdk/js?client-id='+encodeURIComponent(clientId)+'&currency=USD&intent=capture';
+  s.onload=render; s.onerror=()=>{ const a=el('paypalArea'); if(a) a.innerHTML='<div style="color:var(--bad);font-size:.78rem;text-align:center">PayPal unavailable</div>'; };
+  document.head.appendChild(s);
 }
 
 /* ---------------- language selectors ---------------- */

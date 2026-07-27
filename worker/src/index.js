@@ -291,6 +291,24 @@ export default {
         });
 
       // Verify PayPal order -> grant code
+      // Create a PayPal order server-side (fixed, server-controlled price)
+      if (path === '/api/pay/paypal/create' && request.method === 'POST') {
+        if (!env.PAYPAL_CLIENT_ID || !env.PAYPAL_SECRET) return json(env, { error: 'paypal_not_configured' }, 400);
+        const base = env.PAYPAL_ENV === 'live' ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com';
+        const auth = btoa(`${env.PAYPAL_CLIENT_ID}:${env.PAYPAL_SECRET}`);
+        const tok = await fetch(`${base}/v1/oauth2/token`, {
+          method: 'POST', headers: { Authorization: `Basic ${auth}`, 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: 'grant_type=client_credentials',
+        }).then(r => r.json());
+        if (!tok.access_token) return json(env, { error: 'paypal_auth_failed' }, 400);
+        const order = await fetch(`${base}/v2/checkout/orders`, {
+          method: 'POST', headers: { Authorization: `Bearer ${tok.access_token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ intent: 'CAPTURE', purchase_units: [{ amount: { currency_code: 'USD', value: String(env.PRICE_USDT || '9') }, description: 'EASY PROMPT AI — Pro (3 months)' }] }),
+        }).then(r => r.json());
+        if (!order.id) return json(env, { error: 'order_failed' }, 400);
+        return json(env, { id: order.id });
+      }
+
       if (path === '/api/pay/paypal/verify' && request.method === 'POST') {
         const { orderID } = await readJson(request);
         if (!orderID) return json(env, { error: 'orderID_required' }, 400);
