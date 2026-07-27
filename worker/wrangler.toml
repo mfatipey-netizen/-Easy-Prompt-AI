@@ -19,7 +19,7 @@ USDT_ARB_ADDRESS   = "0x1D7890d49cc240ee6E4c3E7EE4FC4bB7dFdF30DA"  # Arbitrum
 [[d1_databases]]
 binding = "DB"
 database_name = "easy-prompt-ai"
-database_id = "REPLACE_WITH_YOUR_D1_ID"
+database_id = "01f95c78-b269-4357-807e-7413adfd8c6d"
 
 # Secrets are NOT stored here. Set them with `npx wrangler secret put NAME`:
 #   ADMIN_TOKEN          admin auth for /api/admin/gen
