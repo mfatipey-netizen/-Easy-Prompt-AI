@@ -232,7 +232,7 @@ body{color:var(--text);background:var(--bg);overflow-x:hidden;-webkit-font-smoot
     </div>
   </section>
 
-  <div class="footer">© 2026 EASY PROMPT AI — All Rights Reserved · <span id="footContact"></span></div>
+  <div class="footer">© 2026 EASY PROMPT AI — All Rights Reserved · <span id="footContact"></span> · <a href="#" id="footTerms" style="color:var(--gold-2)"></a></div>
 </div>
 
 <!-- CODE MODAL -->
@@ -255,6 +255,22 @@ body{color:var(--text);background:var(--bg);overflow-x:hidden;-webkit-font-smoot
   <h3 id="histTitle"></h3>
   <div id="histBody" style="margin-top:12px"></div>
   <div class="nav" style="margin-top:16px"><button class="btn ghost" data-close></button></div>
+</div></div>
+
+<!-- TERMS MODAL -->
+<div class="modal" id="termsModal"><div class="panel">
+  <h3 id="termsTitle"></h3>
+  <div style="margin-top:12px;color:#cfd5e2;font-size:.9rem;line-height:1.85" id="termsBody">
+    <p><b>1. Service.</b> EASY PROMPT AI is an AI prompt-generation tool. The Free plan builds prompts using a 20-question interview; the Pro plan unlocks 30 questions, advanced prompt sections, live AI, cloud history and more.</p>
+    <p><b>2. Pro access & activation.</b> Pro is unlocked by an activation code delivered immediately after successful payment (PayPal or USDT). A subscription code is valid for 3 months from first activation; a lifetime code does not expire.</p>
+    <p><b>3. Pricing & payment.</b> The price is shown before you pay. Cryptocurrency (USDT) payments are final once confirmed on-chain. PayPal payments are processed by PayPal under their terms.</p>
+    <p><b>4. Refund policy.</b> Pro is a digital product that is delivered and activated instantly, so <b>all sales are final and non-refundable once the activation code has been issued or used</b>. If a technical problem prevents you from accessing what you paid for, contact us within <b>7 days</b> at <b>m.f.atipey@gmail.com</b> and we will fix it or, at our discretion, issue a refund.</p>
+    <p><b>5. Acceptable use.</b> You are responsible for the prompts you create and how you use AI outputs. Do not use the service for unlawful, harmful, or infringing purposes.</p>
+    <p><b>6. No warranty.</b> The service and AI outputs are provided “as is”, without warranty. AI outputs may be inaccurate — verify before relying on them. To the maximum extent permitted by law, we are not liable for any indirect or consequential damages.</p>
+    <p><b>7. Intellectual property.</b> The application, its prompt engine and content are © EASY PROMPT AI — All Rights Reserved.</p>
+    <p><b>8. Contact.</b> m.f.atipey@gmail.com</p>
+  </div>
+  <div class="nav" style="margin-top:16px"><button class="btn primary" data-close></button></div>
 </div></div>
 
 <div class="toast" id="toast"></div>
@@ -368,8 +384,8 @@ const T = {
     loading:"加载中…",error:"出错了，请重试。",contact:"广告与合作：m.f.atipey@gmail.com",aiPro:"实时 AI 为专业版功能。",aiSoon:"实时 AI 尚未配置。"},
 };
 // extra strings for voice + history (en/fa native; other langs fall back to en)
-Object.assign(T.en,{history:'🕘 History',histTitle:'Your prompt history',histEmpty:'No saved prompts yet. Generate one and it will appear here.',listen:'🔊 Listen',stopListen:'⏹ Stop',speak:'🎤 Speak answer',listening:'🎤 Listening…',reuse:'Reuse',view:'View',voiceOn:'Auto read-aloud: ON',voiceOff:'Auto read-aloud: OFF',noVoice:'Voice not supported in this browser.'});
-Object.assign(T.fa,{history:'🕘 تاریخچه',histTitle:'تاریخچهٔ پرامپت‌های تو',histEmpty:'هنوز پرامپتی ذخیره نشده. یکی بساز تا اینجا نمایش داده شود.',listen:'🔊 شنیدن',stopListen:'⏹ توقف',speak:'🎤 پاسخ صوتی',listening:'🎤 در حال شنیدن…',reuse:'استفادهٔ مجدد',view:'مشاهده',voiceOn:'خواندن خودکار: روشن',voiceOff:'خواندن خودکار: خاموش',noVoice:'مرورگر از صدا پشتیبانی نمی‌کند.'});
+Object.assign(T.en,{history:'🕘 History',histTitle:'Your prompt history',histEmpty:'No saved prompts yet. Generate one and it will appear here.',listen:'🔊 Listen',stopListen:'⏹ Stop',speak:'🎤 Speak answer',listening:'🎤 Listening…',reuse:'Reuse',view:'View',voiceOn:'Auto read-aloud: ON',voiceOff:'Auto read-aloud: OFF',noVoice:'Voice not supported in this browser.',terms:'Terms & Refund Policy'});
+Object.assign(T.fa,{history:'🕘 تاریخچه',histTitle:'تاریخچهٔ پرامپت‌های تو',histEmpty:'هنوز پرامپتی ذخیره نشده. یکی بساز تا اینجا نمایش داده شود.',listen:'🔊 شنیدن',stopListen:'⏹ توقف',speak:'🎤 پاسخ صوتی',listening:'🎤 در حال شنیدن…',reuse:'استفادهٔ مجدد',view:'مشاهده',voiceOn:'خواندن خودکار: روشن',voiceOff:'خواندن خودکار: خاموش',noVoice:'مرورگر از صدا پشتیبانی نمی‌کند.',terms:'شرایط و سیاست بازگشت وجه'});
 let LANG = localStorage.getItem('epai_ui_lang') || 'en';
 const t = k => (T[LANG] && T[LANG][k]) || T.en[k] || k;
 
@@ -454,6 +470,8 @@ function applyLang(){
   el('btnHome').textContent = t('home');
   el('btnHistory').textContent = t('history');
   el('histTitle').textContent = t('histTitle');
+  el('footTerms').textContent = t('terms');
+  el('termsTitle').textContent = t('terms');
   el('btnVoice').title = autoRead ? t('voiceOn') : t('voiceOff');
   el('btnVoice').setAttribute('aria-pressed', autoRead ? 'true':'false');
   if(state.q){ el('btnListen').textContent = t('listen'); el('btnMic').textContent = t('speak'); }
@@ -632,6 +650,7 @@ async function openHistory(){
   });
 }
 el('btnHistory').onclick=openHistory;
+el('footTerms').onclick=(e)=>{ e.preventDefault(); openModal('termsModal'); };
 
 function commitAnswer(){
   const q=state.q; if(!q) return;
@@ -711,7 +730,9 @@ async function renderPay(){
   html += `<div class="field" style="max-width:100%"><label>TxID</label><input id="txid" placeholder="${t('txidPh')}"></div>`;
   html += `<button class="btn primary" id="verifyBtn" style="margin-top:12px;width:100%">${t('verify')}</button>`;
   html += `<div id="paypalArea" style="margin-top:16px"></div>`;
+  html += `<div style="text-align:center;margin-top:14px"><a href="#" id="payTerms" style="color:var(--gold-2);font-size:.78rem">${t('terms')}</a></div>`;
   body.innerHTML=html;
+  el('payTerms').onclick=(e)=>{ e.preventDefault(); openModal('termsModal'); };
   const wallets=cfg.wallets||{};
   function showWallet(){ const k=el('payChain').value; const addr=wallets[k]||''; el('walletWrap').innerHTML=
     `<div class="wallet"><div class="net">${(nets.find(n=>n[0]===k)||[])[1]||k}</div><div class="c"><div class="addr">${addr}</div><button class="btn sm" id="copyAddr">${t('copyAddr')}</button></div></div>`;
