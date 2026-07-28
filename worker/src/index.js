@@ -167,7 +167,7 @@ async function verifyUsdt(env, chain, txid, token = 'usdt') {
 }
 
 /* ------------------------------ AI --------------------------------- */
-async function runClaude(env, prompt) {
+async function runClaude(env, prompt, opts = {}) {
   if (!env.ANTHROPIC_API_KEY) return { ok: false, error: 'ai_not_configured' };
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -178,7 +178,7 @@ async function runClaude(env, prompt) {
     },
     body: JSON.stringify({
       model: env.AI_MODEL || 'claude-haiku-4-5-20251001',
-      max_tokens: 2048,
+      max_tokens: opts.max_tokens || 2048,
       messages: [{ role: 'user', content: prompt }],
     }),
   });
@@ -232,6 +232,26 @@ async function localizeQuestion(env, q, lang){
   return { id:q.id, type:q.type, text, hint, options: q.type==='text' ? null : baseOpts };
 }
 
+// The engine builds prompts from a Persian question bank, so the generated
+// prompt can contain Persian labels/answers even when the section headings are
+// in the target language. This pass renders the WHOLE prompt consistently in
+// the requested language so nothing is mixed. Persian output needs no pass.
+async function localizePrompt(env, prompt, lang){
+  if(!lang || lang === 'fa') return prompt;            // Persian is the source language
+  const target = LANG_NAMES[lang]; if(!target) return prompt;
+  if(!env.ANTHROPIC_API_KEY) return prompt;            // graceful: keep structured prompt
+  const instruction =
+    `You are a professional localizer. Rewrite the AI prompt below entirely in ${target}. ` +
+    `Translate EVERYTHING — the markdown headings AND all content, including any Persian or English fragments — ` +
+    `so the whole result is consistently in ${target}. ` +
+    `Preserve the exact markdown structure: keep the '#' headings, blank lines, '-' and '•' bullets, and line breaks. ` +
+    `Do not add, remove, explain, or comment on anything. Do not wrap the result in code fences. ` +
+    `Return ONLY the rewritten prompt.\n\n---\n${prompt}`;
+  const r = await runClaude(env, instruction, { max_tokens: 4096 });
+  if(!r.ok || !r.text) return prompt;                  // graceful fallback on any failure
+  return r.text.trim();
+}
+
 /* ----------------------------- router ------------------------------ */
 export default {
   async fetch(request, env) {
@@ -264,7 +284,8 @@ export default {
         const { category, answers = {}, lang = 'en' } = await readJson(request);
         if (!category) return json(env, { error: 'category_required' }, 400);
         const ent = await entitlement(request, env);
-        const prompt = generatePrompt(category, answers, lang, ent.pro);
+        const built = generatePrompt(category, answers, lang, ent.pro);
+        const prompt = await localizePrompt(env, built, lang);
         return json(env, { prompt, pro: ent.pro });
       }
 
