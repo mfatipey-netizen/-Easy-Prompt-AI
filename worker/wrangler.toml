@@ -21,9 +21,12 @@ binding = "DB"
 database_name = "easy-prompt-ai"
 database_id = "01f95c78-b269-4357-807e-7413adfd8c6d"
 
-# Secrets are NOT stored here. Set them with `npx wrangler secret put NAME`:
+# Secrets are NOT stored here. Set them with `npx wrangler secret put NAME`
+# (or in the Cloudflare dashboard → Settings → Variables and secrets):
 #   ADMIN_TOKEN          admin auth for /api/admin/gen
 #   ANTHROPIC_API_KEY    live AI (Claude)
 #   PAYPAL_CLIENT_ID     PayPal REST app client id
 #   PAYPAL_SECRET        PayPal REST app secret
 #   ETHERSCAN_KEY        (optional) for ERC-20 verification
+#   AZURE_TTS_KEY        (optional) Azure Speech key — real voice for every language
+#   AZURE_TTS_REGION     (optional) Azure Speech region, e.g. "eastus" (plaintext is fine)

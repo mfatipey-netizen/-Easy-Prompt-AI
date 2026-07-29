@@ -194,6 +194,24 @@ const LANG_NAMES = { en:'English', ar:'Arabic', tr:'Turkish', fr:'French', de:'G
 // Bump when the Persian question wording changes, so cached translations refresh.
 const I18N_VERSION = 'v2';
 
+/* --------------------- server-side text-to-speech ------------------- *
+ * Browser speech only works when the user's device has a voice for the
+ * language (Persian/Arabic/Chinese are often missing). Synthesizing on the
+ * server (Azure Neural TTS) gives a real male voice in EVERY language that
+ * plays on any device. Warm, unhurried prosody for a friendly tone.        */
+const TTS_VOICE = {
+  en:'en-US-GuyNeural',  fa:'fa-IR-FaridNeural', ar:'ar-SA-HamedNeural',
+  tr:'tr-TR-AhmetNeural', fr:'fr-FR-HenriNeural', de:'de-DE-ConradNeural',
+  es:'es-ES-AlvaroNeural', zh:'zh-CN-YunxiNeural', it:'it-IT-DiegoNeural',
+  ru:'ru-RU-DmitryNeural', ja:'ja-JP-KeitaNeural', hi:'hi-IN-MadhurNeural',
+  pt:'pt-BR-AntonioNeural',
+};
+const TTS_LOCALE = {
+  en:'en-US', fa:'fa-IR', ar:'ar-SA', tr:'tr-TR', fr:'fr-FR', de:'de-DE',
+  es:'es-ES', zh:'zh-CN', it:'it-IT', ru:'ru-RU', ja:'ja-JP', hi:'hi-IN', pt:'pt-BR',
+};
+function xmlEscape(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;'); }
+
 function extractJson(s){ if(!s) return null; const a=s.indexOf('{'), b=s.lastIndexOf('}'); return (a>=0&&b>a)? s.slice(a,b+1) : null; }
 
 // Translate a question's display strings to `lang` (Persian stays the value key). Cached in D1.
@@ -410,6 +428,32 @@ export default {
         await env.DB.prepare('INSERT INTO feedback (code,rating,comment,category,lang,created_at) VALUES (?,?,?,?,?,?)')
           .bind(code, r, String(comment).slice(0, 2000), String(category), String(lang), now()).run();
         return json(env, { ok: true });
+      }
+
+      // Server-side neural text-to-speech (works in every language on any device)
+      if (path === '/api/tts' && request.method === 'POST') {
+        const key = env.AZURE_TTS_KEY, region = env.AZURE_TTS_REGION;
+        if (!key || !region) return json(env, { error: 'tts_not_configured' }, 400);
+        const { text = '', lang = 'en' } = await readJson(request);
+        const clean = String(text).slice(0, 1500).trim();
+        if (!clean) return json(env, { error: 'text_required' }, 400);
+        const voice = TTS_VOICE[lang] || TTS_VOICE.en;
+        const locale = TTS_LOCALE[lang] || 'en-US';
+        const ssml = `<speak version='1.0' xml:lang='${locale}'><voice xml:lang='${locale}' name='${voice}'>` +
+          `<prosody rate='-8%' pitch='-6%'>${xmlEscape(clean)}</prosody></voice></speak>`;
+        const az = await fetch(`https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`, {
+          method: 'POST',
+          headers: {
+            'Ocp-Apim-Subscription-Key': key,
+            'Content-Type': 'application/ssml+xml',
+            'X-Microsoft-OutputFormat': 'audio-24khz-48kbitrate-mono-mp3',
+            'User-Agent': 'easypromptai',
+          },
+          body: ssml,
+        });
+        if (!az.ok) return json(env, { error: 'tts_failed', status: az.status }, 502);
+        const buf = await az.arrayBuffer();
+        return new Response(buf, { status: 200, headers: { 'Content-Type': 'audio/mpeg', 'Cache-Control': 'public, max-age=86400', ...corsFor(_origin) } });
       }
 
       return json(env, { error: 'not_found' }, 404);
