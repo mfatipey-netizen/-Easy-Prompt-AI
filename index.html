@@ -633,15 +633,41 @@ function pickVoice(lc){
   const female = /female|woman|zira|susan|samantha|victoria|amira|femme|frau|mujer|زن|أنثى/i;
   return pool.find(v=>male.test(v.name)) || pool.find(v=>!female.test(v.name)) || pool[0] || null;
 }
-function stopSpeak(){ try{ TTS && TTS.cancel(); }catch(e){} }
-function speak(text){
+// Server neural TTS (real voice in every language). null = unknown, then true/false.
+let serverTTS = null;
+let audioEl = null;
+function stopSpeak(){
+  try{ TTS && TTS.cancel(); }catch(e){}
+  try{ if(audioEl){ audioEl.pause(); audioEl.src=''; audioEl=null; } }catch(e){}
+}
+function browserSpeak(text){
   if(!TTS || !text) return;
-  stopSpeak();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = BCP47[LANG] || 'en-US';
   const v = pickVoice(LANG); if(v) u.voice = v;
   u.rate = .9; u.pitch = .8;   // unhurried + low pitch → warm, grandfatherly feel
   TTS.speak(u);
+}
+async function speak(text){
+  if(!text) return;
+  stopSpeak();
+  if(serverTTS !== false){
+    try{
+      const opt = { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ text, lang: LANG }) };
+      const code = getCode(); if(code) opt.headers['Authorization']='Bearer '+code;
+      const res = await fetch(API_BASE+'/api/tts', opt);
+      const ct = res.headers.get('Content-Type')||'';
+      if(res.ok && ct.includes('audio')){
+        serverTTS = true;
+        const url = URL.createObjectURL(await res.blob());
+        audioEl = new Audio(url); audioEl.onended = ()=>URL.revokeObjectURL(url);
+        audioEl.play().catch(()=>{});
+        return;
+      }
+      serverTTS = false;   // not configured → use browser voices from now on
+    }catch(e){ serverTTS = false; }
+  }
+  browserSpeak(text);
 }
 function questionSpeech(){
   const q = state.q; if(!q) return '';
@@ -650,15 +676,15 @@ function questionSpeech(){
   return s;
 }
 function voiceSetup(){
-  if(!TTS){ el('voiceBar').style.display='none'; return; }
-  el('voiceBar').style.display='flex';
+  el('voiceBar').style.display='flex';   // voice available via server or browser
   el('btnListen').textContent = t('listen');
   const isText = state.q && state.q.type==='text';
   const mic = el('btnMic');
   if(isText && SR){ mic.classList.remove('hidden'); mic.textContent = t('speak'); } else { mic.classList.add('hidden'); }
   if(autoRead) setTimeout(()=>speak(questionSpeech()), 150);
 }
-el('btnListen').onclick=()=>{ if(TTS && TTS.speaking){ stopSpeak(); el('btnListen').textContent=t('listen'); } else { speak(questionSpeech()); el('btnListen').textContent=t('stopListen'); } };
+const isSpeaking = () => (TTS && TTS.speaking) || (audioEl && !audioEl.paused);
+el('btnListen').onclick=()=>{ if(isSpeaking()){ stopSpeak(); el('btnListen').textContent=t('listen'); } else { speak(questionSpeech()); el('btnListen').textContent=t('stopListen'); } };
 el('btnMic').onclick=()=>{
   if(!SR){ toast(t('noVoice'),'err'); return; }
   const free = el('freeInput');
