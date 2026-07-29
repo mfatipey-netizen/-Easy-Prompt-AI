@@ -1,0 +1,31 @@
+{
+  "mode": "backtest",
+  "source": "synthetic",
+  "exchange": "kraken",
+  "symbol": "XBTUSD",
+  "interval_sec": 3600,
+  "start_cash": 10000.0,
+  "fee_rate": 0.0016,
+  "poll_seconds": 60,
+
+  "strategy": {
+    "rsi_period": 14,
+    "rsi_oversold": 35.0,
+    "rsi_overbought": 65.0,
+    "ema_fast": 20,
+    "ema_slow": 50,
+    "atr_period": 14,
+    "atr_stop_mult": 1.5,
+    "reward_risk": 2.0,
+    "min_score": 2.0,
+    "warmup": 60
+  },
+
+  "risk": {
+    "risk_per_trade": 0.01,
+    "max_open_positions": 3,
+    "max_exposure": 0.5,
+    "daily_loss_limit": 0.03,
+    "min_reward_risk": 1.5
+  }
+}

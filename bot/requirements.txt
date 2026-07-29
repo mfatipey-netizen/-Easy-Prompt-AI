@@ -1,0 +1,12 @@
+# The tbot CORE (indicators, price action, strategy, risk, backtest, paper)
+# runs on the Python standard library alone — no install needed to backtest or
+# paper-trade on real data.
+#
+# The ONLY optional dependency is ccxt, and ONLY for placing real orders in live
+# mode. Install it when (and if) you decide to go live:
+#
+#     pip install ccxt
+#
+# Everything else below is optional developer tooling.
+
+ccxt>=4.2 ; extra == "live"     # live order execution on Kraken / Coinbase
