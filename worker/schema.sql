@@ -40,3 +40,14 @@ CREATE TABLE IF NOT EXISTS history (
 CREATE INDEX IF NOT EXISTS idx_history_code ON history(code, id);
 
 CREATE INDEX IF NOT EXISTS idx_codes_expires ON codes(expires_at);
+
+-- User feedback / ratings on generated prompts
+CREATE TABLE IF NOT EXISTS feedback (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  code       TEXT,                            -- activation code if the user has one (else NULL)
+  rating     INTEGER,                          -- 1..5 stars (0 = none)
+  comment    TEXT,
+  category   TEXT,
+  lang       TEXT,
+  created_at INTEGER
+);

@@ -17,7 +17,7 @@
  *   ETHERSCAN_KEY      secret — for ERC-20 verification (optional)
  */
 
-import { nextQuestion, generatePrompt, publicCategories } from './engine.js';
+import { nextQuestion, generatePrompt, publicCategories, recommendedTargets } from './engine.js';
 
 const USDT_TRON_CONTRACT = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t'; // USDT on TRON (6 decimals)
 
@@ -191,13 +191,16 @@ async function runClaude(env, prompt, opts = {}) {
 /* --------------------- question localization ----------------------- */
 const LANG_NAMES = { en:'English', ar:'Arabic', tr:'Turkish', fr:'French', de:'German', es:'Spanish', zh:'Chinese (Simplified)', it:'Italian', ru:'Russian', ja:'Japanese', hi:'Hindi', pt:'Portuguese' };
 
+// Bump when the Persian question wording changes, so cached translations refresh.
+const I18N_VERSION = 'v2';
+
 function extractJson(s){ if(!s) return null; const a=s.indexOf('{'), b=s.lastIndexOf('}'); return (a>=0&&b>a)? s.slice(a,b+1) : null; }
 
 // Translate a question's display strings to `lang` (Persian stays the value key). Cached in D1.
 async function cachedTranslate(env, q, lang){
   if(!env.ANTHROPIC_API_KEY) return null;
   const target = LANG_NAMES[lang]; if(!target) return null;
-  const key = q.id + '|' + lang;
+  const key = q.id + '|' + lang + '|' + I18N_VERSION;
   try{
     const hit = await env.DB.prepare('SELECT v FROM i18n WHERE k=?').bind(key).first();
     if(hit && hit.v) return JSON.parse(hit.v);
@@ -286,7 +289,7 @@ export default {
         const ent = await entitlement(request, env);
         const built = generatePrompt(category, answers, lang, ent.pro);
         const prompt = await localizePrompt(env, built, lang);
-        return json(env, { prompt, pro: ent.pro });
+        return json(env, { prompt, pro: ent.pro, targets: recommendedTargets(category) });
       }
 
       // Live AI (Pro only)
@@ -393,6 +396,20 @@ export default {
         }
         const rows = await env.DB.prepare('SELECT category,lang,prompt,created_at FROM history WHERE code=? ORDER BY id DESC LIMIT 50').bind(code).all().catch(() => ({ results: [] }));
         return json(env, { items: rows.results || [] });
+      }
+
+      // User feedback / rating on a generated prompt (anonymous-friendly)
+      if (path === '/api/feedback' && request.method === 'POST') {
+        const { rating = 0, comment = '', category = '', lang = '' } = await readJson(request);
+        const r = Math.max(0, Math.min(5, parseInt(rating, 10) || 0));
+        if (!r && !String(comment).trim()) return json(env, { error: 'empty_feedback' }, 400);
+        const code = (request.headers.get('Authorization') || '').replace(/^Bearer\s+/, '').trim() || null;
+        try {
+          await env.DB.prepare('CREATE TABLE IF NOT EXISTS feedback (id INTEGER PRIMARY KEY AUTOINCREMENT, code TEXT, rating INTEGER, comment TEXT, category TEXT, lang TEXT, created_at INTEGER)').run();
+        } catch (e) {}
+        await env.DB.prepare('INSERT INTO feedback (code,rating,comment,category,lang,created_at) VALUES (?,?,?,?,?,?)')
+          .bind(code, r, String(comment).slice(0, 2000), String(category), String(lang), now()).run();
+        return json(env, { ok: true });
       }
 
       return json(env, { error: 'not_found' }, 404);

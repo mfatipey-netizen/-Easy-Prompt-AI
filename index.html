@@ -66,6 +66,23 @@ body{color:var(--text);background:var(--bg);overflow-x:hidden;-webkit-font-smoot
 .intro .go{margin-top:20px;width:100%;max-width:360px;padding:15px;font-size:1.05rem}
 .intro .foot{margin-top:20px;color:var(--muted);font-size:.72rem}
 
+/* recommended AI target */
+.target-box{margin-top:16px;padding:14px 16px;border-radius:16px;border:1px solid var(--stroke-2);
+  background:linear-gradient(160deg,rgba(96,165,250,.10),rgba(255,255,255,.02))}
+.target-title{font-size:.95rem;margin-bottom:10px}
+.target-tools{display:flex;flex-wrap:wrap;gap:8px}
+.target-tools .tool{padding:6px 12px;border-radius:999px;font-size:.85rem;font-weight:700;
+  background:rgba(255,255,255,.06);border:1px solid var(--stroke-2)}
+.target-tools .tool.best{background:linear-gradient(90deg,var(--gold-2),var(--gold));color:#1a1200;border-color:transparent}
+.target-note{margin-top:10px;color:var(--muted);font-size:.8rem;line-height:1.6}
+/* feedback / rating */
+.rate-box{margin-top:18px;padding:14px 16px;border-radius:16px;border:1px solid var(--stroke-2);background:rgba(255,255,255,.02)}
+.rate-title{font-size:.92rem;font-weight:700;margin-bottom:10px}
+.stars{display:flex;gap:6px;font-size:1.7rem;cursor:pointer}
+.stars span{filter:grayscale(1);opacity:.45;transition:.15s}
+.stars span.on,.stars span:hover{filter:none;opacity:1;transform:scale(1.12)}
+.rate-thanks{margin-top:10px;color:var(--gold-2);font-weight:700;font-size:.9rem}
+
 /* generic */
 .hero{margin-top:22px;text-align:center;padding:16px 10px 4px}
 .hero h2{font-size:clamp(1.5rem,3.6vw,2.4rem);font-weight:900;line-height:1.25}
@@ -219,11 +236,23 @@ body{color:var(--text);background:var(--bg);overflow-x:hidden;-webkit-font-smoot
       <div class="section-sub" id="resSub"></div>
       <div class="field"><label id="outLangLabel"></label><select id="langSel"></select></div>
       <div class="prompt-box" style="margin-top:16px"><div id="promptTags"></div><pre id="promptOut"></pre></div>
+      <div id="targetBox" class="target-box hidden">
+        <div class="target-title"><span>🎯</span> <b id="targetTitle"></b></div>
+        <div id="targetTools" class="target-tools"></div>
+        <div id="targetNote" class="target-note"></div>
+      </div>
       <div class="prompt-actions">
         <button class="btn primary" id="btnCopy"></button>
         <button class="btn accent" id="btnDownload"></button>
         <button class="btn" id="btnRunAI"></button>
         <button class="btn ghost" id="btnRestart"></button>
+      </div>
+      <div id="rateBox" class="rate-box">
+        <div class="rate-title" id="rateTitle"></div>
+        <div class="stars" id="stars"></div>
+        <textarea class="freeinput" id="rateComment" rows="2" style="margin-top:10px"></textarea>
+        <div style="margin-top:10px"><button class="btn primary sm" id="btnSendRate"></button></div>
+        <div id="rateThanks" class="rate-thanks hidden"></div>
       </div>
       <div id="aiOut" class="hidden" style="margin-top:16px">
         <div class="section-title" style="font-size:1rem" id="aiTitle"></div>
@@ -386,6 +415,9 @@ const T = {
 // extra strings for voice + history (en/fa native; other langs fall back to en)
 Object.assign(T.en,{history:'🕘 History',histTitle:'Your prompt history',histEmpty:'No saved prompts yet. Generate one and it will appear here.',listen:'🔊 Listen',stopListen:'⏹ Stop',speak:'🎤 Speak answer',listening:'🎤 Listening…',reuse:'Reuse',view:'View',voiceOn:'Auto read-aloud: ON',voiceOff:'Auto read-aloud: OFF',noVoice:'Voice not supported in this browser.',terms:'Terms & Refund Policy'});
 Object.assign(T.fa,{history:'🕘 تاریخچه',histTitle:'تاریخچهٔ پرامپت‌های تو',histEmpty:'هنوز پرامپتی ذخیره نشده. یکی بساز تا اینجا نمایش داده شود.',listen:'🔊 شنیدن',stopListen:'⏹ توقف',speak:'🎤 پاسخ صوتی',listening:'🎤 در حال شنیدن…',reuse:'استفادهٔ مجدد',view:'مشاهده',voiceOn:'خواندن خودکار: روشن',voiceOff:'خواندن خودکار: خاموش',noVoice:'مرورگر از صدا پشتیبانی نمی‌کند.',terms:'شرایط و سیاست بازگشت وجه'});
+// strings for the recommended-AI box, rating widget, and voice welcome
+Object.assign(T.en,{bestFor:'Best used with these AI tools',bestForNote:'Paste this prompt into one of the tools above for the best result. Sending it to an AI built for a different job (e.g. a coding assistant for a video) may not work.',rateTitle:'How happy are you with this prompt?',rateComment:'Add a comment (optional)…',sendFeedback:'Send feedback',rateThanks:'Thank you! Your feedback helps us improve. 🙏',welcomeVoice:'Welcome to Easy Prompt AI. I am your prompt assistant. Answer a few simple questions and I will craft a professional prompt for you. Let us begin.'});
+Object.assign(T.fa,{bestFor:'این پرامپت برای این هوش‌های مصنوعی عالی است',bestForNote:'این پرامپت را در یکی از ابزارهای بالا بچسبان تا بهترین نتیجه را بگیری. اگر آن را به هوش مصنوعی‌ای بدهی که برای کار دیگری ساخته شده (مثلاً یک دستیار برنامه‌نویسی برای ساخت ویدئو)، ممکن است جواب ندهد.',rateTitle:'از این پرامپت چقدر راضی هستی؟',rateComment:'یک نظر بنویس (اختیاری)…',sendFeedback:'ارسال نظر',rateThanks:'ممنون! نظر تو به بهتر شدن ما کمک می‌کند. 🙏',welcomeVoice:'به ایزی پرامپت ای‌آی خوش آمدی. من دستیار پرامپت تو هستم. به چند سؤال ساده جواب بده تا یک پرامپت حرفه‌ای برایت بسازم. بیا شروع کنیم.'});
 let LANG = localStorage.getItem('epai_ui_lang') || 'en';
 const t = k => (T[LANG] && T[LANG][k]) || T.en[k] || k;
 
@@ -487,6 +519,11 @@ function applyLang(){
   el('btnRunAI').textContent = t('runAI');
   el('btnRestart').textContent = t('newPrompt');
   el('aiTitle').textContent = t('aiTitle');
+  el('targetTitle').textContent = t('bestFor');
+  el('targetNote').textContent = t('bestForNote');
+  el('rateTitle').textContent = t('rateTitle');
+  el('rateComment').placeholder = t('rateComment');
+  el('btnSendRate').textContent = t('sendFeedback');
   el('footContact').textContent = t('contact');
   el('codeTitle').textContent = t('codeTitle');
   el('codeLbl').textContent = t('codeLbl');
@@ -578,16 +615,32 @@ function renderQuestion(index, total){
 }
 
 /* ---------------- voice / accessibility ---------------- */
-let autoRead = localStorage.getItem('epai_voice')==='1';
+// Read-aloud is ON by default (voice welcome + spoken questions); user can turn it off.
+let autoRead = (localStorage.getItem('epai_voice') ?? '1')==='1';
 const TTS = window.speechSynthesis;
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 let recog = null;
+let VOICES = [];
+function loadVoices(){ try{ VOICES = TTS ? TTS.getVoices() : []; }catch(e){ VOICES = []; } }
+if(TTS){ loadVoices(); try{ TTS.onvoiceschanged = loadVoices; }catch(e){} }
+// Pick a warm male voice for the chosen language when the device offers one.
+function pickVoice(lc){
+  if(!VOICES.length) loadVoices();
+  const base = (BCP47[lc]||'en-US').toLowerCase().split('-')[0];
+  const inLang = VOICES.filter(v=>v.lang && v.lang.toLowerCase().startsWith(base));
+  const pool = inLang.length ? inLang : VOICES;
+  const male = /\b(male|man)\b|david|george|paul|daniel|fred|alex|diego|hans|thomas|رجل|ذكر|homme|mann|hombre|masculin/i;
+  const female = /female|woman|zira|susan|samantha|victoria|amira|femme|frau|mujer|زن|أنثى/i;
+  return pool.find(v=>male.test(v.name)) || pool.find(v=>!female.test(v.name)) || pool[0] || null;
+}
 function stopSpeak(){ try{ TTS && TTS.cancel(); }catch(e){} }
 function speak(text){
   if(!TTS || !text) return;
   stopSpeak();
   const u = new SpeechSynthesisUtterance(text);
-  u.lang = BCP47[LANG] || 'en-US'; u.rate = .98;
+  u.lang = BCP47[LANG] || 'en-US';
+  const v = pickVoice(LANG); if(v) u.voice = v;
+  u.rate = .9; u.pitch = .8;   // unhurried + low pitch → warm, grandfatherly feel
   TTS.speak(u);
 }
 function questionSpeech(){
@@ -673,6 +726,10 @@ async function finish(){
   const sel=el('langSel');
   if(!sel.children.length){ OUT_LANGS.forEach(([c,n])=>{ const o=document.createElement('option'); o.value=c; o.textContent=n; sel.appendChild(o); }); sel.value=LANG; }
   el('aiOut').classList.add('hidden');
+  el('rateTitle').textContent=t('rateTitle');
+  el('rateComment').placeholder=t('rateComment');
+  el('btnSendRate').textContent=t('sendFeedback');
+  resetRate();
   await renderResult();
   const p = el('promptOut').textContent;
   if(p && p.length>20 && p!==t('loading') && p!==t('error')){
@@ -687,11 +744,44 @@ async function renderResult(){
   el('promptOut').textContent = d.prompt||t('error');
   const on = (OUT_LANGS.find(l=>l[0]===el('langSel').value)||[])[1]||'';
   el('promptTags').innerHTML = `<span class="tag">${state.catEmoji} ${state.catLabel||state.cat}</span><span class="tag">${on}</span>`+(IS_PRO?'<span class="tag">★ Pro</span>':'');
+  renderTargets(d.targets);
+}
+function renderTargets(targets){
+  const box=el('targetBox');
+  const tools=(targets&&Array.isArray(targets.tools))?targets.tools:[];
+  if(!tools.length){ box.classList.add('hidden'); return; }
+  box.classList.remove('hidden');
+  el('targetTitle').textContent = t('bestFor');
+  el('targetTools').innerHTML = tools.map((tool,i)=>`<span class="tool${i===0?' best':''}">${i===0?'⭐ ':''}${tool}</span>`).join('');
+  el('targetNote').textContent = t('bestForNote');
 }
 el('langSel').onchange=renderResult;
 el('btnCopy').onclick=async()=>{ try{ await navigator.clipboard.writeText(el('promptOut').textContent); toast(t('copied'),'ok'); }catch(e){ toast(t('copied'),'ok'); } };
 el('btnDownload').onclick=()=>{ const b=new Blob([el('promptOut').textContent],{type:'text/markdown'}); const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download='easy-prompt-ai.md'; a.click(); URL.revokeObjectURL(u); };
 el('btnRestart').onclick=()=>show('viewHome');
+
+/* ---------------- feedback / rating ---------------- */
+let rateValue=0;
+function buildStars(){
+  const box=el('stars'); if(box.children.length) return;
+  for(let i=1;i<=5;i++){ const s=document.createElement('span'); s.textContent='⭐'; s.dataset.v=i;
+    s.onclick=()=>{ rateValue=i; paintStars(); }; box.appendChild(s); }
+}
+function paintStars(){ [...el('stars').children].forEach(s=>s.classList.toggle('on', +s.dataset.v<=rateValue)); }
+function resetRate(){
+  buildStars(); rateValue=0; paintStars();
+  el('rateComment').value=''; el('rateThanks').classList.add('hidden');
+  el('btnSendRate').disabled=false; el('rateComment').classList.remove('hidden');
+  el('stars').classList.remove('hidden'); el('btnSendRate').classList.remove('hidden');
+}
+el('btnSendRate') && (el('btnSendRate').onclick=async()=>{
+  const comment=el('rateComment').value.trim();
+  if(!rateValue && !comment){ toast(t('rateTitle'),'err'); return; }
+  el('btnSendRate').disabled=true;
+  try{ await api('/api/feedback', { rating: rateValue, comment, category: state.catLabel||state.cat, lang: el('langSel').value }); }catch(e){}
+  el('stars').classList.add('hidden'); el('rateComment').classList.add('hidden'); el('btnSendRate').classList.add('hidden');
+  el('rateThanks').textContent=t('rateThanks'); el('rateThanks').classList.remove('hidden');
+});
 el('btnRunAI').onclick=async()=>{
   if(!IS_PRO){ toast(t('aiPro'),'err'); return; }
   el('aiOut').classList.remove('hidden'); el('aiText').textContent=t('loading');
@@ -793,7 +883,7 @@ el('uiLang').onchange=e=>{ LANG=e.target.value; localStorage.setItem('epai_ui_la
 };
 el('catSearch').oninput=e=>renderCats(e.target.value);
 
-el('introGo').onclick=()=>{ localStorage.setItem('epai_ui_lang',LANG); el('intro').classList.add('hidden'); el('app').classList.remove('hidden'); };
+el('introGo').onclick=()=>{ localStorage.setItem('epai_ui_lang',LANG); el('intro').classList.add('hidden'); el('app').classList.remove('hidden'); if(autoRead) setTimeout(()=>speak(t('welcomeVoice')),300); };
 
 /* ---------------- init ---------------- */
 (async function init(){
