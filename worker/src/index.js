@@ -197,15 +197,17 @@ const I18N_VERSION = 'v2';
 /* --------------------- server-side text-to-speech ------------------- *
  * Browser speech only works when the user's device has a voice for the
  * language (Persian/Arabic/Chinese are often missing). Synthesizing on the
- * server (Azure Neural TTS) gives a real voice in EVERY language that plays
- * on any device.
- *
- * ONE warm multilingual voice speaks all languages with the same timbre, so
- * the app sounds like a single narrator regardless of the chosen language.
- * A per-language override map lets us swap any single language if needed. */
-const TTS_VOICE_ALL = 'en-US-AndrewMultilingualNeural';
+ * server (Azure Neural TTS) gives a real male voice in EVERY language that
+ * plays on any device. Each language uses its own NATIVE male voice — the
+ * multilingual "one voice" only truly covers a few languages and falls back
+ * to a default (often female) voice for the rest, so native voices sound
+ * better and stay consistently male. Natural pitch (no distortion). */
 const TTS_VOICE = {
-  // Optional per-language overrides (empty → everyone uses the unified voice).
+  en:'en-US-GuyNeural',  fa:'fa-IR-FaridNeural', ar:'ar-SA-HamedNeural',
+  tr:'tr-TR-AhmetNeural', fr:'fr-FR-HenriNeural', de:'de-DE-ConradNeural',
+  es:'es-ES-AlvaroNeural', zh:'zh-CN-YunxiNeural', it:'it-IT-DiegoNeural',
+  ru:'ru-RU-DmitryNeural', ja:'ja-JP-KeitaNeural', hi:'hi-IN-MadhurNeural',
+  pt:'pt-BR-AntonioNeural',
 };
 const TTS_LOCALE = {
   en:'en-US', fa:'fa-IR', ar:'ar-SA', tr:'tr-TR', fr:'fr-FR', de:'de-DE',
@@ -438,13 +440,11 @@ export default {
         const { text = '', lang = 'en' } = await readJson(request);
         const clean = String(text).slice(0, 1500).trim();
         if (!clean) return json(env, { error: 'text_required' }, 400);
-        const voice = TTS_VOICE[lang] || TTS_VOICE_ALL;
+        const voice = TTS_VOICE[lang] || TTS_VOICE.en;
         const locale = TTS_LOCALE[lang] || 'en-US';
-        // One multilingual voice + <lang> to steer it to the target language.
-        // Only a gentle slow-down (no pitch shift) so pronunciation stays clean.
-        const ssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='en-US'>` +
-          `<voice name='${voice}'><lang xml:lang='${locale}'>` +
-          `<prosody rate='-4%'>${xmlEscape(clean)}</prosody></lang></voice></speak>`;
+        // Native voice per language, natural pitch, only a gentle slow-down.
+        const ssml = `<speak version='1.0' xml:lang='${locale}'><voice name='${voice}'>` +
+          `<prosody rate='-4%'>${xmlEscape(clean)}</prosody></voice></speak>`;
         const az = await fetch(`https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`, {
           method: 'POST',
           headers: {
