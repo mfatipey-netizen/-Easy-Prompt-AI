@@ -896,7 +896,7 @@ function loadPaypal(clientId){
 function fillLangSelects(){
   [el('introLang'), el('uiLang')].forEach(s=>{ s.innerHTML=''; LANGS.forEach(([c,n])=>{ const o=document.createElement('option'); o.value=c; o.textContent=n; s.appendChild(o); }); s.value=LANG; });
 }
-el('introLang').onchange=e=>{ LANG=e.target.value; applyLang(); };
+el('introLang').onchange=e=>{ LANG=e.target.value; localStorage.setItem('epai_ui_lang',LANG); el('uiLang').value=LANG; applyLang(); };
 el('uiLang').onchange=e=>{ LANG=e.target.value; localStorage.setItem('epai_ui_lang',LANG); el('introLang').value=LANG; applyLang(); renderCats(el('catSearch').value);
   if(state.cat){ state.catLabel=catLabel(state.cat); el('sideCat').innerHTML = state.catEmoji+' <b style="color:var(--text)">'+state.catLabel+'</b>'; }
   // if mid-interview, re-fetch the current question translated to the new language
