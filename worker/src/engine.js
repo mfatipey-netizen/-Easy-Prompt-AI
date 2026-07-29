@@ -54,28 +54,31 @@ export const CATEGORIES = [
 
 /* ============================ QUESTION BANKS ============================ */
 const CORE = [
-  {id:'goal', type:'text', text:'دقیقاً می‌خواهی هوش مصنوعی چه چیزی برایت بسازد یا انجام دهد؟',
-   hint:'در یک یا دو جمله هدف اصلی را بنویس.'},
-  {id:'topic', type:'text', text:'موضوع یا سوژهٔ دقیق چیست؟', hint:'هرچه دقیق‌تر، بهتر.'},
-  {id:'audience', type:'single', text:'مخاطب اصلی این خروجی چه کسی است؟',
+  {id:'goal', type:'text', text:'در یک جمله، خروجیِ نهایی که می‌خواهی چیست و قرار است چه کاری برایت انجام دهد؟',
+   hint:'روی نتیجهٔ ملموس تمرکز کن؛ مثلاً «یک ویدئوی تبلیغاتی ۳۰ ثانیه‌ای برای فروش محصولم» نه فقط «یک ویدئو».'},
+  {id:'topic', type:'text', text:'دقیقاً دربارهٔ چه چیزی است؟ موضوع، محصول یا سوژهٔ اصلی را نام ببر.',
+   hint:'جزئیات مشخص بده: نام، ویژگی کلیدی، حال‌وهوا. هرچه دقیق‌تر، خروجی هدفمندتر.'},
+  {id:'audience', type:'single', text:'این خروجی قرار است چه کسی را تحت‌تأثیر بگذارد یا برای چه کسی ساخته می‌شود؟',
    options:O('عموم مردم','متخصصان و حرفه‌ای‌ها','مبتدی‌ها','کودکان/نوجوانان','مشتریان بالقوه','خودم برای استفادهٔ شخصی','سایر (توضیح می‌دهم)')},
-  {id:'audience_x', type:'text', text:'کمی دربارهٔ مخاطبت بگو.', hint:'سن، سطح دانش، علاقه‌مندی…', when:a=>a.audience==='سایر (توضیح می‌دهم)'},
-  {id:'tone', type:'single', text:'لحن و حال‌وهوای خروجی چطور باشد؟',
-   options:O('حرفه‌ای و رسمی','دوستانه و صمیمی','هیجان‌انگیز و انگیزشی','علمی و دقیق','طنز و بازیگوش','لوکس و مجلل','خنثی و بی‌طرف')},
-  {id:'depth', type:'single', text:'چه سطحی از جزئیات می‌خواهی؟',
-   options:O('کوتاه و خلاصه','متوسط و متعادل','کامل و مفصل','بسیار عمیق و تخصصی')},
-  {id:'constraints', type:'text', text:'چه محدودیت‌ها یا قوانینی باید رعایت شود؟', hint:'(اگر نداری خالی بگذار)'},
-  {id:'avoid', type:'text', text:'چه چیزهایی را حتماً نباید انجام دهد؟', hint:'(اختیاری)'},
-  {id:'examples', type:'single', text:'آیا نمونه یا مرجعی داری که سبکش را دوست داشته باشی؟',
+  {id:'audience_x', type:'text', text:'مخاطبت را دقیق‌تر توصیف کن.', hint:'سن، سطح دانش، دغدغه یا علاقه‌ای که دارند…', when:a=>a.audience==='سایر (توضیح می‌دهم)'},
+  {id:'tone', type:'single', text:'می‌خواهی مخاطب هنگام دیدن خروجی چه حسی بگیرد؟ (لحن و حال‌وهوا)',
+   options:O('حرفه‌ای و قابل‌اعتماد','گرم و صمیمی','هیجان‌انگیز و انگیزشی','علمی و دقیق','طنز و بازیگوش','لوکس و مجلل','خنثی و بی‌طرف')},
+  {id:'depth', type:'single', text:'چقدر عمق و جزئیات لازم داری؟',
+   options:O('کوتاه و سرراست','متعادل و کاربردی','کامل و مفصل','بسیار عمیق و تخصصی')},
+  {id:'constraints', type:'text', text:'چه خط‌قرمزها، قوانین یا شرایط اجباری‌ای باید حتماً رعایت شود؟',
+   hint:'مثلاً: بودجه، برند، قوانین حقوقی، سقف کلمات… (اگر نداری خالی بگذار)'},
+  {id:'avoid', type:'text', text:'چه چیزی باعث می‌شود خروجی را رد کنی؟ چه چیزهایی را نباید انجام دهد؟',
+   hint:'اشتباهات رایج یا چیزهایی که حسابی روی اعصابت است. (اختیاری)'},
+  {id:'examples', type:'single', text:'نمونه، رقیب یا سبکی هست که دوستش داری و بخواهی از حال‌وهوایش الهام بگیریم؟',
    options:O('بله، توضیح می‌دهم','نه، خودت خلاقیت به خرج بده')},
-  {id:'examples_x', type:'text', text:'آن نمونه/مرجع را توصیف کن.', when:a=>a.examples==='بله، توضیح می‌دهم'},
-  {id:'format', type:'single', text:'خروجی در چه قالبی باشد؟',
+  {id:'examples_x', type:'text', text:'آن نمونه/مرجع را توصیف کن و بگو دقیقاً چه چیزش را می‌پسندی.', when:a=>a.examples==='بله، توضیح می‌دهم'},
+  {id:'format', type:'single', text:'خروجی در چه قالبی به بیشترین درد تو می‌خورد؟',
    options:O('متن پیوسته','فهرست نکته‌ای (Bullet)','جدول','مرحله‌به‌مرحله','پرسش و پاسخ','کد/فنی','قالب را خودت انتخاب کن')},
-  {id:'length', type:'single', text:'طول تقریبی خروجی چقدر باشد؟',
+  {id:'length', type:'single', text:'حجم تقریبی خروجی چقدر باشد؟',
    options:O('خیلی کوتاه','یک پاراگراف','چند پاراگراف','یک صفحهٔ کامل','هر چقدر لازم است')},
-  {id:'persona', type:'single', text:'هوش مصنوعی نقش چه متخصصی را بازی کند؟',
+  {id:'persona', type:'single', text:'هوش مصنوعی از زبان چه متخصصی با تو حرف بزند و کار را انجام دهد؟',
    options:O('بگذار موتور بهترین نقش را انتخاب کند','یک متخصص ارشد همان حوزه','یک مربی/معلم','یک منتقد سخت‌گیر','یک دوست خلاق','خودم نقش را تعیین می‌کنم')},
-  {id:'persona_x', type:'text', text:'نقش دلخواهت را بنویس.', when:a=>a.persona==='خودم نقش را تعیین می‌کنم'},
+  {id:'persona_x', type:'text', text:'نقش دلخواهت را دقیق بنویس.', hint:'مثلاً «یک کارگردان هنری با ۲۰ سال تجربهٔ برندسازی لوکس».', when:a=>a.persona==='خودم نقش را تعیین می‌کنم'},
 ];
 
 const DOMAIN = {
@@ -357,3 +360,35 @@ export function generatePrompt(categoryName, answers, langCode, pro){
 }
 
 export function publicCategories(){ return CATEGORIES.map(c=>({n:c.n,e:c.e})); }
+
+/* ================= RECOMMENDED AI TARGETS =================
+ * Which AI tools this kind of prompt is actually meant for. Prevents the
+ * "I gave an animation prompt to a code assistant and it refused" problem.
+ * `tools` are ordered best-first. Names are brand names (kept as-is when the
+ * surrounding UI text is translated).
+ */
+const TARGET_AI = {
+  writing:  ['ChatGPT (GPT-4o/5)', 'Claude', 'Gemini'],
+  social:   ['ChatGPT', 'Claude', 'Gemini'],
+  image:    ['Midjourney', 'DALL·E 3', 'Adobe Firefly', 'Stable Diffusion', 'Leonardo AI'],
+  video:    ['Sora', 'Runway (Gen-3)', 'Kling', 'Pika', 'Luma Dream Machine'],
+  game:     ['ChatGPT', 'Claude', 'Midjourney'],
+  code:     ['Claude', 'ChatGPT', 'GitHub Copilot', 'Cursor'],
+  business: ['ChatGPT', 'Claude', 'Gemini'],
+  finance:  ['ChatGPT', 'Claude', 'Gemini'],
+  advice:   ['ChatGPT', 'Claude', 'Gemini'],
+  health:   ['ChatGPT', 'Claude'],
+  education:['ChatGPT', 'Claude', 'Gemini'],
+  research: ['Claude', 'ChatGPT', 'Perplexity', 'Gemini'],
+  language: ['ChatGPT', 'Claude', 'DeepL', 'Gemini'],
+  design3d: ['Midjourney', 'Stable Diffusion', 'Interior AI', 'Adobe Firefly'],
+  travel:   ['ChatGPT', 'Gemini', 'Perplexity'],
+  food:     ['ChatGPT', 'Claude', 'Gemini'],
+  general:  ['ChatGPT', 'Claude', 'Gemini'],
+};
+
+// Return the recommended AI tools for a category (best-first).
+export function recommendedTargets(categoryName){
+  const kind = kindOf(categoryName);
+  return { kind, tools: TARGET_AI[kind] || TARGET_AI.general };
+}
