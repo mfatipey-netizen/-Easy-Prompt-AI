@@ -182,6 +182,7 @@ body{color:var(--text);background:var(--bg);overflow-x:hidden;-webkit-font-smoot
       <button class="btn sm ghost" id="btnHistory"></button>
       <button class="btn sm" id="btnUpgrade"></button>
       <button class="btn sm ghost" id="btnCode"></button>
+      <button class="btn sm ghost" id="btnAdmin" title="Admin">⚙️</button>
       <button class="btn sm ghost" id="btnHome"></button>
     </div>
   </header>
@@ -269,6 +270,59 @@ body{color:var(--text);background:var(--bg);overflow-x:hidden;-webkit-font-smoot
   <h3 id="codeTitle"></h3>
   <div class="field" style="max-width:100%"><label id="codeLbl"></label><input id="codeInput" autocomplete="off"></div>
   <div class="nav" style="margin-top:16px"><button class="btn ghost" data-close></button><button class="btn primary" id="codeSubmit"></button></div>
+</div></div>
+
+<!-- ADMIN MODAL -->
+<div class="modal" id="adminModal"><div class="panel" style="max-width:900px;width:96vw">
+  <h3>پنل مدیریت</h3>
+  <div id="adminLoginBox" class="field" style="max-width:100%">
+    <label>توکن مدیریت</label>
+    <input id="adminTokenInput" type="password" autocomplete="off">
+    <div class="nav" style="margin-top:12px"><button class="btn ghost" data-close>بستن</button><button class="btn primary" id="adminLoginBtn">ورود</button></div>
+  </div>
+  <div id="adminBody" style="display:none">
+    <div id="adminStats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:8px 0 14px"></div>
+    <div class="tabs" style="display:flex;gap:8px;margin-bottom:12px;border-bottom:1px solid #2a2f3d">
+      <button class="btn sm ghost" data-tab="gen">ساخت کد جدید</button>
+      <button class="btn sm ghost" data-tab="list">لیست کدها و کاربران</button>
+      <button class="btn sm ghost" data-tab="prices">قیمت‌ها و پکیج‌ها</button>
+    </div>
+    <div id="adminTabGen" class="admin-tab">
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+        <div class="field"><label>پکیج</label><select id="admGenPlan">
+          <option value="1mo">۱ ماهه</option>
+          <option value="3mo" selected>۳ ماهه</option>
+          <option value="12mo">۱ ساله</option>
+          <option value="lifetime">دائمی</option>
+        </select></div>
+        <div class="field"><label>تعداد</label><input id="admGenQty" type="number" value="1" min="1" max="50"></div>
+        <div class="field"><label>نام خریدار (اختیاری)</label><input id="admGenName" placeholder="مثلاً: علی رضایی"></div>
+        <div class="field"><label>ایمیل/تلفن (اختیاری)</label><input id="admGenEmail" placeholder="ایمیل یا شماره تماس"></div>
+        <div class="field" style="grid-column:1/-1"><label>یادداشت (اختیاری)</label><input id="admGenNote" placeholder="مثلاً: خرید از تلگرام"></div>
+      </div>
+      <button class="btn primary" id="admGenBtn" style="margin-top:10px;width:100%">تولید کد</button>
+      <div id="admGenResult" style="margin-top:12px"></div>
+    </div>
+    <div id="adminTabList" class="admin-tab" style="display:none">
+      <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;flex-wrap:wrap">
+        <input id="admSearch" placeholder="جستجو بر اساس کد، نام، ایمیل…" style="flex:1;min-width:200px;padding:8px;border-radius:8px;background:#151923;border:1px solid #2a2f3d;color:#e6e8ee">
+        <select id="admFilterPlan" style="padding:8px;border-radius:8px;background:#151923;border:1px solid #2a2f3d;color:#e6e8ee">
+          <option value="">همه پکیج‌ها</option><option value="1mo">۱ ماهه</option><option value="3mo">۳ ماهه</option><option value="12mo">۱ ساله</option><option value="lifetime">دائمی</option>
+        </select>
+        <select id="admFilterStatus" style="padding:8px;border-radius:8px;background:#151923;border:1px solid #2a2f3d;color:#e6e8ee">
+          <option value="">همه وضعیت‌ها</option><option value="active">فعال</option><option value="unused">استفاده‌نشده</option><option value="expired">منقضی</option><option value="revoked">لغوشده</option>
+        </select>
+        <button class="btn sm" id="admRefreshBtn">به‌روزرسانی</button>
+      </div>
+      <div id="admListBody" style="max-height:60vh;overflow:auto"></div>
+    </div>
+    <div id="adminTabPrices" class="admin-tab" style="display:none">
+      <p style="color:#9aa3b7;margin-bottom:12px">قیمت پکیج‌ها را در Cloudflare → Settings → Variables and secrets تنظیم کن (مقادیر Plaintext به دلار):</p>
+      <div id="admPriceTable" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:12px;background:#151923;border-radius:10px;border:1px solid #2a2f3d"></div>
+      <p style="color:#9aa3b7;margin-top:14px;font-size:.85rem">قیمت‌های پیش‌فرض بر اساس روند بازار: <b>۱ ماهه ۵ دلار</b>، <b>۳ ماهه ۱۲ دلار</b> (۲۰٪ تخفیف)، <b>۱ ساله ۳۹ دلار</b> (۳۵٪ تخفیف)، <b>دائمی ۹۹ دلار</b>.</p>
+    </div>
+    <div style="text-align:left;margin-top:12px"><button class="btn ghost" data-close>بستن</button></div>
+  </div>
 </div></div>
 
 <!-- PAY MODAL -->
@@ -832,6 +886,133 @@ el('codeSubmit').onclick=async()=>{
   else { setCode(''); toast(t('invalid'),'err'); }
 };
 el('btnHome').onclick=()=>show('viewHome');
+
+/* ---------------- ADMIN PANEL ---------------- */
+let ADMIN_TOKEN = sessionStorage.getItem('epai_admin_token') || '';
+async function adminApi(path, body, method){
+  const opt = { method: method || (body ? 'POST' : 'GET'), headers: { 'Authorization': 'Bearer ' + ADMIN_TOKEN } };
+  if(body){ opt.headers['Content-Type']='application/json'; opt.body=JSON.stringify(body); }
+  const r = await fetch(API_BASE + path, opt);
+  return r.json();
+}
+function fmtDate(ts){ if(!ts) return '—'; const d = new Date(ts); return d.toLocaleDateString('fa-IR') + ' ' + d.toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'}); }
+const PLAN_LABEL = { '1mo':'۱ ماهه', '3mo':'۳ ماهه', '12mo':'۱ ساله', 'lifetime':'دائمی' };
+const STATUS_LABEL = { active:'✅ فعال', unused:'⏳ استفاده‌نشده', expired:'⌛ منقضی', revoked:'🚫 لغوشده' };
+
+el('btnAdmin').onclick=()=>{
+  openModal('adminModal');
+  if(ADMIN_TOKEN){ showAdminPanel(); } else { el('adminLoginBox').style.display=''; el('adminBody').style.display='none'; setTimeout(()=>el('adminTokenInput').focus(),50); }
+};
+el('adminLoginBtn').onclick=async()=>{
+  const tok = el('adminTokenInput').value.trim(); if(!tok) return;
+  ADMIN_TOKEN = tok;
+  const r = await adminApi('/api/admin/stats');
+  if(r && r.error){ ADMIN_TOKEN=''; toast('توکن اشتباه است','err'); return; }
+  sessionStorage.setItem('epai_admin_token', tok);
+  showAdminPanel();
+};
+function showAdminPanel(){
+  el('adminLoginBox').style.display='none';
+  el('adminBody').style.display='';
+  loadAdminStats();
+  switchAdminTab('gen');
+}
+async function loadAdminStats(){
+  const s = await adminApi('/api/admin/stats');
+  if(!s || s.error) return;
+  el('adminStats').innerHTML = [
+    ['کل کدها', s.total || 0],
+    ['فعال', s.active || 0],
+    ['فروش ۳۰ روز اخیر', s.last30 || 0],
+    ['درآمد کل', '$' + (s.revenue || 0).toFixed(2)],
+  ].map(([k,v])=>`<div style="background:#151923;padding:12px;border-radius:10px;border:1px solid #2a2f3d;text-align:center"><div style="color:#9aa3b7;font-size:.8rem">${k}</div><div style="font-size:1.4rem;font-weight:800;color:var(--gold-2);margin-top:4px">${v}</div></div>`).join('');
+}
+function switchAdminTab(name){
+  document.querySelectorAll('.admin-tab').forEach(t=>t.style.display='none');
+  el('adminTab' + name.charAt(0).toUpperCase() + name.slice(1)).style.display='';
+  document.querySelectorAll('[data-tab]').forEach(b=>b.style.fontWeight = b.dataset.tab===name ? '900' : '400');
+  if(name==='list') loadAdminList();
+  if(name==='prices') loadAdminPrices();
+}
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>switchAdminTab(b.dataset.tab));
+
+el('admGenBtn').onclick=async()=>{
+  const btn = el('admGenBtn'); btn.disabled=true; btn.textContent='...';
+  const r = await adminApi('/api/admin/gen', {
+    plan: el('admGenPlan').value,
+    quantity: parseInt(el('admGenQty').value,10) || 1,
+    buyer_name: el('admGenName').value.trim(),
+    buyer_email: el('admGenEmail').value.trim(),
+    note: el('admGenNote').value.trim(),
+  });
+  btn.disabled=false; btn.textContent='تولید کد';
+  if(!r.ok){ toast(r.error||'خطا','err'); return; }
+  el('admGenResult').innerHTML = '<div style="background:#0e1520;padding:12px;border-radius:10px;border:1px solid #2a2f3d"><b style="color:var(--gold-2)">'+r.codes.length+' کد ساخته شد ('+PLAN_LABEL[r.plan]+'):</b><br>' +
+    r.codes.map(c=>`<div style="display:flex;justify-content:space-between;padding:6px 0;font-family:monospace"><span>${c}</span><button class="btn sm" onclick="navigator.clipboard.writeText('${c}');toast('کپی شد','ok')">کپی</button></div>`).join('') + '</div>';
+  loadAdminStats();
+};
+
+async function loadAdminList(){
+  el('admListBody').innerHTML='<div class="spin"></div>';
+  const r = await adminApi('/api/admin/codes');
+  if(!r || !r.items){ el('admListBody').innerHTML='خطا'; return; }
+  window._admItems = r.items;
+  renderAdminList();
+}
+function renderAdminList(){
+  const q = (el('admSearch').value||'').toLowerCase().trim();
+  const fp = el('admFilterPlan').value;
+  const fs = el('admFilterStatus').value;
+  const items = (window._admItems||[]).filter(it=>{
+    if(fp && it.plan !== fp) return false;
+    if(fs && it.status !== fs) return false;
+    if(q && !(it.code.toLowerCase().includes(q) || (it.buyer_name||'').toLowerCase().includes(q) || (it.buyer_email||'').toLowerCase().includes(q))) return false;
+    return true;
+  });
+  if(!items.length){ el('admListBody').innerHTML='<p style="color:#9aa3b7;text-align:center;padding:24px">موردی پیدا نشد</p>'; return; }
+  const rows = items.map(it=>`<tr>
+    <td style="font-family:monospace;font-weight:700">${it.code}</td>
+    <td>${PLAN_LABEL[it.plan]||it.plan}</td>
+    <td>${it.buyer_name||'—'}<br><small style="color:#9aa3b7">${it.buyer_email||''}</small></td>
+    <td>${it.method||'—'}${it.amount?'<br><small style="color:#9aa3b7">$'+it.amount+'</small>':''}</td>
+    <td>${fmtDate(it.created_at)}</td>
+    <td>${fmtDate(it.first_used)}</td>
+    <td>${fmtDate(it.expires_at)}</td>
+    <td>${STATUS_LABEL[it.status]||it.status}</td>
+    <td>
+      <button class="btn sm" onclick="navigator.clipboard.writeText('${it.code}');toast('کپی شد','ok')">📋</button>
+      ${it.status!=='revoked' ? `<button class="btn sm" style="background:#5a1e1e" onclick="revokeCode('${it.code}')">🚫</button>` : ''}
+    </td>
+  </tr>`).join('');
+  el('admListBody').innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:.85rem">
+    <thead style="position:sticky;top:0;background:#151923"><tr>
+      <th style="text-align:right;padding:8px">کد</th><th style="text-align:right;padding:8px">پکیج</th><th style="text-align:right;padding:8px">خریدار</th>
+      <th style="text-align:right;padding:8px">پرداخت</th><th style="text-align:right;padding:8px">ساخت</th><th style="text-align:right;padding:8px">اولین استفاده</th>
+      <th style="text-align:right;padding:8px">انقضا</th><th style="text-align:right;padding:8px">وضعیت</th><th style="text-align:right;padding:8px">عملیات</th>
+    </tr></thead><tbody>${rows.replace(/<tr>/g,'<tr style="border-top:1px solid #2a2f3d">').replace(/<td/g,'<td style="padding:8px;vertical-align:top"')}</tbody></table>`;
+}
+window.revokeCode = async(code)=>{
+  if(!confirm('این کد لغو شود؟ ('+code+')')) return;
+  const r = await adminApi('/api/admin/revoke', { code });
+  if(r.ok){ toast('لغو شد','ok'); loadAdminList(); loadAdminStats(); }
+  else toast(r.error||'خطا','err');
+};
+el('admSearch').oninput = renderAdminList;
+el('admFilterPlan').onchange = renderAdminList;
+el('admFilterStatus').onchange = renderAdminList;
+el('admRefreshBtn').onclick = ()=>{ loadAdminList(); loadAdminStats(); };
+
+async function loadAdminPrices(){
+  const r = await api('/api/plans');
+  const plans = (r && r.plans) || [];
+  el('admPriceTable').innerHTML = plans.map(p=>`
+    <div style="text-align:center;padding:12px;background:#0e1520;border-radius:8px">
+      <div style="color:#9aa3b7;font-size:.8rem">${PLAN_LABEL[p.plan]||p.plan}</div>
+      <div style="font-size:1.6rem;font-weight:800;color:var(--gold-2);margin:6px 0">$${p.price_usd}</div>
+      <div style="color:#9aa3b7;font-size:.75rem">${p.days ? p.days+' روز اعتبار' : 'دائمی'}</div>
+    </div>
+  `).join('');
+}
 
 el('btnUpgrade').onclick=async()=>{ openModal('payModal'); await renderPay(); };
 async function renderPay(){
