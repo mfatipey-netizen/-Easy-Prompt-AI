@@ -52,7 +52,7 @@ bot/
 │   ├── metrics.py         # win rate, profit factor, drawdown, Sharpe, expectancy
 │   ├── broker.py          # PaperBroker (sim) + CcxtBroker (real, gated)
 │   ├── paper.py           # live polling loop (paper or live), pure `decide()` core
-│   ├── data.py            # synthetic generator + Kraken/Coinbase public REST
+│   ├── data.py            # synthetic + Kraken/Coinbase public REST + CSV import/export
 │   ├── notify.py          # console + optional Telegram/webhook
 │   └── config.py          # JSON config + env-based secrets
 └── tests/                 # 19 unit tests, stdlib `unittest` (no pytest needed)
@@ -103,6 +103,29 @@ python bot.py paper --source coinbase --symbol BTC-USD --interval 3600
 # Run the tests:
 python -m unittest discover -s tests
 ```
+
+### Deep history & out-of-sample validation
+
+Public REST returns limited depth (Coinbase ~300 bars/request), so for serious
+validation cache history to CSV once and reuse it — and always check performance
+on data the strategy was **not** tuned on:
+
+```bash
+# Fetch deeper Coinbase history (pages backwards) and cache it to CSV:
+python bot.py backtest --source coinbase --symbol BTC-USD --interval 3600 \
+       --max-bars 3000 --save-csv btc_1h.csv
+
+# Backtest from the cached CSV (offline, unlimited depth, any exporter's data):
+python bot.py backtest --source csv --symbol btc_1h.csv
+
+# Train/test split — the anti-overfitting check. Tune on the first 70%,
+# then JUDGE the strategy on the untouched last 30%:
+python bot.py backtest --source csv --symbol btc_1h.csv --split 0.7
+```
+
+If out-of-sample numbers are far worse than in-sample, your parameters are
+over-fit to the past and will likely disappoint live — the single most common way
+backtested bots lose money.
 
 Use a config file instead of flags:
 
