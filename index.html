@@ -863,10 +863,14 @@ el('btnSendRate') && (el('btnSendRate').onclick=async()=>{
   el('rateThanks').textContent=t('rateThanks'); el('rateThanks').classList.remove('hidden');
 });
 el('btnRunAI').onclick=async()=>{
-  if(!IS_PRO){ toast(t('aiPro'),'err'); return; }
-  el('aiOut').classList.remove('hidden'); el('aiText').textContent=t('loading');
-  const d = await api('/api/ai/run', { prompt: el('promptOut').textContent });
-  el('aiText').textContent = d.ok ? d.text : (d.error==='ai_not_configured'? t('aiSoon') : (d.error||t('error')));
+  if(!IS_PRO){ toast(t('aiPro'),'err'); openModal('payModal'); await renderPay(); return; }
+  const btn = el('btnRunAI'); const orig = btn.textContent;
+  btn.disabled = true; btn.textContent = '...';
+  el('aiOut').classList.remove('hidden'); el('aiText').textContent = t('loading');
+  try{
+    const d = await api('/api/ai/run', { prompt: el('promptOut').textContent });
+    el('aiText').textContent = d.ok ? d.text : (d.error==='ai_not_configured' ? t('aiSoon') : (d.error || t('error')));
+  } finally { btn.disabled = false; btn.textContent = orig; }
 };
 
 /* ---------------- plan / code / pay ---------------- */
