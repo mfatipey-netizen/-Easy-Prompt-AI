@@ -57,9 +57,24 @@ class ConfluenceStrategy(Strategy):
     ema_slow: int = 50
     atr_period: int = 14
     atr_stop_mult: float = 1.5
-    reward_risk: float = 2.0
-    min_score: float = 2.0
-    warmup: int = 60
+    reward_risk: float = 2.0          # fixed 1:2 target (risk 1 to make 2)
+    min_score: float = 3.0            # selectivity: require strong confluence
+    # --- Quality filters (GATES) that raise win rate by trading only A+ setups ---
+    use_trend_filter: bool = True     # only trade WITH the long-term trend
+    trend_ema: int = 200
+    use_adx_filter: bool = True       # only trade when a real trend exists
+    adx_period: int = 14
+    adx_min: float = 22.0
+    warmup: int = 210
+
+    def __post_init__(self) -> None:
+        # Ensure enough history for whichever lookbacks are actually enabled.
+        need = [self.ema_slow + 5, 2 * self.atr_period + 5]
+        if self.use_trend_filter:
+            need.append(self.trend_ema + 5)
+        if self.use_adx_filter:
+            need.append(2 * self.adx_period + 5)
+        self.warmup = max(self.warmup, *need)
 
     def evaluate(self, candles: Sequence[Candle], i: int) -> Signal:
         flat = Signal("flat", 0.0, candles[i].close, candles[i].close, candles[i].close)
@@ -78,6 +93,19 @@ class ConfluenceStrategy(Strategy):
         atr_v = ind.atr(window, self.atr_period)[i]
         if None in (ema_f, ema_s, rsi_v, macd_hist, atr_v) or atr_v == 0:
             return flat
+
+        # --- Quality gates: computed up front so a failed gate blocks the trade ---
+        trend_long_ok = trend_short_ok = True
+        if self.use_trend_filter:
+            trend_ema_v = ind.ema(px, self.trend_ema)[i]
+            if trend_ema_v is None:
+                return flat
+            trend_long_ok = cur.close > trend_ema_v
+            trend_short_ok = cur.close < trend_ema_v
+        if self.use_adx_filter:
+            adx_v = ind.adx(window, self.adx_period)[i]
+            if adx_v is None or adx_v < self.adx_min:
+                return flat  # no real trend — sit out the chop to protect win rate
 
         long_score = 0.0
         short_score = 0.0
@@ -127,11 +155,11 @@ class ConfluenceStrategy(Strategy):
             reasons.append("close below recent support (breakdown)")
 
         entry = cur.close
-        if long_score >= self.min_score and long_score > short_score:
+        if long_score >= self.min_score and long_score > short_score and trend_long_ok:
             stop = entry - self.atr_stop_mult * atr_v
             tp = entry + self.reward_risk * (entry - stop)
             return Signal("long", long_score, entry, stop, tp, _picked(reasons, "long"))
-        if short_score >= self.min_score and short_score > long_score:
+        if short_score >= self.min_score and short_score > long_score and trend_short_ok:
             stop = entry + self.atr_stop_mult * atr_v
             tp = entry - self.reward_risk * (stop - entry)
             return Signal("short", short_score, entry, stop, tp, _picked(reasons, "short"))

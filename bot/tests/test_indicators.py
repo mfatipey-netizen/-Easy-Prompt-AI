@@ -69,6 +69,24 @@ class TestIndicators(unittest.TestCase):
                 self.assertGreaterEqual(u, m)
                 self.assertGreaterEqual(m, l)
 
+    def test_adx_bounds_and_warmup(self):
+        rows = [[i, 10 + i, 12 + i, 9 + i, 11 + i, 1] for i in range(80)]
+        candles = from_rows(rows)
+        out = ind.adx(candles, 14)
+        self.assertIsNone(out[10])  # not enough history early
+        defined = [v for v in out if v is not None]
+        self.assertTrue(defined)
+        for v in defined:
+            self.assertGreaterEqual(v, 0.0)
+            self.assertLessEqual(v, 100.0)
+
+    def test_adx_strong_in_clean_trend(self):
+        # A steady one-directional march should register a strong trend.
+        rows = [[i, 100 + i, 100 + i + 0.5, 100 + i - 0.2, 100 + i + 0.4, 1] for i in range(120)]
+        candles = from_rows(rows)
+        out = ind.adx(candles, 14)
+        self.assertGreater(out[-1], 25.0)
+
 
 if __name__ == "__main__":
     unittest.main()

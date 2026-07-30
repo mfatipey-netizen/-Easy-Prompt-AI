@@ -6,6 +6,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from tbot import data as datamod
 from tbot.backtest import run_backtest
+from tbot.candles import from_rows
 from tbot.paper import decide, run_loop
 from tbot.broker import PaperBroker
 from tbot.notify import Notifier
@@ -92,6 +93,37 @@ class TestDecide(unittest.TestCase):
         act = decide(datamod.synthetic(n=200), ConfluenceStrategy(), rm, None,
                      equity=1000, day_pnl_pct=-0.05, last_price=100)
         self.assertEqual(act.kind, "hold")
+
+
+class TestStrategyFilters(unittest.TestCase):
+    def test_reward_risk_is_one_to_two(self):
+        # Any signal the strategy emits must have a 1:2 reward:risk by construction.
+        candles = datamod.synthetic(n=800, seed=4)
+        strat = ConfluenceStrategy(use_trend_filter=False, use_adx_filter=False, min_score=2.0)
+        sig = next(
+            (s for i in range(len(candles))
+             if (s := strat.evaluate(candles, i)).side in ("long", "short")),
+            None,
+        )
+        self.assertIsNotNone(sig, "expected at least one signal on synthetic data")
+        self.assertAlmostEqual(sig.reward_risk, 2.0, places=6)
+        # And the take-profit distance is literally twice the stop distance.
+        self.assertAlmostEqual(
+            abs(sig.take_profit - sig.entry), 2.0 * sig.risk_per_unit, places=6
+        )
+
+    def test_adx_filter_skips_flat_market(self):
+        # A dead-flat market has no trend: the ADX gate should block all trades.
+        rows = [[i * 3600, 100, 100.05, 99.95, 100, 1] for i in range(400)]
+        candles = from_rows(rows)
+        strat = ConfluenceStrategy(use_adx_filter=True, adx_min=22.0)
+        sides = {strat.evaluate(candles, i).side for i in range(len(candles))}
+        self.assertEqual(sides, {"flat"})
+
+    def test_disabling_filters_lowers_warmup(self):
+        s_on = ConfluenceStrategy()
+        s_off = ConfluenceStrategy(use_trend_filter=False, use_adx_filter=False, warmup=60)
+        self.assertGreater(s_on.warmup, s_off.warmup)
 
 
 class TestPaperLoop(unittest.TestCase):

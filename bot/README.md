@@ -43,9 +43,9 @@ bot/
 ├── requirements.txt       # core needs nothing; ccxt only for live orders
 ├── tbot/
 │   ├── candles.py         # OHLCV candle type + helpers
-│   ├── indicators.py      # EMA, SMA, RSI, MACD, ATR, Bollinger (from scratch)
+│   ├── indicators.py      # EMA, SMA, RSI, MACD, ATR, ADX, Bollinger (from scratch)
 │   ├── patterns.py        # swings, support/resistance, engulfing, hammer, star
-│   ├── strategy.py        # ConfluenceStrategy: scores indicators + price action
+│   ├── strategy.py        # ConfluenceStrategy: score + trend/ADX quality gates
 │   ├── risk.py            # position sizing, daily loss cap, exposure limits
 │   ├── portfolio.py       # positions, trades, equity, PnL
 │   ├── backtest.py        # no-look-ahead event-driven backtest engine
@@ -72,9 +72,27 @@ threshold (`min_score`, default 2):
 | Price action | bullish engulfing / hammer | bearish engulfing / shooting star |
 | Structure | close breaks recent resistance | close breaks recent support |
 
-Stop-loss is **ATR-based** (`atr_stop_mult × ATR`), and take-profit is a fixed
-reward:risk multiple (`reward_risk`, default 2:1). Position size then comes from
-risk.py so a stop-out costs a fixed fraction of equity.
+A trade needs a combined **score ≥ `min_score`** (default 3) — strong confluence
+only. On top of the score, two **quality gates** must also pass, and their whole
+job is to lift the **win rate** by trading only high-probability setups:
+
+- **Trend gate** (`use_trend_filter`, `trend_ema=200`): longs only above the
+  EMA200, shorts only below it — never fight the dominant trend.
+- **Trend-strength gate** (`use_adx_filter`, `adx_min=22`): trade only when ADX
+  confirms a real trend; sit out choppy, range-bound noise (where win rate dies).
+
+Stop-loss is **ATR-based** (`atr_stop_mult × ATR`); take-profit is a fixed
+**1:2 reward:risk** (`reward_risk=2.0`, exactly what you asked for). Position size
+comes from risk.py so a stop-out always costs a fixed fraction of equity.
+
+> **On the "70%+ win rate" goal — read honestly.** At 1:2 reward:risk the
+> *breakeven* win rate is only ~33%. A sustained **70% win rate at 1:2 would be a
+> world-class edge** that essentially no public strategy achieves — high win rate
+> and high reward:risk generally trade off against each other. The gates above
+> give you the best *honest* shot at a high win rate, and the backtest's reality
+> check tells you the **real** number and whether it met your `--target-winrate`.
+> The bot will never fake the figure. Tune on real data, and judge it
+> out-of-sample (`--split`) before believing any win rate.
 
 ### Risk controls (risk.py)
 - **`risk_per_trade`** (1%): a stop-out loses at most this fraction of equity.
@@ -184,9 +202,8 @@ with **withdrawal permissions disabled** on the exchange key and tiny position
 sizes.
 
 ## Notes, limits, and honest caveats
-- Stocks & forex were mentioned in the original request; this build targets the
-  two crypto exchanges you asked to connect (Kraken, Coinbase). The engine is
-  asset-agnostic, so a stock/forex data+broker adapter can be added later.
+- **Crypto only** (Kraken & Coinbase), by request — no forex. The engine is
+  asset-agnostic, so other venues could be added later, but nothing here targets FX.
 - Backtests assume your stop/limit fills happen at the modeled price; real fills
   suffer slippage, partial fills, and outages. PaperBroker models a little
   slippage; live results will differ.

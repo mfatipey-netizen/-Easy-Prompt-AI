@@ -78,9 +78,17 @@ def cmd_backtest(cfg: RunConfig, args) -> int:
         result = _run_and_print(cfg, candles, strat, risk, "Full sample", args.verbose)
 
     print("\nReality check:")
-    print(f"  A fixed '+1%/day' target would require ~{(1.01**365 - 1) * 100:,.0f}% per year.")
-    print(f"  Last report's realised avg daily return was {result.report.avg_daily_return_pct:+.3f}%.")
-    print("  Backtest results are hypotheses, not guarantees. Validate in paper mode next.")
+    wr = result.report.win_rate
+    tgt = args.target_winrate
+    print(f"  Target win rate     : {tgt:.0f}%   |   achieved (last report): {wr:.1f}%")
+    if wr >= tgt:
+        print(f"  ✓ This run met your {tgt:.0f}% target — verify it HOLDS out-of-sample (--split) and in paper.")
+    else:
+        print(f"  ✗ This run did NOT reach {tgt:.0f}%. That is the honest result, not a bug.")
+    print(f"  Note: at 1:2 reward:risk the BREAKEVEN win rate is only ~33%. A {tgt:.0f}% win rate")
+    print(f"  at 1:2 would be a world-class edge; high win rate and high R:R usually trade off.")
+    print(f"  Realised avg daily return: {result.report.avg_daily_return_pct:+.3f}%. Backtests are")
+    print("  hypotheses, not guarantees — tune on real data, confirm out-of-sample, then paper.")
     return 0
 
 
@@ -140,6 +148,8 @@ def build_parser() -> argparse.ArgumentParser:
                         help="write the loaded candles to this CSV path (cache/reuse)")
     common.add_argument("--split", type=float, default=None,
                         help="backtest: train/test fraction, e.g. 0.7 for 70%% in-sample")
+    common.add_argument("--target-winrate", type=float, default=70.0,
+                        help="win-rate goal to compare the backtest against (default 70)")
     common.add_argument("--verbose", action="store_true", help="print each trade")
 
     p = argparse.ArgumentParser(

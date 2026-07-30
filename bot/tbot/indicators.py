@@ -138,6 +138,60 @@ def atr(candles: Sequence[Candle], period: int = 14) -> List[Num]:
     return out
 
 
+def adx(candles: Sequence[Candle], period: int = 14) -> List[Num]:
+    """Average Directional Index (Wilder). Measures trend *strength*, not direction.
+
+    A common rule of thumb: ADX < 20 = weak/choppy (avoid trend trades),
+    ADX >= 25 = a trend worth trading. We use it as a quality filter to raise the
+    win rate by skipping range-bound noise.
+    """
+    n = len(candles)
+    out: List[Num] = [None] * n
+    if n <= 2 * period:
+        return out
+
+    plus_dm = [0.0] * n
+    minus_dm = [0.0] * n
+    tr = [0.0] * n
+    for i in range(1, n):
+        up = candles[i].high - candles[i - 1].high
+        down = candles[i - 1].low - candles[i].low
+        plus_dm[i] = up if (up > down and up > 0) else 0.0
+        minus_dm[i] = down if (down > up and down > 0) else 0.0
+        pc = candles[i - 1].close
+        tr[i] = max(candles[i].high - candles[i].low, abs(candles[i].high - pc), abs(candles[i].low - pc))
+
+    def _dx(atr_s: float, pdm_s: float, mdm_s: float) -> float:
+        if atr_s == 0:
+            return 0.0
+        pdi = 100 * pdm_s / atr_s
+        mdi = 100 * mdm_s / atr_s
+        denom = pdi + mdi
+        return 100 * abs(pdi - mdi) / denom if denom else 0.0
+
+    # Wilder-smoothed sums seeded over the first `period` diffs (indices 1..period).
+    atr_s = sum(tr[1 : period + 1])
+    pdm_s = sum(plus_dm[1 : period + 1])
+    mdm_s = sum(minus_dm[1 : period + 1])
+    dxs: List[float] = [_dx(atr_s, pdm_s, mdm_s)]  # dxs[0] aligns to candle index `period`
+    for i in range(period + 1, n):
+        atr_s = atr_s - atr_s / period + tr[i]
+        pdm_s = pdm_s - pdm_s / period + plus_dm[i]
+        mdm_s = mdm_s - mdm_s / period + minus_dm[i]
+        dxs.append(_dx(atr_s, pdm_s, mdm_s))
+
+    if len(dxs) < period:
+        return out
+    first_adx = sum(dxs[:period]) / period
+    adx_idx = 2 * period - 1  # first ADX lands here
+    out[adx_idx] = first_adx
+    prev = first_adx
+    for i in range(adx_idx + 1, n):
+        prev = (prev * (period - 1) + dxs[i - period]) / period
+        out[i] = prev
+    return out
+
+
 def bollinger(
     values: Sequence[float], period: int = 20, mult: float = 2.0
 ) -> tuple[List[Num], List[Num], List[Num]]:

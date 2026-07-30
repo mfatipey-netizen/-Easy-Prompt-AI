@@ -17,8 +17,13 @@
     "atr_period": 14,
     "atr_stop_mult": 1.5,
     "reward_risk": 2.0,
-    "min_score": 2.0,
-    "warmup": 60
+    "min_score": 3.0,
+    "use_trend_filter": true,
+    "trend_ema": 200,
+    "use_adx_filter": true,
+    "adx_period": 14,
+    "adx_min": 22.0,
+    "warmup": 210
   },
 
   "risk": {
