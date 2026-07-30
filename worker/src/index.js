@@ -62,6 +62,25 @@ const rand = (chars, n) => { let s = ''; for (let i = 0; i < n; i++) s += chars[
 const newSubCode = () => rand('0123456789', 12);
 const newLifeCode = () => rand('abcdefghijklmnopqrstuvwxyz0123456789', 12);
 
+/* --------------------------- plans & pricing ------------------------ *
+ * Plans customers can buy. `days` is how long a subscription lasts from the
+ * moment the code is first used (null = never expires). Prices come from env
+ * (PRICE_1MO / PRICE_3MO / PRICE_12MO / PRICE_LIFETIME in USD) so the admin
+ * can adjust them from the Cloudflare dashboard without a redeploy.        */
+const PLANS = ['1mo', '3mo', '12mo', 'lifetime'];
+const PLAN_DAYS = { '1mo': 30, '3mo': 90, '12mo': 365, 'lifetime': null };
+function planPricing(env) {
+  return {
+    '1mo':      Number(env.PRICE_1MO      || 5),
+    '3mo':      Number(env.PRICE_3MO      || 12),
+    '12mo':     Number(env.PRICE_12MO     || 39),
+    'lifetime': Number(env.PRICE_LIFETIME || 99),
+  };
+}
+// Parse the JSON metadata we tuck into `codes.note` (buyer info, plan, method).
+function parseNote(s) { try { const o = JSON.parse(s); return (o && typeof o === 'object') ? o : {}; } catch { return {}; } }
+function planFromRow(row) { const n = parseNote(row.note); return n.plan || (row.type === 'lifetime' ? 'lifetime' : '3mo'); }
+
 // Determine entitlement (Pro?) from the Authorization: Bearer <code> header.
 async function entitlement(request, env) {
   const auth = request.headers.get('Authorization') || '';
@@ -71,9 +90,11 @@ async function entitlement(request, env) {
   const row = await env.DB.prepare('SELECT * FROM codes WHERE code=?').bind(code).first();
   if (!row || row.revoked) return { pro: false, code: null };
   if (row.type === 'lifetime') return { pro: true, code };
-  // subscription: start clock on first use, 90 days
+  // Subscription: start the clock on first use. Length comes from the plan
+  // stored in `note.plan` (falls back to 3mo for legacy codes).
   if (!row.first_used) {
-    const exp = now() + 90 * 24 * 3600 * 1000;
+    const days = PLAN_DAYS[planFromRow(row)] ?? 90;
+    const exp = days ? now() + days * 24 * 3600 * 1000 : null;
     await env.DB.prepare('UPDATE codes SET first_used=?, expires_at=? WHERE code=?').bind(now(), exp, code).run();
     return { pro: true, code };
   }
@@ -83,13 +104,23 @@ async function entitlement(request, env) {
 
 async function readJson(request) { try { return await request.json(); } catch { return {}; } }
 
+// Small helper for admin-authenticated endpoints.
+function isAdmin(request, env) {
+  const auth = request.headers.get('Authorization') || '';
+  return !!env.ADMIN_TOKEN && auth === 'Bearer ' + env.ADMIN_TOKEN;
+}
+
 /* --------------------------- payments ------------------------------ */
-async function grantCode(env, type, method, payId, amount) {
-  const code = type === 'lifetime' ? newLifeCode() : newSubCode();
+async function grantCode(env, plan, method, payId, amount, buyer) {
+  const isLife = plan === 'lifetime';
+  const code = isLife ? newLifeCode() : newSubCode();
   const ts = now();
-  const expires = type === 'subscription' ? ts + 90 * 24 * 3600 * 1000 : null;
+  const type = isLife ? 'lifetime' : 'subscription';
+  const note = JSON.stringify({ plan, method, amount: amount ?? '', ...(buyer || {}) });
+  // `expires_at` stays null at creation — filled in on first use so a code
+  // that's bought today but activated in 6 months still gives a full period.
   await env.DB.prepare('INSERT INTO codes (code,type,created_at,first_used,expires_at,revoked,note) VALUES (?,?,?,?,?,0,?)')
-    .bind(code, type, ts, type === 'subscription' ? ts : null, expires, method).run();
+    .bind(code, type, ts, null, null, note).run();
   await env.DB.prepare('INSERT OR REPLACE INTO payments (id,method,amount,status,code,created_at) VALUES (?,?,?,?,?,?)')
     .bind(payId, method, String(amount ?? ''), 'completed', code, ts).run();
   return code;
@@ -355,41 +386,97 @@ export default {
       }
 
       if (path === '/api/pay/paypal/verify' && request.method === 'POST') {
-        const { orderID } = await readJson(request);
+        const { orderID, plan = '3mo', buyer } = await readJson(request);
         if (!orderID) return json(env, { error: 'orderID_required' }, 400);
+        if (!PLANS.includes(plan)) return json(env, { error: 'bad_plan' }, 400);
         const seen = await env.DB.prepare('SELECT code FROM payments WHERE id=?').bind('paypal:' + orderID).first();
         if (seen) return json(env, { ok: true, code: seen.code, reused: true });
         const v = await verifyPaypal(env, orderID);
         if (!v.ok) return json(env, v, 402);
-        const code = await grantCode(env, 'subscription', 'paypal', 'paypal:' + orderID, v.amount);
-        return json(env, { ok: true, code });
+        const code = await grantCode(env, plan, 'paypal', 'paypal:' + orderID, v.amount, buyer);
+        return json(env, { ok: true, code, plan });
       }
 
       // Verify USDT transaction -> grant code
       if (path === '/api/pay/usdt/verify' && request.method === 'POST') {
-        const { chain, txid } = await readJson(request);
+        const { chain, txid, plan = '3mo', buyer } = await readJson(request);
         if (!chain || !txid) return json(env, { error: 'chain_and_txid_required' }, 400);
+        if (!PLANS.includes(plan)) return json(env, { error: 'bad_plan' }, 400);
         const payId = `usdt-${chain}:${txid}`;
         const seen = await env.DB.prepare('SELECT code FROM payments WHERE id=?').bind(payId).first();
         if (seen) return json(env, { ok: true, code: seen.code, reused: true });
         const v = await verifyUsdt(env, chain, txid);
         if (!v.ok) return json(env, v, 402);
-        const code = await grantCode(env, 'subscription', 'usdt-' + chain, payId, v.amount);
-        return json(env, { ok: true, code });
+        const code = await grantCode(env, plan, 'usdt-' + chain, payId, v.amount, buyer);
+        return json(env, { ok: true, code, plan });
       }
 
-      // Admin: generate a code manually (protected)
+      // Public: list of plans + prices (for the buy screen).
+      if (path === '/api/plans') {
+        const price = planPricing(env);
+        const items = PLANS.map(k => ({ plan: k, days: PLAN_DAYS[k], price_usd: price[k] }));
+        return json(env, { plans: items });
+      }
+
+      /* ---------- Admin API (all require ADMIN_TOKEN) ---------- */
+
+      // Generate one or more codes manually. Optional buyer metadata is stored.
       if (path === '/api/admin/gen' && request.method === 'POST') {
-        const auth = request.headers.get('Authorization') || '';
-        if (!env.ADMIN_TOKEN || auth !== 'Bearer ' + env.ADMIN_TOKEN)
-          return json(env, { error: 'unauthorized' }, 401);
-        const { type = 'subscription' } = await readJson(request);
-        const code = type === 'lifetime' ? newLifeCode() : newSubCode();
-        const ts = now();
-        const expires = type === 'subscription' ? null : null;
-        await env.DB.prepare('INSERT INTO codes (code,type,created_at,first_used,expires_at,revoked,note) VALUES (?,?,?,?,?,0,?)')
-          .bind(code, type, ts, null, expires, 'admin').run();
-        return json(env, { ok: true, code, type });
+        if (!isAdmin(request, env)) return json(env, { error: 'unauthorized' }, 401);
+        const { plan = '3mo', quantity = 1, buyer_name = '', buyer_email = '', note = '' } = await readJson(request);
+        if (!PLANS.includes(plan)) return json(env, { error: 'bad_plan' }, 400);
+        const qty = Math.max(1, Math.min(50, parseInt(quantity, 10) || 1));
+        const buyer = { name: buyer_name, email: buyer_email, note };
+        const codes = [];
+        for (let i = 0; i < qty; i++) {
+          codes.push(await grantCode(env, plan, 'manual', 'manual:' + Date.now() + ':' + rand('abcdefghijklmnopqrstuvwxyz0123456789', 6), '', buyer));
+        }
+        return json(env, { ok: true, codes, plan });
+      }
+
+      // List codes with buyer info, status, dates. Newest first.
+      if (path === '/api/admin/codes') {
+        if (!isAdmin(request, env)) return json(env, { error: 'unauthorized' }, 401);
+        const rows = await env.DB.prepare(
+          'SELECT c.code, c.type, c.created_at, c.first_used, c.expires_at, c.revoked, c.note, ' +
+          '       p.method AS pay_method, p.amount AS pay_amount ' +
+          'FROM codes c LEFT JOIN payments p ON p.code = c.code ' +
+          'ORDER BY c.created_at DESC LIMIT 500'
+        ).all().catch(() => ({ results: [] }));
+        const items = (rows.results || []).map(r => {
+          const n = parseNote(r.note);
+          const plan = n.plan || (r.type === 'lifetime' ? 'lifetime' : '3mo');
+          let status = 'active';
+          if (r.revoked) status = 'revoked';
+          else if (r.type !== 'lifetime' && r.expires_at && now() > r.expires_at) status = 'expired';
+          else if (!r.first_used) status = 'unused';
+          return {
+            code: r.code, plan, type: r.type, status,
+            created_at: r.created_at, first_used: r.first_used, expires_at: r.expires_at,
+            buyer_name: n.name || '', buyer_email: n.email || '', admin_note: n.note || '',
+            method: r.pay_method || n.method || 'manual', amount: r.pay_amount || n.amount || '',
+          };
+        });
+        return json(env, { items });
+      }
+
+      // Revoke a code (make it unusable immediately).
+      if (path === '/api/admin/revoke' && request.method === 'POST') {
+        if (!isAdmin(request, env)) return json(env, { error: 'unauthorized' }, 401);
+        const { code } = await readJson(request);
+        if (!code) return json(env, { error: 'code_required' }, 400);
+        await env.DB.prepare('UPDATE codes SET revoked=1 WHERE code=?').bind(code).run();
+        return json(env, { ok: true });
+      }
+
+      // Quick sales summary for the dashboard header.
+      if (path === '/api/admin/stats') {
+        if (!isAdmin(request, env)) return json(env, { error: 'unauthorized' }, 401);
+        const total    = await env.DB.prepare('SELECT COUNT(*) AS n FROM codes').first().catch(() => ({ n: 0 }));
+        const active   = await env.DB.prepare('SELECT COUNT(*) AS n FROM codes WHERE revoked=0 AND (expires_at IS NULL OR expires_at > ?)').bind(now()).first().catch(() => ({ n: 0 }));
+        const revenue  = await env.DB.prepare("SELECT COALESCE(SUM(CAST(amount AS REAL)),0) AS s FROM payments WHERE status='completed'").first().catch(() => ({ s: 0 }));
+        const last30   = await env.DB.prepare('SELECT COUNT(*) AS n FROM codes WHERE created_at > ?').bind(now() - 30 * 24 * 3600 * 1000).first().catch(() => ({ n: 0 }));
+        return json(env, { total: total.n, active: active.n, revenue: Number(revenue.s || 0), last30: last30.n });
       }
 
       // Check current entitlement for a code
