@@ -33,10 +33,39 @@ complying with the laws and taxes of your jurisdiction.
 
 ---
 
+## 🖱️ Easiest way: the desktop app (no command line)
+
+If typing commands isn't your thing, use the friendly window instead:
+
+1. Make sure **Python** is installed (from [python.org](https://python.org) — tick
+   *"Add Python to PATH"* during setup). Nothing else to install for the app.
+2. **Double-click `Run-TradingBot.bat`** (Windows). On macOS/Linux run
+   `python app.py` from the `bot` folder.
+
+A window opens where you can, top to bottom:
+
+1. **Connect** — pick Kraken or Coinbase, paste your API key/secret, click
+   *Connect & get balance*. Your cash balance appears.
+2. **Suggested starting capital** — the app tells you a conservative amount to
+   start with and warns when fees or a small balance would eat the account.
+3. **Engaged capital** — type the exact amount you want to trade with; it shows
+   the resulting per-trade risk.
+4. **Backtest** — pick a timeframe and click *Run backtest*; it pulls **your
+   exchange's real candles** and prints the report right there.
+
+The app **never places live orders** — it's for connecting, sizing, and
+backtesting. Going live stays a separate, deliberate step (below).
+
+> Getting the files onto your PC first: on the GitHub branch page click
+> **Code → Download ZIP**, extract it, open the `bot` folder, and double-click
+> `Run-TradingBot.bat`.
+
 ## What's inside
 
 ```
 bot/
+├── app.py                 # desktop GUI (Tkinter) — connect, size, backtest
+├── Run-TradingBot.bat     # one double-click launcher for Windows
 ├── bot.py                 # CLI entry point (backtest / paper / live)
 ├── config.example.json    # non-secret strategy + risk parameters
 ├── .env.example           # API keys & notifications (live only) — never commit real one
@@ -53,6 +82,8 @@ bot/
 │   ├── broker.py          # PaperBroker (sim) + CcxtBroker (real, gated)
 │   ├── paper.py           # live polling loop (paper or live), pure `decide()` core
 │   ├── data.py            # synthetic + Kraken/Coinbase public REST + CSV import/export
+│   ├── live.py            # ccxt helpers: connect, read balance, fetch candles
+│   ├── recommend.py       # starting-capital advice (fee-aware sizing)
 │   ├── notify.py          # console + optional Telegram/webhook
 │   └── config.py          # JSON config + env-based secrets
 └── tests/                 # 19 unit tests, stdlib `unittest` (no pytest needed)
