@@ -258,6 +258,26 @@ Keep API keys in environment variables / `.env` (never commit them), and start
 with **withdrawal permissions disabled** on the exchange key and tiny position
 sizes.
 
+## Running it on forex
+
+The engine is **market-agnostic** — it works on any OHLCV candles, and SP2L was
+originally built *for* forex (where costs are far lower than crypto fees). Two ways:
+
+**Backtest forex now — no broker, no new code.** In the app click
+**“Backtest a CSV file… (forex / any market)”** and choose an OHLCV CSV, or on the
+CLI use `--source csv`. Set **Fee %/side** low (majors ≈ 0.01–0.03%). Where to get
+the CSV:
+- **MetaTrader 4/5**: a broker chart → right-click → *Save As* / History Center export.
+- **TradingView**: chart → *Export chart data* (needs a paid plan).
+- **Dukascopy** historical data feed (free) or any CSV with
+  `timestamp,open,high,low,close[,volume]` columns.
+
+**Live/auto forex** needs a forex broker adapter (crypto libraries like ccxt don't
+cover FX). The natural fit for a retail user is **MetaTrader 5** (official
+`MetaTrader5` Python package; SP2L even ships MT4/MT5 versions) or **OANDA**
+(REST API with a free practice account). That adapter isn't built yet — ask and it
+can be added, mirroring the `live.py` exchange helper.
+
 ## Trading "gold" on a crypto exchange
 Kraken/Coinbase don't list spot XAU. The crypto-native way to trade gold is
 **PAXG (Pax Gold)** — a token where 1 PAXG ≈ 1 troy ounce of gold. Use the symbol

@@ -17,11 +17,13 @@ going live stays a separate, deliberate step (see README → "Going live").
 
 from __future__ import annotations
 
+import os
 import queue
 import threading
 import tkinter as tk
-from tkinter import messagebox, ttk
+from tkinter import filedialog, messagebox, ttk
 
+from tbot import data as datamod
 from tbot import live
 from tbot.backtest import run_backtest
 from tbot.recommend import DEFAULT_TAKER_FEE, recommend_sizing
@@ -132,14 +134,23 @@ class App:
 
         row2 = tk.Frame(f)
         row2.pack(fill="x", padx=8, pady=(0, 4))
-        tk.Label(row2, text="Min order size (USD):").pack(side="left")
+        tk.Label(row2, text="Min order (USD):").pack(side="left")
         self.minorder_var = tk.StringVar(value="10")
-        tk.Entry(row2, textvariable=self.minorder_var, width=8).pack(side="left", padx=6)
-        tk.Label(row2, text="(exchange minimum — reveals the capital where results start to change)",
-                 fg="#666").pack(side="left")
-        self.backtest_btn = tk.Button(row2, text="Run backtest", command=self.on_backtest,
+        tk.Entry(row2, textvariable=self.minorder_var, width=7).pack(side="left", padx=6)
+        tk.Label(row2, text="Fee %/side:").pack(side="left", padx=(12, 2))
+        self.fee_var = tk.StringVar(value="0.16")  # crypto taker ~0.16%; forex ~0.01-0.03%
+        tk.Entry(row2, textvariable=self.fee_var, width=6).pack(side="left")
+        tk.Label(row2, text="(forex spreads are far lower than crypto fees)",
+                 fg="#666").pack(side="left", padx=(6, 0))
+
+        row3 = tk.Frame(f)
+        row3.pack(fill="x", padx=8, pady=(0, 4))
+        self.backtest_btn = tk.Button(row3, text="Run backtest (exchange)", command=self.on_backtest,
                                       bg="#1f4f7f", fg="white")
-        self.backtest_btn.pack(side="left", padx=12)
+        self.backtest_btn.pack(side="left")
+        self.csv_btn = tk.Button(row3, text="Backtest a CSV file… (forex / any market)",
+                                 command=self.on_backtest_csv, bg="#3a3f5a", fg="white")
+        self.csv_btn.pack(side="left", padx=10)
 
         self.report = tk.Text(f, height=16, wrap="word", state="disabled",
                               bg="#0f1720", fg="#d6e2ea", font=("Consolas", 10))
@@ -196,6 +207,7 @@ class App:
         detail = ", ".join(f"{k} {v:,.2f}" for k, v in cash.items()) or "no fiat/stablecoin found"
         self.connect_status.config(
             text=f"Connected to {exchange}. Cash balance: {total:,.2f}  ({detail})", fg="#1f6f43")
+        self.fee_var.set(f"{fee * 100:.2f}")  # prefill backtest fee with the real taker fee
         self._show_recommendation()
 
     def _connect_failed(self, exc: Exception) -> None:
@@ -228,54 +240,80 @@ class App:
                   f"Risk per trade ({self.risk_per_trade*100:.1f}%): {risk_amt:,.2f}"),
             fg="#333")
 
-    def on_backtest(self) -> None:
-        if self.client is None:
-            messagebox.showinfo("Connect first", "Connect to your exchange before backtesting.")
-            return
+    def _read_backtest_params(self):
+        """Common numeric fields; returns dict or None (after warning) on bad input."""
         try:
-            bars = max(200, int(self.bars_var.get()))
-            capital = float(self.capital_var.get())
-            min_order = max(0.0, float(self.minorder_var.get()))
+            return {
+                "capital": float(self.capital_var.get()),
+                "min_order": max(0.0, float(self.minorder_var.get())),
+                "fee": max(0.0, float(self.fee_var.get())) / 100.0,  # % -> fraction
+                "bars": max(200, int(self.bars_var.get())),
+            }
         except ValueError:
-            messagebox.showwarning("Invalid input", "Check the bars, capital and min-order fields.")
+            messagebox.showwarning("Invalid input", "Check the capital, min-order, fee and bars fields.")
+            return None
+
+    def _run_backtest(self, candles_fn, header: str) -> None:
+        """Shared runner: fetch/load candles off-thread, backtest, show report."""
+        params = self._read_backtest_params()
+        if params is None:
             return
-        self.backtest_btn.config(state="disabled")
-        self._set_text(self.report, "")
-        self._append_report("Fetching data and running backtest…")
-        symbol = self.symbol_var.get().strip()
-        tf = self.tf_var.get()
         strat_name = self.strat_var.get()
+        self.backtest_btn.config(state="disabled")
+        self.csv_btn.config(state="disabled")
+        self._set_text(self.report, "")
+        self._append_report("Loading data and running backtest…")
 
         def work() -> None:
             try:
-                candles = live.fetch_candles(self.client, symbol, tf, bars)
+                candles = candles_fn(params["bars"])
                 if len(candles) < 220:
                     raise RuntimeError(
-                        f"Only {len(candles)} bars returned — not enough to backtest. "
-                        f"Try a longer timeframe or more bars.")
-                interval = live.TIMEFRAME_SEC.get(tf, 3600)
+                        f"Only {len(candles)} bars available — not enough to backtest. "
+                        f"Use more bars / a longer history.")
+                interval = _infer_interval(candles)
                 strat = Spike2LegsStrategy() if strat_name.startswith("SP2L") else ConfluenceStrategy()
-                # Align the risk min-R:R gate with the strategy (SP2L is 1:1).
-                rr = getattr(strat, "reward_risk", 1.5)
+                rr = getattr(strat, "reward_risk", 1.5)  # align gate (SP2L is 1:1)
                 risk = RiskManager(RiskConfig(risk_per_trade=self.risk_per_trade,
                                               min_reward_risk=min(1.5, rr)))
                 result = run_backtest(
-                    candles, strat, risk, symbol=symbol,
-                    start_cash=capital, fee_rate=self.taker,
+                    candles, strat, risk, symbol="ASSET",
+                    start_cash=params["capital"], fee_rate=params["fee"],
                     bars_per_day=max(1, 86400 // interval),
-                    min_order_quote=min_order,
+                    min_order_quote=params["min_order"],
                 )
-                self.q.put(lambda: self._backtest_done(result, symbol, tf, len(candles), strat_name))
+                full_header = f"{strat_name} | {header} | {len(candles)} bars"
+                self.q.put(lambda: self._backtest_done(result, full_header))
             except Exception as exc:
                 self.q.put(lambda e=exc: self._backtest_failed(e))
 
         threading.Thread(target=work, daemon=True).start()
 
-    def _backtest_done(self, result, symbol, tf, n, strat_name) -> None:
+    def on_backtest(self) -> None:
+        if self.client is None:
+            messagebox.showinfo("Connect first", "Connect to your exchange, or use “Backtest a CSV file”.")
+            return
+        symbol = self.symbol_var.get().strip()
+        tf = self.tf_var.get()
+        self._run_backtest(
+            lambda bars: live.fetch_candles(self.client, symbol, tf, bars),
+            header=f"{symbol} {tf}")
+
+    def on_backtest_csv(self) -> None:
+        path = filedialog.askopenfilename(
+            title="Choose an OHLCV CSV (ts,open,high,low,close[,volume])",
+            filetypes=[("CSV files", "*.csv"), ("All files", "*.*")])
+        if not path:
+            return
+        name = os.path.basename(path)
+        self._run_backtest(lambda _bars: datamod.load_csv(path), header=f"CSV {name}")
+
+    def _backtest_done(self, result, header) -> None:
         self.backtest_btn.config(state="normal")
+        self.csv_btn.config(state="normal")
         r = result.report
         self._set_text(self.report, "")
-        self._append_report(f"=== {strat_name} | {symbol} {tf} | {n} real bars ===")
+        self._append_report(f"=== {header} ===")
         for line in r.as_lines():
             self._append_report("  " + line)
         if result.skipped_min_order:
@@ -295,9 +333,19 @@ class App:
 
     def _backtest_failed(self, exc: Exception) -> None:
         self.backtest_btn.config(state="normal")
+        self.csv_btn.config(state="normal")
         self._set_text(self.report, "")
         self._append_report("Backtest failed: " + str(exc))
         messagebox.showerror("Backtest failed", str(exc))
+
+
+def _infer_interval(candles) -> int:
+    """Best-effort bar interval (seconds) from candle timestamps (median gap)."""
+    if len(candles) < 3:
+        return 3600
+    gaps = sorted(candles[i + 1].ts - candles[i].ts for i in range(min(50, len(candles) - 1)))
+    mid = gaps[len(gaps) // 2]
+    return mid if mid > 0 else 3600
 
 
 def main() -> None:
