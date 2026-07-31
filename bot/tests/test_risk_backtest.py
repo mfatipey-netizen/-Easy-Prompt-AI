@@ -12,7 +12,7 @@ from tbot.broker import PaperBroker
 from tbot.notify import Notifier
 from tbot.portfolio import Position
 from tbot.risk import RiskConfig, RiskManager
-from tbot.strategy import ConfluenceStrategy
+from tbot.strategy import ConfluenceStrategy, Spike2LegsStrategy
 
 
 class TestRisk(unittest.TestCase):
@@ -124,6 +124,63 @@ class TestStrategyFilters(unittest.TestCase):
         s_on = ConfluenceStrategy()
         s_off = ConfluenceStrategy(use_trend_filter=False, use_adx_filter=False, warmup=60)
         self.assertGreater(s_on.warmup, s_off.warmup)
+
+
+class TestSpike2Legs(unittest.TestCase):
+    def _spike_then_pullback(self):
+        """Flat base, a fast up-spike, a 2-leg pullback (staying above origin),
+        then a bullish bar that breaks the prior high (resumption)."""
+        rows = []
+        t = 0
+        price = 100.0
+        # 40 flat bars for warmup (tiny ranges -> small ATR).
+        for _ in range(40):
+            rows.append([t, price, price + 0.2, price - 0.2, price, 1]); t += 3600
+        # Up-spike: 3 strong bars 100 -> 115.
+        for hi in (105, 110, 115):
+            rows.append([t, hi - 5, hi + 0.5, hi - 5.2, hi, 1]); t += 3600
+        # 2-leg pullback down to ~109 then a small bounce and dip (stays > 100).
+        for lo in (112, 109, 111, 108.5):
+            rows.append([t, lo + 1, lo + 1.2, lo - 0.3, lo, 1]); t += 3600
+        # Resumption: strong bullish bar closing above the previous bar's high.
+        rows.append([t, 109, 114, 108.8, 113.5, 1]); t += 3600
+        return from_rows(rows)
+
+    def test_fires_long_on_spike_and_pullback(self):
+        candles = self._spike_then_pullback()
+        strat = Spike2LegsStrategy(spike_atr_mult=1.5)
+        sig = strat.evaluate(candles, len(candles) - 1)
+        self.assertEqual(sig.side, "long")
+        self.assertLess(sig.stop, sig.entry)          # stop below entry for a long
+        self.assertGreater(sig.take_profit, sig.entry)
+        self.assertAlmostEqual(sig.reward_risk, 1.0, places=6)  # SP2L default 1:1
+
+    def test_no_signal_on_flat_market(self):
+        rows = [[i * 3600, 100, 100.1, 99.9, 100, 1] for i in range(120)]
+        strat = Spike2LegsStrategy()
+        sides = {strat.evaluate(from_rows(rows), i).side for i in range(60, 120)}
+        self.assertEqual(sides, {"flat"})
+
+    def test_backtest_runs_with_sp2l(self):
+        candles = datamod.synthetic(n=1500, seed=13, vol=0.02)
+        res = run_backtest(candles, Spike2LegsStrategy(), RiskManager(RiskConfig()))
+        self.assertEqual(len(res.equity_curve), len(candles))
+
+
+class TestMinOrder(unittest.TestCase):
+    def test_tiny_capital_skips_all_trades(self):
+        candles = datamod.synthetic(n=1000, seed=1)
+        strat = ConfluenceStrategy()
+        risk = RiskManager(RiskConfig())
+        # Note: position notional = risk / stop-distance (capped by exposure), so it
+        # is far larger than the risked amount. With $30 capital the notional is only
+        # a few dollars, so a $100 min order blocks every entry.
+        small = run_backtest(candles, strat, risk, start_cash=30, min_order_quote=100.0)
+        self.assertEqual(small.report.num_trades, 0)
+        self.assertGreater(small.skipped_min_order, 0)
+        # With ample capital the same signals DO get taken.
+        big = run_backtest(candles, strat, risk, start_cash=100_000, min_order_quote=100.0)
+        self.assertGreater(big.report.num_trades, 0)
 
 
 class TestPaperLoop(unittest.TestCase):

@@ -89,7 +89,33 @@ bot/
 └── tests/                 # 19 unit tests, stdlib `unittest` (no pytest needed)
 ```
 
-## How the strategy works
+## Strategies
+
+Two are built in — pick one in the app's *Strategy* dropdown or with
+`--strategy` on the CLI (`confluence` or `sp2l`).
+
+### SP2L — Spike-2-Leg (Poursamadi)
+
+A faithful implementation of the *published* rules of Mohammad Ali Poursamadi's
+SP2L strategy (not a copy of the proprietary TradingView Pine Script, which is
+closed):
+
+1. **Spike** — a sharp, fast impulse leg (≥ `spike_atr_mult` × ATR within
+   `max_spike_bars`) that creates an imbalance/inefficiency.
+2. **2-leg pullback** — a corrective AB=CD-style retrace that stays beyond the
+   spike's origin (structure holds).
+3. **Entry** — resumption in the spike's direction (higher-low after an up-spike,
+   lower-high after a down-spike) once the current bar breaks the prior extreme.
+4. **Stop** — the pullback extreme (or the spike origin).
+5. **Target** — fixed reward:risk; **SP2L's own default is 1:1** (`reward_risk`).
+
+> **Honest caveat.** SP2L was designed for **M1/M5 scalping** on low-cost markets
+> (forex). On a crypto venue with ~0.5–1% round-trip fees, low-timeframe scalping
+> bleeds to fees. Prefer higher timeframes here, and always backtest first. Note
+> the 1:1 target conflicts with a 1:2 goal — raise `reward_risk` if you want 1:2,
+> but expect the win rate to drop when the target is farther away.
+
+### Confluence (the default)
 
 `ConfluenceStrategy` never trades on a single signal. On each closed bar it
 collects independent votes and only acts when the combined **score** clears a
@@ -232,9 +258,25 @@ Keep API keys in environment variables / `.env` (never commit them), and start
 with **withdrawal permissions disabled** on the exchange key and tiny position
 sizes.
 
+## Trading "gold" on a crypto exchange
+Kraken/Coinbase don't list spot XAU. The crypto-native way to trade gold is
+**PAXG (Pax Gold)** — a token where 1 PAXG ≈ 1 troy ounce of gold. Use the symbol
+**`PAXG/USD`** in the app or CLI to backtest the strategy on gold's price.
+
+## How much capital do I need? (min-order modelling)
+Because sizing is `risk ÷ stop-distance` (capped by exposure), the position
+*notional* is much larger than the amount you risk — so on a percentage basis the
+backtest result is identical whether you start with $100 or $100k… **until** your
+capital is so small that the position falls below the exchange's **minimum order
+size**. Set that minimum (app: *Min order size (USD)*; CLI: `--min-order`) and the
+backtest will **skip** any entry too small to place and report how many it skipped.
+Raise your capital until "skipped" hits 0 — that's the smallest capital at which
+the bot can actually run this strategy on this market.
+
 ## Notes, limits, and honest caveats
 - **Crypto only** (Kraken & Coinbase), by request — no forex. The engine is
   asset-agnostic, so other venues could be added later, but nothing here targets FX.
+- **Gold = PAXG/USD** on Kraken (tokenized gold), not spot XAU.
 - Backtests assume your stop/limit fills happen at the modeled price; real fills
   suffer slippage, partial fills, and outages. PaperBroker models a little
   slippage; live results will differ.

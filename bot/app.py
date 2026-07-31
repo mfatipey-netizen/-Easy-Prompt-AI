@@ -26,7 +26,7 @@ from tbot import live
 from tbot.backtest import run_backtest
 from tbot.recommend import DEFAULT_TAKER_FEE, recommend_sizing
 from tbot.risk import RiskConfig, RiskManager
-from tbot.strategy import ConfluenceStrategy
+from tbot.strategy import ConfluenceStrategy, Spike2LegsStrategy
 
 DISCLAIMER = (
     "⚠  No bot can guarantee profit — a fixed “+X% per day” is not achievable. "
@@ -119,13 +119,25 @@ class App:
         f = self._section("4) Backtest on your exchange's real data")
         row = tk.Frame(f)
         row.pack(fill="x", padx=8, pady=6)
-        tk.Label(row, text="Timeframe:").pack(side="left")
+        tk.Label(row, text="Strategy:").pack(side="left")
+        self.strat_var = tk.StringVar(value="SP2L (Spike-2-Leg)")
+        ttk.OptionMenu(row, self.strat_var, "SP2L (Spike-2-Leg)",
+                       "SP2L (Spike-2-Leg)", "Confluence").pack(side="left", padx=6)
+        tk.Label(row, text="Timeframe:").pack(side="left", padx=(12, 2))
         self.tf_var = tk.StringVar(value="1h")
-        ttk.OptionMenu(row, self.tf_var, "1h", "15m", "1h", "4h", "1d").pack(side="left", padx=6)
+        ttk.OptionMenu(row, self.tf_var, "1h", "5m", "15m", "1h", "4h", "1d").pack(side="left", padx=6)
         tk.Label(row, text="Bars:").pack(side="left", padx=(12, 2))
         self.bars_var = tk.StringVar(value="1000")
-        tk.Entry(row, textvariable=self.bars_var, width=8).pack(side="left")
-        self.backtest_btn = tk.Button(row, text="Run backtest", command=self.on_backtest,
+        tk.Entry(row, textvariable=self.bars_var, width=7).pack(side="left")
+
+        row2 = tk.Frame(f)
+        row2.pack(fill="x", padx=8, pady=(0, 4))
+        tk.Label(row2, text="Min order size (USD):").pack(side="left")
+        self.minorder_var = tk.StringVar(value="10")
+        tk.Entry(row2, textvariable=self.minorder_var, width=8).pack(side="left", padx=6)
+        tk.Label(row2, text="(exchange minimum — reveals the capital where results start to change)",
+                 fg="#666").pack(side="left")
+        self.backtest_btn = tk.Button(row2, text="Run backtest", command=self.on_backtest,
                                       bg="#1f4f7f", fg="white")
         self.backtest_btn.pack(side="left", padx=12)
 
@@ -223,14 +235,16 @@ class App:
         try:
             bars = max(200, int(self.bars_var.get()))
             capital = float(self.capital_var.get())
+            min_order = max(0.0, float(self.minorder_var.get()))
         except ValueError:
-            messagebox.showwarning("Invalid input", "Check the bars and capital fields.")
+            messagebox.showwarning("Invalid input", "Check the bars, capital and min-order fields.")
             return
         self.backtest_btn.config(state="disabled")
         self._set_text(self.report, "")
         self._append_report("Fetching data and running backtest…")
         symbol = self.symbol_var.get().strip()
         tf = self.tf_var.get()
+        strat_name = self.strat_var.get()
 
         def work() -> None:
             try:
@@ -240,26 +254,38 @@ class App:
                         f"Only {len(candles)} bars returned — not enough to backtest. "
                         f"Try a longer timeframe or more bars.")
                 interval = live.TIMEFRAME_SEC.get(tf, 3600)
-                strat = ConfluenceStrategy()
-                risk = RiskManager(RiskConfig(risk_per_trade=self.risk_per_trade))
+                strat = Spike2LegsStrategy() if strat_name.startswith("SP2L") else ConfluenceStrategy()
+                # Align the risk min-R:R gate with the strategy (SP2L is 1:1).
+                rr = getattr(strat, "reward_risk", 1.5)
+                risk = RiskManager(RiskConfig(risk_per_trade=self.risk_per_trade,
+                                              min_reward_risk=min(1.5, rr)))
                 result = run_backtest(
                     candles, strat, risk, symbol=symbol,
                     start_cash=capital, fee_rate=self.taker,
                     bars_per_day=max(1, 86400 // interval),
+                    min_order_quote=min_order,
                 )
-                self.q.put(lambda: self._backtest_done(result, symbol, tf, len(candles)))
+                self.q.put(lambda: self._backtest_done(result, symbol, tf, len(candles), strat_name))
             except Exception as exc:
                 self.q.put(lambda e=exc: self._backtest_failed(e))
 
         threading.Thread(target=work, daemon=True).start()
 
-    def _backtest_done(self, result, symbol, tf, n) -> None:
+    def _backtest_done(self, result, symbol, tf, n, strat_name) -> None:
         self.backtest_btn.config(state="normal")
         r = result.report
         self._set_text(self.report, "")
-        self._append_report(f"=== Backtest: {symbol} {tf} | {n} real bars ===")
+        self._append_report(f"=== {strat_name} | {symbol} {tf} | {n} real bars ===")
         for line in r.as_lines():
             self._append_report("  " + line)
+        if result.skipped_min_order:
+            self._append_report("")
+            self._append_report(
+                f"  ⚠ {result.skipped_min_order} trade(s) SKIPPED — position was below the "
+                f"min order size at this capital.")
+            self._append_report(
+                "     Raise 'Amount to trade with' until this reaches 0 to see the "
+                "capital your bot actually needs.")
         self._append_report("")
         self._append_report(f"  Win rate achieved: {r.win_rate:.1f}%")
         self._append_report("  At 1:2 reward:risk, breakeven win rate is only ~33%.")

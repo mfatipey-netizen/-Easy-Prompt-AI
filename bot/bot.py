@@ -27,24 +27,29 @@ from tbot.config import RunConfig, load_config, secret
 from tbot.notify import Notifier
 from tbot.paper import run_loop
 from tbot.risk import RiskManager
+from tbot.strategy import Spike2LegsStrategy
 
 
 def _bars_per_day(interval_sec: int) -> int:
     return datamod.BARS_PER_DAY.get(interval_sec, max(1, 86400 // max(interval_sec, 1)))
 
 
-def _run_and_print(cfg: RunConfig, candles, strat, risk, label, verbose):
+def _run_and_print(cfg: RunConfig, candles, strat, risk, label, verbose, min_order=0.0):
     result = run_backtest(
         candles, strat, risk,
         symbol=cfg.symbol,
         start_cash=cfg.start_cash,
         fee_rate=cfg.fee_rate,
         bars_per_day=_bars_per_day(cfg.interval_sec),
+        min_order_quote=min_order,
         verbose=verbose,
     )
     print(f"\n--- {label} ({len(candles)} bars) ---")
     for line in result.report.as_lines():
         print("  " + line)
+    if result.skipped_min_order:
+        print(f"  Skipped (below min order): {result.skipped_min_order} "
+              f"— raise --cash until this hits 0 to find the capital the bot needs.")
     return result
 
 
@@ -57,25 +62,33 @@ def cmd_backtest(cfg: RunConfig, args) -> int:
         datamod.save_csv(candles, args.save_csv)
         print(f"Saved {len(candles)} candles to {args.save_csv}")
 
-    strat = cfg.build_strategy()
-    risk = RiskManager(cfg.build_risk())
+    strat = Spike2LegsStrategy() if args.strategy == "sp2l" else cfg.build_strategy()
+    risk_cfg = cfg.build_risk()
+    # Don't let the risk-manager's min R:R gate reject a strategy that legitimately
+    # trades a lower reward:risk (SP2L is 1:1). Align the gate to the strategy.
+    rr = getattr(strat, "reward_risk", None)
+    if rr is not None:
+        risk_cfg.min_reward_risk = min(risk_cfg.min_reward_risk, rr)
+    risk = RiskManager(risk_cfg)
+    mo = args.min_order
 
     print("\n=== Backtest report ===")
-    print(f"Source {cfg.source} | symbol {cfg.symbol} | {len(candles)} bars @ {cfg.interval_sec}s")
+    print(f"Strategy {args.strategy} | source {cfg.source} | symbol {cfg.symbol} | "
+          f"{len(candles)} bars @ {cfg.interval_sec}s")
 
     if args.split and 0.0 < args.split < 1.0:
         cut = int(len(candles) * args.split)
         in_sample, out_sample = candles[:cut], candles[cut:]
         if len(in_sample) <= strat.warmup or len(out_sample) <= strat.warmup:
             print("  (not enough bars on one side of the split; running whole set instead)")
-            result = _run_and_print(cfg, candles, strat, risk, "Full sample", args.verbose)
+            result = _run_and_print(cfg, candles, strat, risk, "Full sample", args.verbose, mo)
         else:
-            _run_and_print(cfg, in_sample, strat, risk, "In-sample (train)", args.verbose)
-            result = _run_and_print(cfg, out_sample, strat, risk, "Out-of-sample (test)", args.verbose)
+            _run_and_print(cfg, in_sample, strat, risk, "In-sample (train)", args.verbose, mo)
+            result = _run_and_print(cfg, out_sample, strat, risk, "Out-of-sample (test)", args.verbose, mo)
             print("\n  ^ Judge the strategy on the OUT-OF-SAMPLE numbers. If they are much")
             print("    worse than in-sample, the parameters are over-fit to the past.")
     else:
-        result = _run_and_print(cfg, candles, strat, risk, "Full sample", args.verbose)
+        result = _run_and_print(cfg, candles, strat, risk, "Full sample", args.verbose, mo)
 
     print("\nReality check:")
     wr = result.report.win_rate
@@ -150,6 +163,10 @@ def build_parser() -> argparse.ArgumentParser:
                         help="backtest: train/test fraction, e.g. 0.7 for 70%% in-sample")
     common.add_argument("--target-winrate", type=float, default=70.0,
                         help="win-rate goal to compare the backtest against (default 70)")
+    common.add_argument("--strategy", choices=("confluence", "sp2l"), default="confluence",
+                        help="which strategy to run (sp2l = Spike-2-Leg)")
+    common.add_argument("--min-order", type=float, default=0.0,
+                        help="exchange min order size in quote ccy; skips too-small positions")
     common.add_argument("--verbose", action="store_true", help="print each trade")
 
     p = argparse.ArgumentParser(

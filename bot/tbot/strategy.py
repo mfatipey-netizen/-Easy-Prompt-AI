@@ -173,3 +173,99 @@ def _picked(reasons: List[str], side: str) -> List[str]:
     else:
         keep = ("downtrend", "hist < 0", "overbought", "bearish", "support")
     return [r for r in reasons if any(k in r for k in keep)]
+
+
+@dataclass
+class Spike2LegsStrategy(Strategy):
+    """SP2L (Spike-2-Leg) by Mohammad Ali Poursamadi — a faithful implementation
+    of the *published* rules (not a copy of the proprietary Pine Script).
+
+    Documented logic:
+      1. SPIKE  — a sharp, fast impulse leg that creates an imbalance/inefficiency.
+      2. 2-LEG  — a corrective pullback (AB=CD style) after the spike.
+      3. ENTRY  — resumption in the spike's direction once structure holds
+                  (higher-low after an up-spike / lower-high after a down-spike).
+      4. STOP   — the origin of the spike leg (or the pullback extreme).
+      5. TARGET — a fixed reward:risk (the original SP2L uses 1:1).
+
+    NOTE on fees: SP2L was designed for M1/M5 scalping on low-cost markets. On a
+    crypto venue with ~0.5-1% round-trip fees, low-timeframe scalping bleeds to
+    fees — prefer higher timeframes here, and judge it in backtest first.
+    """
+
+    atr_period: int = 14
+    spike_atr_mult: float = 2.0     # impulse leg must span >= this many ATRs
+    max_spike_bars: int = 4         # ...and happen within this many bars (fast)
+    pullback_min_bars: int = 2      # need a real corrective pause (the "2 legs")
+    pullback_max_bars: int = 12     # ...but the setup goes stale after this
+    reward_risk: float = 1.0        # SP2L default 1:1 (configurable, e.g. 2.0)
+    sl_mode: str = "pullback"       # "pullback" (tighter) or "spike" (origin)
+    warmup: int = 40
+
+    def __post_init__(self) -> None:
+        self.warmup = max(self.warmup, 2 * self.atr_period + 5,
+                          self.max_spike_bars + self.pullback_max_bars + 2)
+
+    def evaluate(self, candles: Sequence[Candle], i: int) -> Signal:
+        flat = Signal("flat", 0.0, candles[i].close, candles[i].close, candles[i].close)
+        if i < self.warmup:
+            return flat
+        window = candles[: i + 1]
+        atr_v = ind.atr(window, self.atr_period)[i]
+        if atr_v is None or atr_v == 0:
+            return flat
+
+        long_sig = self._scan(candles, i, atr_v, "long")
+        if long_sig is not None:
+            return long_sig
+        short_sig = self._scan(candles, i, atr_v, "short")
+        if short_sig is not None:
+            return short_sig
+        return flat
+
+    def _scan(self, candles: Sequence[Candle], i: int, atr_v: float, side: str) -> Optional[Signal]:
+        cur = candles[i]
+        # The spike leg must have ended a few bars ago, leaving room for a pullback.
+        for pull_len in range(self.pullback_min_bars, self.pullback_max_bars + 1):
+            top = i - pull_len  # candle where the impulse leg peaked/troughed
+            if top - self.max_spike_bars < 0:
+                continue
+            leg = candles[top - self.max_spike_bars : top + 1]
+            if side == "long":
+                origin = min(leg, key=lambda c: c.low)
+                extreme = max(leg, key=lambda c: c.high)   # spike top
+                impulse = extreme.high - origin.low
+                # origin must precede the peak (a genuine up-move), and be fast+big.
+                if extreme.high <= origin.low or impulse < self.spike_atr_mult * atr_v:
+                    continue
+                pull = candles[top + 1 : i + 1]
+                pull_low = min(c.low for c in pull)
+                # 2-leg pullback that stayed above the spike origin (structure holds),
+                # then the current bar resumes up (higher low + bullish break).
+                structure_ok = pull_low > origin.low
+                resume = cur.is_bullish and cur.close > candles[i - 1].high
+                if structure_ok and resume:
+                    stop = pull_low if self.sl_mode == "pullback" else origin.low
+                    entry = cur.close
+                    if entry > stop:
+                        tp = entry + self.reward_risk * (entry - stop)
+                        return Signal("long", 1.0, entry, stop, tp,
+                                      [f"up-spike {impulse / atr_v:.1f} ATR + {pull_len}-bar 2-leg pullback, HL resume"])
+            else:  # short
+                origin = max(leg, key=lambda c: c.high)
+                extreme = min(leg, key=lambda c: c.low)    # spike bottom
+                impulse = origin.high - extreme.low
+                if extreme.low >= origin.high or impulse < self.spike_atr_mult * atr_v:
+                    continue
+                pull = candles[top + 1 : i + 1]
+                pull_high = max(c.high for c in pull)
+                structure_ok = pull_high < origin.high
+                resume = (not cur.is_bullish) and cur.close < candles[i - 1].low
+                if structure_ok and resume:
+                    stop = pull_high if self.sl_mode == "pullback" else origin.high
+                    entry = cur.close
+                    if entry < stop:
+                        tp = entry - self.reward_risk * (stop - entry)
+                        return Signal("short", 1.0, entry, stop, tp,
+                                      [f"down-spike {impulse / atr_v:.1f} ATR + {pull_len}-bar 2-leg pullback, LH resume"])
+        return None

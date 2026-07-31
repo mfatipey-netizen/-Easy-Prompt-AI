@@ -29,6 +29,7 @@ class BacktestResult:
     report: Report
     portfolio: Portfolio
     equity_curve: List[float]
+    skipped_min_order: int = 0  # signals dropped because the position was too small
 
 
 def _day_of(ts: int) -> int:
@@ -43,11 +44,13 @@ def run_backtest(
     start_cash: float = 10_000.0,
     fee_rate: float = 0.0016,
     bars_per_day: int = 24,
+    min_order_quote: float = 0.0,
     verbose: bool = False,
 ) -> BacktestResult:
     pf = Portfolio(cash=start_cash, fee_rate=fee_rate)
     equity_curve: List[float] = []
     pending: Optional[Signal] = None
+    skipped_min_order = 0
 
     cur_day = _day_of(candles[strategy.warmup].ts) if len(candles) > strategy.warmup else 0
     day_start_equity = start_cash
@@ -67,6 +70,12 @@ def run_backtest(
             ok, _ = risk.can_open(pf.open_count, day_pnl_pct)
             if ok and risk.accepts_reward_risk(pending.reward_risk):
                 qty = risk.position_size(equity_now, c.open, pending.stop)
+                # Exchanges reject orders below a minimum notional. With small
+                # capital the risk-sized position can fall under it — model that
+                # so the backtest shows at WHICH capital the bot can actually trade.
+                if qty > 0 and min_order_quote > 0 and qty * c.open < min_order_quote:
+                    skipped_min_order += 1
+                    qty = 0.0
                 if qty > 0:
                     # Re-anchor stop/TP to the actual fill (open), preserving distances.
                     entry = c.open
@@ -116,4 +125,5 @@ def run_backtest(
             equity_curve[-1] = pf.cash
 
     report = build_report(pf.trades, equity_curve, bars_per_day=bars_per_day)
-    return BacktestResult(report=report, portfolio=pf, equity_curve=equity_curve)
+    return BacktestResult(report=report, portfolio=pf, equity_curve=equity_curve,
+                          skipped_min_order=skipped_min_order)
