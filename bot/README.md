@@ -60,12 +60,21 @@ backtesting. Going live stays a separate, deliberate step (below).
 > **Code → Download ZIP**, extract it, open the `bot` folder, and double-click
 > `Run-TradingBot.bat`.
 
+### Optional: build a real one-click `.exe`
+
+To get a standalone `EasyTradingBot.exe` that needs nothing else installed,
+double-click **`Build-EXE.bat`** once (on Windows, with Python installed). It
+bundles everything with PyInstaller and produces `dist\EasyTradingBot.exe`, which
+you can copy anywhere and double-click to run. (A Windows `.exe` must be built on
+Windows — it can't be cross-built elsewhere — but this is a one-time step.)
+
 ## What's inside
 
 ```
 bot/
 ├── app.py                 # desktop GUI (Tkinter) — connect, size, backtest
 ├── Run-TradingBot.bat     # one double-click launcher for Windows
+├── Build-EXE.bat          # one-time: build a standalone EasyTradingBot.exe
 ├── bot.py                 # CLI entry point (backtest / paper / live)
 ├── config.example.json    # non-secret strategy + risk parameters
 ├── .env.example           # API keys & notifications (live only) — never commit real one
@@ -278,10 +287,12 @@ cover FX). The natural fit for a retail user is **MetaTrader 5** (official
 (REST API with a free practice account). That adapter isn't built yet — ask and it
 can be added, mirroring the `live.py` exchange helper.
 
-## Trading "gold" on a crypto exchange
-Kraken/Coinbase don't list spot XAU. The crypto-native way to trade gold is
-**PAXG (Pax Gold)** — a token where 1 PAXG ≈ 1 troy ounce of gold. Use the symbol
-**`PAXG/USD`** in the app or CLI to backtest the strategy on gold's price.
+## Trading "gold"
+Kraken/Coinbase don't list spot XAU, and tokenized gold (PAXG) isn't available on
+every account/region — so the reliable way to backtest **gold** here is the
+**forex route**: export `XAU/USD` candles to CSV (from MetaTrader or your data
+provider) and use the app's **“Backtest a CSV file”** button. Where PAXG *is*
+available on your account, `PAXG/USD` also works as a crypto-native proxy.
 
 ## How much capital do I need? (min-order modelling)
 Because sizing is `risk ÷ stop-distance` (capped by exposure), the position
