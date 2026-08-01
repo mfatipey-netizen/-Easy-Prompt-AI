@@ -50,8 +50,10 @@ A window opens where you can, top to bottom:
    start with and warns when fees or a small balance would eat the account.
 3. **Engaged capital** — type the exact amount you want to trade with; it shows
    the resulting per-trade risk.
-4. **Backtest** — pick a timeframe and click *Run backtest*; it pulls **your
-   exchange's real candles** and prints the report right there.
+4. **Backtest** — pick a strategy, timeframe and click *Run backtest* (or
+   *Backtest a CSV file* for forex/gold). Tune **Reward:Risk** to hunt for a
+   profit factor above 1.0, tick **Out-of-sample test** to confirm it holds on
+   data the settings weren't fit to, and it prints the report right there.
 
 The app **never places live orders** — it's for connecting, sizing, and
 backtesting. Going live stays a separate, deliberate step (below).

@@ -140,8 +140,12 @@ class App:
         tk.Label(row2, text="Fee %/side:").pack(side="left", padx=(12, 2))
         self.fee_var = tk.StringVar(value="0.16")  # crypto taker ~0.16%; forex ~0.01-0.03%
         tk.Entry(row2, textvariable=self.fee_var, width=6).pack(side="left")
-        tk.Label(row2, text="(forex spreads are far lower than crypto fees)",
-                 fg="#666").pack(side="left", padx=(6, 0))
+        tk.Label(row2, text="Reward:Risk (1:x):").pack(side="left", padx=(12, 2))
+        self.rr_var = tk.StringVar(value="1.0")  # SP2L default 1:1 — raise to hunt for profit
+        tk.Entry(row2, textvariable=self.rr_var, width=5).pack(side="left")
+        self.oos_var = tk.BooleanVar(value=False)
+        tk.Checkbutton(row2, text="Out-of-sample test (70/30)", variable=self.oos_var).pack(
+            side="left", padx=(12, 0))
 
         row3 = tk.Frame(f)
         row3.pack(fill="x", padx=8, pady=(0, 4))
@@ -247,11 +251,24 @@ class App:
                 "capital": float(self.capital_var.get()),
                 "min_order": max(0.0, float(self.minorder_var.get())),
                 "fee": max(0.0, float(self.fee_var.get())) / 100.0,  # % -> fraction
+                "reward_risk": max(0.1, float(self.rr_var.get())),
                 "bars": max(200, int(self.bars_var.get())),
+                "oos": bool(self.oos_var.get()),
             }
         except ValueError:
-            messagebox.showwarning("Invalid input", "Check the capital, min-order, fee and bars fields.")
+            messagebox.showwarning("Invalid input", "Check the capital, min-order, fee, R:R and bars fields.")
             return None
+
+    def _make_engine(self, strat_name, reward_risk, capital, fee, min_order, interval):
+        strat = (Spike2LegsStrategy(reward_risk=reward_risk) if strat_name.startswith("SP2L")
+                 else ConfluenceStrategy(reward_risk=reward_risk))
+        risk = RiskManager(RiskConfig(risk_per_trade=self.risk_per_trade,
+                                      min_reward_risk=min(1.5, reward_risk)))
+        return lambda candles: run_backtest(
+            candles, strat, risk, symbol="ASSET",
+            start_cash=capital, fee_rate=fee,
+            bars_per_day=max(1, 86400 // interval),
+            min_order_quote=min_order)
 
     def _run_backtest(self, candles_fn, header: str) -> None:
         """Shared runner: fetch/load candles off-thread, backtest, show report."""
@@ -272,18 +289,19 @@ class App:
                         f"Only {len(candles)} bars available — not enough to backtest. "
                         f"Use more bars / a longer history.")
                 interval = _infer_interval(candles)
-                strat = Spike2LegsStrategy() if strat_name.startswith("SP2L") else ConfluenceStrategy()
-                rr = getattr(strat, "reward_risk", 1.5)  # align gate (SP2L is 1:1)
-                risk = RiskManager(RiskConfig(risk_per_trade=self.risk_per_trade,
-                                              min_reward_risk=min(1.5, rr)))
-                result = run_backtest(
-                    candles, strat, risk, symbol="ASSET",
-                    start_cash=params["capital"], fee_rate=params["fee"],
-                    bars_per_day=max(1, 86400 // interval),
-                    min_order_quote=params["min_order"],
-                )
-                full_header = f"{strat_name} | {header} | {len(candles)} bars"
-                self.q.put(lambda: self._backtest_done(result, full_header))
+                engine = self._make_engine(strat_name, params["reward_risk"],
+                                           params["capital"], params["fee"],
+                                           params["min_order"], interval)
+                base = f"{strat_name} 1:{params['reward_risk']:g} | {header}"
+                if params["oos"]:
+                    cut = int(len(candles) * 0.7)
+                    train, test = candles[:cut], candles[cut:]
+                    payload = [("In-sample (train)", engine(train), len(train)),
+                               ("Out-of-sample (test)", engine(test), len(test))]
+                    self.q.put(lambda: self._backtest_done_multi(payload, base))
+                else:
+                    result = engine(candles)
+                    self.q.put(lambda: self._backtest_done(result, f"{base} | {len(candles)} bars"))
             except Exception as exc:
                 self.q.put(lambda e=exc: self._backtest_failed(e))
 
@@ -308,28 +326,40 @@ class App:
         name = os.path.basename(path)
         self._run_backtest(lambda _bars: datamod.load_csv(path), header=f"CSV {name}")
 
-    def _backtest_done(self, result, header) -> None:
-        self.backtest_btn.config(state="normal")
-        self.csv_btn.config(state="normal")
+    def _print_block(self, result, title) -> None:
         r = result.report
-        self._set_text(self.report, "")
-        self._append_report(f"=== {header} ===")
+        self._append_report(f"--- {title} ---")
         for line in r.as_lines():
             self._append_report("  " + line)
         if result.skipped_min_order:
-            self._append_report("")
             self._append_report(
-                f"  ⚠ {result.skipped_min_order} trade(s) SKIPPED — position was below the "
-                f"min order size at this capital.")
-            self._append_report(
-                "     Raise 'Amount to trade with' until this reaches 0 to see the "
-                "capital your bot actually needs.")
+                f"  ⚠ {result.skipped_min_order} trade(s) skipped — position below min order "
+                f"size (raise capital).")
+        verdict = ("PROFITABLE (edge > costs)" if r.profit_factor > 1.0
+                   else "not profitable yet — profit factor must be > 1.0")
+        self._append_report(f"  Verdict: {verdict}")
         self._append_report("")
-        self._append_report(f"  Win rate achieved: {r.win_rate:.1f}%")
-        self._append_report("  At 1:2 reward:risk, breakeven win rate is only ~33%.")
-        self._append_report("  A 70%+ win rate at 1:2 would be a world-class edge — verify")
-        self._append_report("  it holds on out-of-sample data before trusting it.")
-        self._append_report("  Backtest results are hypotheses, not guarantees.")
+
+    def _backtest_done(self, result, header) -> None:
+        self.backtest_btn.config(state="normal")
+        self.csv_btn.config(state="normal")
+        self._set_text(self.report, "")
+        self._append_report(f"=== {header} ===")
+        self._print_block(result, "Full sample")
+        self._append_report("Tip: profit factor > 1.0 = an edge. If it's just under 1.0, try a")
+        self._append_report("higher Reward:Risk (e.g. 1.5 or 2.0) — bigger winners can flip it")
+        self._append_report("positive even if the win rate drops. Always confirm with the")
+        self._append_report("out-of-sample checkbox before believing any result.")
+
+    def _backtest_done_multi(self, payload, base) -> None:
+        self.backtest_btn.config(state="normal")
+        self.csv_btn.config(state="normal")
+        self._set_text(self.report, "")
+        self._append_report(f"=== {base} ===")
+        for title, result, n in payload:
+            self._print_block(result, f"{title} ({n} bars)")
+        self._append_report("Judge the strategy on the OUT-OF-SAMPLE block. If it is much worse")
+        self._append_report("than in-sample, the settings are over-fit and won't hold live.")
 
     def _backtest_failed(self, exc: Exception) -> None:
         self.backtest_btn.config(state="normal")

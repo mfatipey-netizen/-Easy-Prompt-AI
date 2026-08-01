@@ -155,6 +155,12 @@ class TestSpike2Legs(unittest.TestCase):
         self.assertGreater(sig.take_profit, sig.entry)
         self.assertAlmostEqual(sig.reward_risk, 1.0, places=6)  # SP2L default 1:1
 
+    def test_reward_risk_override(self):
+        candles = self._spike_then_pullback()
+        sig = Spike2LegsStrategy(spike_atr_mult=1.5, reward_risk=2.0).evaluate(candles, len(candles) - 1)
+        self.assertEqual(sig.side, "long")
+        self.assertAlmostEqual(sig.reward_risk, 2.0, places=6)  # 1:2 instead of 1:1
+
     def test_no_signal_on_flat_market(self):
         rows = [[i * 3600, 100, 100.1, 99.9, 100, 1] for i in range(120)]
         strat = Spike2LegsStrategy()

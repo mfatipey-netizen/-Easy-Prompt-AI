@@ -63,6 +63,8 @@ def cmd_backtest(cfg: RunConfig, args) -> int:
         print(f"Saved {len(candles)} candles to {args.save_csv}")
 
     strat = Spike2LegsStrategy() if args.strategy == "sp2l" else cfg.build_strategy()
+    if args.reward_risk is not None:
+        strat.reward_risk = args.reward_risk
     risk_cfg = cfg.build_risk()
     # Don't let the risk-manager's min R:R gate reject a strategy that legitimately
     # trades a lower reward:risk (SP2L is 1:1). Align the gate to the strategy.
@@ -167,6 +169,8 @@ def build_parser() -> argparse.ArgumentParser:
                         help="which strategy to run (sp2l = Spike-2-Leg)")
     common.add_argument("--min-order", type=float, default=0.0,
                         help="exchange min order size in quote ccy; skips too-small positions")
+    common.add_argument("--reward-risk", type=float, default=None,
+                        help="override the strategy reward:risk (e.g. 2.0 for 1:2)")
     common.add_argument("--verbose", action="store_true", help="print each trade")
 
     p = argparse.ArgumentParser(
