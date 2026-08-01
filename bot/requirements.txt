@@ -9,4 +9,5 @@
 #
 # Everything else below is optional developer tooling.
 
-ccxt>=4.2 ; extra == "live"     # live order execution on Kraken / Coinbase
+ccxt>=4.2 ; extra == "live"          # live order execution on Kraken / Coinbase
+MetaTrader5>=5.0 ; extra == "mt5"    # forex/gold data (and later trading) via MT5, Windows only

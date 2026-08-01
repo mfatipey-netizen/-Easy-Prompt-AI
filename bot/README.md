@@ -274,18 +274,23 @@ originally built *for* forex (where costs are far lower than crypto fees). Two w
 
 **Backtest forex now — no broker, no new code.** In the app click
 **“Backtest a CSV file… (forex / any market)”** and choose an OHLCV CSV, or on the
-CLI use `--source csv`. Set **Fee %/side** low (majors ≈ 0.01–0.03%). Where to get
-the CSV:
-- **MetaTrader 4/5**: a broker chart → right-click → *Save As* / History Center export.
+CLI use `--source csv`. Set **Fee %/side** low (majors ≈ 0.01–0.03%).
+
+**Easiest if you have MetaTrader 5 (recommended).** Double-click
+**`Export-MT5-Data.bat`** (with the MT5 terminal open and logged in). It asks for a
+symbol (e.g. `XAUUSD` for gold, `EURUSD`), a timeframe (`M5`, `M15`, `H1`…), and a
+bar count, then writes a ready CSV in the `bot` folder. Load that with the app's
+“Backtest a CSV file” button. (First run installs the `MetaTrader5` connector.)
+
+Other ways to get a CSV:
 - **TradingView**: chart → *Export chart data* (needs a paid plan).
 - **Dukascopy** historical data feed (free) or any CSV with
   `timestamp,open,high,low,close[,volume]` columns.
 
 **Live/auto forex** needs a forex broker adapter (crypto libraries like ccxt don't
-cover FX). The natural fit for a retail user is **MetaTrader 5** (official
-`MetaTrader5` Python package; SP2L even ships MT4/MT5 versions) or **OANDA**
-(REST API with a free practice account). That adapter isn't built yet — ask and it
-can be added, mirroring the `live.py` exchange helper.
+cover FX). The natural fit is **MetaTrader 5** — `mt5_export.py` already pulls MT5
+data; live order execution through the same `MetaTrader5` package (or **OANDA**'s
+REST API with a free practice account) can be added next, mirroring `live.py`.
 
 ## Trading "gold"
 Kraken/Coinbase don't list spot XAU, and tokenized gold (PAXG) isn't available on
