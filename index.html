@@ -147,6 +147,26 @@ body{color:var(--text);background:var(--bg);overflow-x:hidden;-webkit-font-smoot
 .footer{text-align:center;color:var(--muted);font-size:.78rem;margin-top:40px}
 .hidden{display:none!important}
 @media (max-width:900px){ .interview{grid-template-columns:1fr} .side{flex-direction:row;position:static;flex-wrap:wrap;align-items:center} .bot{width:110px} }
+@media (max-width:640px){
+  .wrap{padding:10px 10px 40px}
+  .header{padding:10px 12px;gap:8px;flex-wrap:wrap}
+  .brand{gap:8px;flex:1;min-width:0}
+  .brand .logo{width:38px;height:38px;border-radius:10px}
+  .brand .t1{font-size:.95rem} .brand .t2{display:none}
+  .hc{gap:6px;justify-content:flex-end;flex-basis:100%;order:2}
+  .hc .btn.sm{padding:6px 9px;font-size:.72rem;border-radius:9px}
+  .langsel{padding:6px 8px;font-size:.75rem}
+  .badge{padding:5px 9px;font-size:.72rem}
+  /* intro: fit on one screen and scroll if needed */
+  .intro{padding:12px;align-items:start}
+  .intro-card{padding:24px 20px;max-height:calc(100vh - 24px);overflow-y:auto}
+  .intro-card .logo{width:64px;height:64px;border-radius:16px}
+  .intro-card h1{margin-top:14px;font-size:1.55rem}
+  .intro-card .desc{margin-top:10px;font-size:.9rem;line-height:1.55}
+  .intro-lang{margin:16px auto 4px}
+  .intro .go{margin-top:14px;padding:12px;font-size:.98rem}
+  .intro-card .foot{margin-top:12px}
+}
 [dir="rtl"] .tag{margin-inline-end:6px}
 </style>
 </head>
@@ -182,7 +202,6 @@ body{color:var(--text);background:var(--bg);overflow-x:hidden;-webkit-font-smoot
       <button class="btn sm ghost" id="btnHistory"></button>
       <button class="btn sm" id="btnUpgrade"></button>
       <button class="btn sm ghost" id="btnCode"></button>
-      <button class="btn sm ghost" id="btnAdmin" title="Admin">⚙️</button>
       <button class="btn sm ghost" id="btnHome"></button>
     </div>
   </header>
@@ -262,7 +281,7 @@ body{color:var(--text);background:var(--bg);overflow-x:hidden;-webkit-font-smoot
     </div>
   </section>
 
-  <div class="footer">© 2026 EASY PROMPT AI — All Rights Reserved · <span id="footContact"></span> · <a href="#" id="footTerms" style="color:var(--gold-2)"></a></div>
+  <div class="footer">© 2026 EASY PROMPT AI — All Rights Reserved · <span id="footContact"></span> · <a href="#" id="footTerms" style="color:var(--gold-2)"></a> · <a href="#" id="footAdmin" style="color:var(--muted)">🔧 Manager</a></div>
 </div>
 
 <!-- CODE MODAL -->
@@ -903,7 +922,8 @@ function fmtDate(ts){ if(!ts) return '—'; const d = new Date(ts); return d.toL
 const PLAN_LABEL = { '1mo':'۱ ماهه', '3mo':'۳ ماهه', '12mo':'۱ ساله', 'lifetime':'دائمی' };
 const STATUS_LABEL = { active:'✅ فعال', unused:'⏳ استفاده‌نشده', expired:'⌛ منقضی', revoked:'🚫 لغوشده' };
 
-el('btnAdmin').onclick=()=>{
+el('footAdmin').onclick=(e)=>{
+  e.preventDefault();
   openModal('adminModal');
   if(ADMIN_TOKEN){ showAdminPanel(); } else { el('adminLoginBox').style.display=''; el('adminBody').style.display='none'; setTimeout(()=>el('adminTokenInput').focus(),50); }
 };
