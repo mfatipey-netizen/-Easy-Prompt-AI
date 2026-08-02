@@ -34,7 +34,7 @@ body{color:var(--text);background:var(--bg);overflow-x:hidden;-webkit-font-smoot
 
 .header{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 18px;border-radius:var(--r);
   background:linear-gradient(120deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid var(--stroke);
-  box-shadow:var(--shadow-soft);backdrop-filter:blur(14px);position:sticky;top:12px;z-index:50}
+  box-shadow:var(--shadow-soft);backdrop-filter:blur(14px)}
 .brand{display:flex;gap:14px;align-items:center}
 .brand .logo{width:50px;height:50px;border-radius:14px;object-fit:cover;border:1px solid var(--stroke-2)}
 .brand .t1{font-weight:900;font-size:1.1rem;letter-spacing:.3px;background:linear-gradient(90deg,var(--gold-2),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -157,15 +157,16 @@ body{color:var(--text);background:var(--bg);overflow-x:hidden;-webkit-font-smoot
   .hc .btn.sm{padding:6px 9px;font-size:.72rem;border-radius:9px}
   .langsel{padding:6px 8px;font-size:.75rem}
   .badge{padding:5px 9px;font-size:.72rem}
-  /* intro: fit on one screen and scroll if needed */
-  .intro{padding:12px;align-items:start}
-  .intro-card{padding:24px 20px;max-height:calc(100vh - 24px);overflow-y:auto}
+  /* intro: fit on one screen — never overflow horizontally */
+  .intro{padding:12px;align-items:start;overflow-y:auto}
+  .intro-card{width:100%;max-width:100%;box-sizing:border-box;padding:22px 18px;overflow-wrap:anywhere}
   .intro-card .logo{width:64px;height:64px;border-radius:16px}
-  .intro-card h1{margin-top:14px;font-size:1.55rem}
+  .intro-card h1{margin-top:14px;font-size:1.5rem;letter-spacing:0;line-height:1.2}
   .intro-card .desc{margin-top:10px;font-size:.9rem;line-height:1.55}
-  .intro-lang{margin:16px auto 4px}
-  .intro .go{margin-top:14px;padding:12px;font-size:.98rem}
-  .intro-card .foot{margin-top:12px}
+  .intro-lang{margin:16px auto 4px;max-width:100%}
+  .intro-lang select{padding:11px 12px;font-size:.95rem}
+  .intro .go{margin-top:14px;padding:12px;font-size:.98rem;max-width:100%}
+  .intro-card .foot{margin-top:12px;font-size:.7rem}
 }
 [dir="rtl"] .tag{margin-inline-end:6px}
 </style>
