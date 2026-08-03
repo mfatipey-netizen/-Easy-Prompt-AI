@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<title>JobFit.ca — Should you apply, or not?</title>
+<meta name="description" content="AI-powered job fit analysis for Canada. Stop wasting time applying to jobs you won't get. Know your real chances before you click Apply.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🎯%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Vazirmatn:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f8fafc; --card: #ffffff; --ink: #0f172a; --muted: #64748b; --line: #e2e8f0;
+    --brand: #dc2626; --brand-dark: #b91c1c; --accent: #2563eb; --good: #10b981; --warn: #f59e0b;
+    --canada: #ff0000;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0b1120; --card: #111827; --ink: #f1f5f9; --muted: #94a3b8; --line: #1e293b; }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: 'Inter', 'Vazirmatn', sans-serif; }
+  body { min-height: 100vh; }
+  a { color: var(--accent); text-decoration: none; }
+
+  /* Nav */
+  nav { position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, var(--bg) 92%, transparent);
+    backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+  nav .wrap { max-width: 1100px; margin: 0 auto; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  nav .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 17px; letter-spacing: -0.4px; }
+  nav .brand .flag { display: inline-block; width: 22px; height: 15px; background: linear-gradient(to right, var(--canada) 25%, white 25%, white 75%, var(--canada) 75%); position: relative; border-radius: 2px; }
+  nav .brand .flag::after { content: '🍁'; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 10px; }
+  nav .tabs { display: flex; gap: 4px; }
+  nav .tab { padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--muted); font-size: 14px; border: 0; background: transparent; }
+  nav .tab.active { background: var(--ink); color: var(--bg); }
+  @media (max-width: 640px) { nav .tab { padding: 6px 10px; font-size: 13px; } }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 20px 80px; }
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* Landing */
+  .hero { text-align: center; padding: 40px 0 30px; }
+  .hero .kicker { display: inline-block; padding: 4px 12px; border-radius: 999px; background: rgba(220,38,38,0.1); color: var(--brand); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
+  .hero h1 { margin: 0 0 16px; font-size: clamp(28px, 5vw, 48px); font-weight: 900; letter-spacing: -1.5px; line-height: 1.1; }
+  .hero h1 .hl { color: var(--brand); }
+  .hero p.lead { font-size: clamp(16px, 2vw, 20px); color: var(--muted); max-width: 640px; margin: 0 auto 28px; line-height: 1.55; }
+  .hero .cta { display: inline-flex; align-items: center; gap: 8px; padding: 14px 28px; background: var(--brand); color: white; border-radius: 12px; font-weight: 700; font-size: 16px; border: 0; cursor: pointer; box-shadow: 0 10px 30px rgba(220,38,38,0.25); }
+  .hero .cta:hover { background: var(--brand-dark); transform: translateY(-1px); transition: 150ms; }
+  .hero .free { display: block; margin-top: 12px; font-size: 13px; color: var(--muted); }
+
+  .pain { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 32px; margin: 32px 0; }
+  .pain h2 { margin: 0 0 8px; font-size: 24px; font-weight: 800; }
+  .pain h2 .fa { display: block; font-family: 'Vazirmatn'; font-size: 18px; color: var(--muted); direction: rtl; margin-top: 4px; font-weight: 600; }
+  .pain-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 24px; }
+  @media (max-width: 640px) { .pain-stats { grid-template-columns: 1fr; } }
+  .pain-stat { text-align: center; padding: 20px; background: var(--bg); border-radius: 12px; }
+  .pain-stat .n { font-size: 36px; font-weight: 900; color: var(--brand); letter-spacing: -1px; }
+  .pain-stat .l { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  .how { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 32px 0; }
+  @media (max-width: 720px) { .how { grid-template-columns: 1fr; } }
+  .how-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 24px; position: relative; }
+  .how-card .n { position: absolute; right: 20px; top: 20px; font-size: 44px; font-weight: 900; color: var(--line); line-height: 1; }
+  .how-card h3 { margin: 0 0 8px; font-size: 18px; font-weight: 700; }
+  .how-card p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+
+  .pricing { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 40px 0 20px; }
+  @media (max-width: 720px) { .pricing { grid-template-columns: 1fr; } }
+  .price-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 28px 24px; position: relative; }
+  .price-card.popular { border: 2px solid var(--brand); box-shadow: 0 10px 40px rgba(220,38,38,0.12); }
+  .price-card .tag { position: absolute; top: -12px; right: 20px; padding: 4px 12px; background: var(--brand); color: white; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .price-card h4 { margin: 0 0 4px; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+  .price-card .price { font-size: 36px; font-weight: 900; letter-spacing: -1px; }
+  .price-card .price .cur { font-size: 18px; color: var(--muted); font-weight: 700; margin-right: 4px; }
+  .price-card .price .per { font-size: 14px; color: var(--muted); font-weight: 500; }
+  .price-card ul { margin: 16px 0 20px; padding: 0; list-style: none; font-size: 14px; color: var(--muted); }
+  .price-card li { padding: 6px 0; }
+  .price-card li::before { content: '✓ '; color: var(--good); font-weight: 900; margin-right: 4px; }
+  .price-card button { width: 100%; padding: 12px; border-radius: 10px; border: 0; font-weight: 700; font-size: 14px; cursor: pointer; background: var(--ink); color: var(--bg); }
+  .price-card.popular button { background: var(--brand); color: white; }
+
+  /* Analyze view */
+  .step-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 24px; margin-bottom: 16px; }
+  .step-card h2 { margin: 0 0 8px; font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+  .step-card h2 .n { width: 28px; height: 28px; border-radius: 50%; background: var(--brand); color: white; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; }
+  .step-card p.help { margin: 0 0 16px; color: var(--muted); font-size: 14px; }
+  .input-row { display: grid; grid-template-columns: 120px 1fr; gap: 8px; align-items: center; }
+  .segmented { display: inline-flex; background: var(--bg); padding: 4px; border-radius: 10px; border: 1px solid var(--line); gap: 4px; }
+  .segmented button { padding: 8px 14px; border: 0; background: transparent; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; color: var(--muted); }
+  .segmented button.active { background: var(--ink); color: var(--bg); }
+  textarea, input[type=text], input[type=url], input[type=password], select { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font-family: inherit; font-size: 14px; box-sizing: border-box; }
+  textarea { min-height: 140px; resize: vertical; }
+  textarea:focus, input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
+  label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; color: var(--muted); }
+  .btn-primary { padding: 14px 24px; background: var(--brand); color: white; border: 0; border-radius: 10px; font-weight: 700; font-size: 15px; cursor: pointer; }
+  .btn-primary:hover { background: var(--brand-dark); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-ghost { padding: 10px 16px; background: transparent; color: var(--ink); border: 1px solid var(--line); border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; }
+
+  /* Chips (courses, certs, skills) */
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .chip { padding: 5px 10px; background: var(--bg); border: 1px solid var(--line); border-radius: 999px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; }
+  .chip button { background: transparent; border: 0; color: var(--muted); cursor: pointer; padding: 0; font-size: 14px; line-height: 1; }
+  .chip-add { display: flex; gap: 6px; margin-top: 8px; }
+  .chip-add input { flex: 1; padding: 8px 12px; font-size: 13px; }
+  .chip-add button { padding: 8px 14px; }
+
+  /* Result */
+  .result { background: var(--card); border-radius: 20px; padding: 28px; border: 1px solid var(--line); }
+  .score-hero { display: grid; grid-template-columns: 140px 1fr; gap: 24px; align-items: center; margin-bottom: 24px; }
+  @media (max-width: 640px) { .score-hero { grid-template-columns: 1fr; text-align: center; } }
+  .score-ring { position: relative; width: 140px; height: 140px; }
+  .score-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .score-ring .n { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .score-ring .n b { font-size: 40px; font-weight: 900; }
+  .score-ring .n s { text-decoration: none; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .verdict h3 { margin: 0 0 6px; font-size: 24px; font-weight: 800; }
+  .verdict p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.5; }
+  .verdict .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; margin-bottom: 8px; }
+  .badge.go { background: rgba(16,185,129,0.15); color: var(--good); }
+  .badge.wait { background: rgba(245,158,11,0.15); color: var(--warn); }
+  .badge.skip { background: rgba(220,38,38,0.15); color: var(--brand); }
+
+  .breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+  @media (max-width: 640px) { .breakdown { grid-template-columns: 1fr; } }
+  .col h4 { margin: 0 0 10px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); font-weight: 700; }
+  .col ul { margin: 0; padding: 0; list-style: none; }
+  .col li { padding: 10px 12px; margin-bottom: 6px; background: var(--bg); border-radius: 8px; font-size: 14px; line-height: 1.5; }
+  .col.strengths li::before { content: '✓ '; color: var(--good); font-weight: 900; }
+  .col.gaps li::before { content: '⚠ '; color: var(--warn); font-weight: 900; }
+  .action-list { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--line); }
+  .action-list h4 { margin: 0 0 12px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); font-weight: 700; }
+  .action-list ol { margin: 0; padding-left: 20px; }
+  .action-list li { padding: 6px 0; font-size: 14px; line-height: 1.5; }
+
+  /* History */
+  .hist-item { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 14px; cursor: pointer; }
+  .hist-item:hover { border-color: var(--brand); }
+  .hist-item .score { font-size: 22px; font-weight: 900; padding: 8px 12px; border-radius: 10px; min-width: 60px; text-align: center; }
+  .hist-item .score.go { background: rgba(16,185,129,0.15); color: var(--good); }
+  .hist-item .score.wait { background: rgba(245,158,11,0.15); color: var(--warn); }
+  .hist-item .score.skip { background: rgba(220,38,38,0.15); color: var(--brand); }
+  .hist-item .title { font-weight: 700; font-size: 15px; }
+  .hist-item .meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* Empty states */
+  .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .empty .icon { font-size: 48px; margin-bottom: 12px; }
+
+  /* Loading */
+  .loader { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Modal */
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 100; }
+  .modal.open { display: flex; }
+  .modal-body { background: var(--card); border-radius: 16px; padding: 28px; max-width: 500px; width: 100%; max-height: 90vh; overflow: auto; }
+  .modal-body h3 { margin: 0 0 8px; }
+  .modal-body p { color: var(--muted); font-size: 14px; margin: 0 0 16px; }
+  .modal-close { float: right; background: transparent; border: 0; font-size: 24px; cursor: pointer; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="brand"><span class="flag"></span> JobFit<span style="color:var(--muted);font-weight:600">.ca</span></div>
+    <div class="tabs">
+      <button class="tab active" data-view="home">Home</button>
+      <button class="tab" data-view="analyze">Analyze</button>
+      <button class="tab" data-view="profile">Profile</button>
+      <button class="tab" data-view="history">History</button>
+    </div>
+  </div>
+</nav>
+
+<main>
+
+<!-- HOME -->
+<section class="view active" id="view-home">
+  <div class="hero">
+    <div class="kicker">🍁 Made for the Canadian job market</div>
+    <h1>Tired of applying to jobs that <span class="hl">never reply?</span></h1>
+    <p class="lead">Before you spend hours on another application, let AI tell you your <b>real chance</b> of getting it — and exactly what's missing. Stop the guesswork. Start getting interviews.</p>
+    <button class="cta" onclick="go('analyze')">🎯 Analyze a job now <span>→</span></button>
+    <div class="free">First 3 analyses free · No credit card</div>
+  </div>
+
+  <div class="pain">
+    <h2>The Canadian job market is brutal right now.
+      <span class="fa">بازار کار کانادا الان بی‌رحم است.</span>
+    </h2>
+    <div class="pain-stats">
+      <div class="pain-stat"><div class="n">250+</div><div class="l">Average applicants per posting on LinkedIn Canada</div></div>
+      <div class="pain-stat"><div class="n">2%</div><div class="l">Reply rate for online applications</div></div>
+      <div class="pain-stat"><div class="n">80hrs</div><div class="l">Average time spent per job offer landed</div></div>
+    </div>
+  </div>
+
+  <h2 style="text-align:center;margin:40px 0 8px;font-size:28px;font-weight:800">How it works</h2>
+  <p style="text-align:center;color:var(--muted);margin:0 0 24px">Three minutes. Total honesty about your chances.</p>
+  <div class="how">
+    <div class="how-card"><div class="n">1</div><h3>Set up your profile</h3><p>Once. Add your experience, skills, education, certificates. Update anytime you finish a course or land a new cert.</p></div>
+    <div class="how-card"><div class="n">2</div><h3>Paste the job</h3><p>Drop a LinkedIn/Indeed URL or paste the job description text. We handle the rest.</p></div>
+    <div class="how-card"><div class="n">3</div><h3>Get your verdict</h3><p>A fit score (0–100), your matched strengths, real gaps, and a "should you apply?" recommendation with next steps.</p></div>
+  </div>
+
+  <h2 style="text-align:center;margin:60px 0 24px;font-size:28px;font-weight:800">Pricing</h2>
+  <div class="pricing">
+    <div class="price-card">
+      <h4>Free</h4>
+      <div class="price"><span class="cur">$</span>0</div>
+      <ul><li>3 analyses total</li><li>Profile stays private on your device</li><li>Full report</li></ul>
+      <button onclick="go('analyze')">Start free</button>
+    </div>
+    <div class="price-card popular">
+      <div class="tag">Most popular</div>
+      <h4>Basic</h4>
+      <div class="price"><span class="cur">$</span>5.99<span class="per">/mo</span></div>
+      <ul><li>20 analyses per month</li><li>Save unlimited jobs</li><li>PDF export</li><li>Priority AI</li></ul>
+      <button onclick="buy('basic')">Get Basic</button>
+    </div>
+    <div class="price-card">
+      <h4>Pro</h4>
+      <div class="price"><span class="cur">$</span>11.99<span class="per">/mo</span></div>
+      <ul><li>Unlimited analyses</li><li>Cover-letter drafts</li><li>Interview-prep questions</li><li>Everything in Basic</li></ul>
+      <button onclick="buy('pro')">Get Pro</button>
+    </div>
+  </div>
+  <p style="text-align:center;color:var(--muted);font-size:13px;margin-top:16px">Pay with PayPal · USDT · Prices in USD</p>
+</section>
+
+<!-- ANALYZE -->
+<section class="view" id="view-analyze">
+  <div class="step-card">
+    <h2><span class="n">1</span> The job you're eyeing</h2>
+    <p class="help">Paste a URL from LinkedIn / Indeed / company site, OR paste the job description text.</p>
+    <div class="segmented" id="job-input-mode">
+      <button class="active" data-mode="text">📋 Paste text</button>
+      <button data-mode="url">🔗 Job URL</button>
+    </div>
+    <div id="job-text-wrap" style="margin-top:12px">
+      <textarea id="job-text" placeholder="Paste the full job description here — title, company, requirements, everything…"></textarea>
+    </div>
+    <div id="job-url-wrap" style="margin-top:12px;display:none">
+      <input type="url" id="job-url" placeholder="https://linkedin.com/jobs/view/…">
+      <p style="font-size:12px;color:var(--muted);margin-top:6px">Note: paste text instead if the URL requires login (most LinkedIn jobs do).</p>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <h2><span class="n">2</span> Any specifics for this role?</h2>
+    <p class="help">Optional — helps the analysis be sharper.</p>
+    <div class="grid-2">
+      <div>
+        <label>Location / City</label>
+        <input type="text" id="job-loc" placeholder="Toronto, ON">
+      </div>
+      <div>
+        <label>Salary expectation (CAD)</label>
+        <input type="text" id="job-salary" placeholder="$85K–$110K">
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+    <div style="color:var(--muted);font-size:13px">Uses your saved profile · <a href="#" onclick="go('profile');return false">Edit profile</a></div>
+    <button class="btn-primary" id="analyze-btn" onclick="analyze()">🎯 Get my fit score</button>
+  </div>
+
+  <div id="result-wrap" style="margin-top:24px"></div>
+</section>
+
+<!-- PROFILE -->
+<section class="view" id="view-profile">
+  <div class="step-card">
+    <h2><span class="n">👤</span> Your profile</h2>
+    <p class="help">This stays on your device. We only send it to the AI when you analyze a job.</p>
+    <div class="grid-2">
+      <div>
+        <label>Full name</label>
+        <input type="text" id="p-name" placeholder="Jane Doe">
+      </div>
+      <div>
+        <label>Current title</label>
+        <input type="text" id="p-title" placeholder="Software Developer">
+      </div>
+      <div>
+        <label>Years of experience</label>
+        <input type="text" id="p-years" placeholder="5">
+      </div>
+      <div>
+        <label>Location in Canada</label>
+        <input type="text" id="p-loc" placeholder="Vancouver, BC">
+      </div>
+      <div>
+        <label>Work permit status</label>
+        <select id="p-permit">
+          <option>Citizen / PR</option>
+          <option>Open work permit</option>
+          <option>Employer-specific permit</option>
+          <option>Student / PGWP</option>
+          <option>Need sponsorship</option>
+        </select>
+      </div>
+      <div>
+        <label>English proficiency</label>
+        <select id="p-english">
+          <option>Native</option>
+          <option>Fluent (C1/C2)</option>
+          <option>Advanced (B2)</option>
+          <option>Intermediate (B1)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <h2>💼 Experience & skills</h2>
+    <label>Recent work experience (companies, titles, key accomplishments)</label>
+    <textarea id="p-experience" placeholder="e.g. Senior Developer at ACME (2021–now) — led a team of 4 building a React SaaS…"></textarea>
+    <label style="margin-top:12px">Skills</label>
+    <div id="chips-skills" class="chips"></div>
+    <div class="chip-add"><input type="text" id="skill-input" placeholder="e.g. React, TypeScript, AWS"><button class="btn-ghost" onclick="addChip('skills')">Add</button></div>
+  </div>
+
+  <div class="step-card">
+    <h2>🎓 Education & courses</h2>
+    <label>Degrees</label>
+    <textarea id="p-education" placeholder="e.g. B.Sc. Computer Science, University of Waterloo, 2020"></textarea>
+    <label style="margin-top:12px">Courses you've taken (add as you finish them)</label>
+    <div id="chips-courses" class="chips"></div>
+    <div class="chip-add"><input type="text" id="course-input" placeholder="e.g. AWS Solutions Architect on Coursera"><button class="btn-ghost" onclick="addChip('courses')">Add</button></div>
+  </div>
+
+  <div class="step-card">
+    <h2>📜 Certifications</h2>
+    <label>Certificates (add new ones as you get them)</label>
+    <div id="chips-certs" class="chips"></div>
+    <div class="chip-add"><input type="text" id="cert-input" placeholder="e.g. AWS Certified SAA, PMP"><button class="btn-ghost" onclick="addChip('certs')">Add</button></div>
+  </div>
+
+  <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:16px">
+    <button class="btn-ghost" onclick="openKeys()">🔑 API key (BYOK)</button>
+    <button class="btn-primary" onclick="saveProfile()">Save profile</button>
+  </div>
+</section>
+
+<!-- HISTORY -->
+<section class="view" id="view-history">
+  <h2 style="margin-top:0">Your analyses</h2>
+  <div id="hist-list"></div>
+</section>
+
+</main>
+
+<!-- API key modal -->
+<div class="modal" id="keys-modal">
+  <div class="modal-body">
+    <button class="modal-close" onclick="closeKeys()">×</button>
+    <h3>🔑 Bring your own Anthropic key</h3>
+    <p>While we build the hosted subscription, you can use JobFit with your own <b>Claude API key</b> — completely free. Get one at <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a>.</p>
+    <label>Anthropic API key</label>
+    <input type="password" id="api-key" placeholder="sk-ant-…">
+    <p style="font-size:12px;color:var(--muted);margin-top:8px">Stored only in your browser (localStorage). Never sent to us.</p>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+      <button class="btn-ghost" onclick="closeKeys()">Cancel</button>
+      <button class="btn-primary" onclick="saveKey()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// State ---------------------------------------------------------
+const STORE_KEY = 'jobfit.v1';
+const state = {
+  profile: { skills: [], courses: [], certs: [] },
+  history: [],
+  apiKey: '',
+  freeCount: 0,
+};
+function load() {
+  try { Object.assign(state, JSON.parse(localStorage.getItem(STORE_KEY) || '{}')); } catch {}
+  state.profile ||= { skills: [], courses: [], certs: [] };
+  state.profile.skills ||= []; state.profile.courses ||= []; state.profile.certs ||= [];
+}
+function save() { localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+load();
+
+// Navigation ----------------------------------------------------
+function go(v) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.view === v));
+  document.querySelectorAll('.view').forEach(el => el.classList.toggle('active', el.id === 'view-' + v));
+  if (v === 'profile') renderProfile();
+  if (v === 'history') renderHistory();
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => go(t.dataset.view));
+
+// Job input mode toggle ----------------------------------------
+document.querySelectorAll('#job-input-mode button').forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll('#job-input-mode button').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById('job-text-wrap').style.display = b.dataset.mode === 'text' ? 'block' : 'none';
+    document.getElementById('job-url-wrap').style.display = b.dataset.mode === 'url' ? 'block' : 'none';
+  };
+});
+
+// Profile chips -------------------------------------------------
+function renderProfile() {
+  const p = state.profile;
+  ['name','title','years','loc','permit','english','experience','education'].forEach(k => {
+    const el = document.getElementById('p-' + k); if (el && p[k] != null) el.value = p[k];
+  });
+  ['skills','courses','certs'].forEach(k => renderChips(k));
+}
+function renderChips(key) {
+  const box = document.getElementById('chips-' + key);
+  box.innerHTML = '';
+  (state.profile[key] || []).forEach((v, i) => {
+    const chip = document.createElement('div'); chip.className = 'chip';
+    chip.innerHTML = `<span></span><button title="Remove">×</button>`;
+    chip.firstElementChild.textContent = v;
+    chip.lastElementChild.onclick = () => { state.profile[key].splice(i,1); save(); renderChips(key); };
+    box.appendChild(chip);
+  });
+}
+function addChip(key) {
+  const inputMap = { skills: 'skill-input', courses: 'course-input', certs: 'cert-input' };
+  const inp = document.getElementById(inputMap[key]);
+  const v = inp.value.trim(); if (!v) return;
+  (state.profile[key] ||= []).push(v);
+  inp.value = ''; save(); renderChips(key);
+}
+function saveProfile() {
+  const p = state.profile;
+  ['name','title','years','loc','permit','english','experience','education'].forEach(k => {
+    const el = document.getElementById('p-' + k); if (el) p[k] = el.value.trim();
+  });
+  save();
+  toast('Profile saved ✓');
+}
+
+// API keys ------------------------------------------------------
+function openKeys() { document.getElementById('api-key').value = state.apiKey || ''; document.getElementById('keys-modal').classList.add('open'); }
+function closeKeys() { document.getElementById('keys-modal').classList.remove('open'); }
+function saveKey() {
+  state.apiKey = document.getElementById('api-key').value.trim();
+  save(); closeKeys(); toast('Key saved ✓');
+}
+
+// Toast ---------------------------------------------------------
+function toast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 20px;border-radius:8px;z-index:200;font-weight:600;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,0.3)';
+  t.textContent = msg; document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2200);
+}
+
+// Analyze -------------------------------------------------------
+function buy(plan) { window.open('https://easypromptai.net/zoom#buy', '_blank'); }
+
+async function analyze() {
+  if (!state.apiKey) { openKeys(); toast('Add your API key first'); return; }
+  const mode = document.querySelector('#job-input-mode button.active').dataset.mode;
+  const jobText = mode === 'text' ? document.getElementById('job-text').value.trim() : document.getElementById('job-url').value.trim();
+  if (!jobText) { toast('Paste the job first'); return; }
+  const profile = state.profile;
+  if (!profile.experience && !profile.title) { toast('Set up your profile first'); go('profile'); return; }
+
+  const btn = document.getElementById('analyze-btn');
+  btn.disabled = true; btn.innerHTML = '<span class="loader"></span> Analyzing…';
+  document.getElementById('result-wrap').innerHTML = '';
+
+  const context = { profile,
+    jobLocation: document.getElementById('job-loc').value.trim(),
+    salaryExpectation: document.getElementById('job-salary').value.trim(),
+    job: jobText, jobIsUrl: mode === 'url',
+  };
+  try {
+    const result = await callClaude(context);
+    state.history.unshift({ ts: Date.now(), title: result.jobTitle || 'Unknown role', company: result.company || '', score: result.score, verdict: result.verdict, result });
+    if (state.history.length > 100) state.history.length = 100;
+    save();
+    renderResult(result);
+  } catch (e) {
+    document.getElementById('result-wrap').innerHTML = `<div class="result" style="border-color:var(--brand);color:var(--brand)"><b>Error:</b> ${e.message}</div>`;
+  } finally {
+    btn.disabled = false; btn.innerHTML = '🎯 Get my fit score';
+  }
+}
+
+async function callClaude(ctx) {
+  const system = `You are a brutally honest Canadian career advisor. Given a job posting and a candidate profile, produce a realistic fit analysis. Be candid about gaps. Use Canada-specific context (work permit, language, credential recognition, PGWP, LMIA-exempt roles, express entry advantages). Output ONLY valid JSON matching this schema:
+{
+  "jobTitle": string, "company": string, "score": number (0-100),
+  "verdict": "GO" | "MAYBE" | "SKIP",
+  "verdictLine": string (one sentence saying what to do),
+  "explanation": string (2-3 sentences on why the score),
+  "strengths": string[] (3-6 concrete matched strengths),
+  "gaps": string[] (3-6 concrete gaps),
+  "actions": string[] (3-5 specific next steps ranked by impact)
+}`;
+  const user = `CANDIDATE PROFILE:\n${JSON.stringify(ctx.profile, null, 2)}\n\nJOB LOCATION: ${ctx.jobLocation || 'not specified'}\nSALARY EXPECTATION (CAD): ${ctx.salaryExpectation || 'not specified'}\n\nJOB ${ctx.jobIsUrl ? 'URL' : 'DESCRIPTION'}:\n${ctx.job}\n\nProduce the JSON analysis now.`;
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-api-key': state.apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 2048,
+      system,
+      messages: [{ role: 'user', content: user }],
+    }),
+  });
+  if (!res.ok) throw new Error('Claude ' + res.status + ': ' + (await res.text()).slice(0, 200));
+  const data = await res.json();
+  const text = (data.content?.[0]?.text || '').trim();
+  const m = text.match(/\{[\s\S]*\}/); if (!m) throw new Error('AI did not return JSON');
+  return JSON.parse(m[0]);
+}
+
+function renderResult(r) {
+  const badge = r.verdict === 'GO' ? 'go' : r.verdict === 'MAYBE' ? 'wait' : 'skip';
+  const color = badge === 'go' ? 'var(--good)' : badge === 'wait' ? 'var(--warn)' : 'var(--brand)';
+  const label = r.verdict === 'GO' ? 'Apply' : r.verdict === 'MAYBE' ? 'Maybe' : 'Skip';
+  const circ = 2 * Math.PI * 60; const off = circ - (r.score / 100) * circ;
+  document.getElementById('result-wrap').innerHTML = `
+    <div class="result">
+      <div class="score-hero">
+        <div class="score-ring">
+          <svg viewBox="0 0 140 140">
+            <circle cx="70" cy="70" r="60" stroke="var(--line)" stroke-width="14" fill="none"/>
+            <circle cx="70" cy="70" r="60" stroke="${color}" stroke-width="14" fill="none"
+              stroke-dasharray="${circ}" stroke-dashoffset="${off}" stroke-linecap="round"/>
+          </svg>
+          <div class="n"><b>${r.score}</b><s>fit score</s></div>
+        </div>
+        <div class="verdict">
+          <span class="badge ${badge}">${label}</span>
+          <h3>${escapeHtml(r.jobTitle || 'Job')} ${r.company ? '· ' + escapeHtml(r.company) : ''}</h3>
+          <p><b>${escapeHtml(r.verdictLine || '')}</b></p>
+          <p style="margin-top:8px">${escapeHtml(r.explanation || '')}</p>
+        </div>
+      </div>
+      <div class="breakdown">
+        <div class="col strengths"><h4>Your strengths for this role</h4><ul>${(r.strengths || []).map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ul></div>
+        <div class="col gaps"><h4>Gaps you need to close</h4><ul>${(r.gaps || []).map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ul></div>
+      </div>
+      <div class="action-list">
+        <h4>Action plan (ranked by impact)</h4>
+        <ol>${(r.actions || []).map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ol>
+      </div>
+    </div>`;
+  document.getElementById('result-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+
+// History -------------------------------------------------------
+function renderHistory() {
+  const box = document.getElementById('hist-list');
+  if (!state.history.length) {
+    box.innerHTML = `<div class="empty"><div class="icon">📊</div><p>Nothing yet. Analyze your first job to see it here.</p><button class="btn-primary" onclick="go('analyze')">Analyze a job</button></div>`;
+    return;
+  }
+  box.innerHTML = state.history.map((h, i) => {
+    const cls = h.verdict === 'GO' ? 'go' : h.verdict === 'MAYBE' ? 'wait' : 'skip';
+    const d = new Date(h.ts); const when = d.toLocaleDateString() + ' · ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return `<div class="hist-item" onclick="openHist(${i})">
+      <div class="score ${cls}">${h.score}</div>
+      <div style="flex:1"><div class="title">${escapeHtml(h.title)}${h.company ? ' · ' + escapeHtml(h.company) : ''}</div><div class="meta">${when}</div></div>
+      <div style="color:var(--muted)">›</div>
+    </div>`;
+  }).join('');
+}
+function openHist(i) { go('analyze'); renderResult(state.history[i].result); }
+
+// PWA -----------------------------------------------------------
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+
+</body>
+</html>
