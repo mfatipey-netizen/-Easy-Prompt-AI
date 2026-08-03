@@ -1,0 +1,292 @@
+<meta charset="utf-8">
+<title>Zoom Live Subtitles — Brochure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<style>
+  @page { size: A4; margin: 0; }
+  :root {
+    --brand: #4a7bff;
+    --brand-dark: #2d5be6;
+    --ink: #0f172a;
+    --muted: #64748b;
+    --card: #f1f5f9;
+    --line: #e2e8f0;
+    --accent: #10b981;
+    --warn: #ef4444;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #cbd5e1; }
+  body { font-family: 'Vazirmatn', 'Inter', sans-serif; color: var(--ink); }
+  .page {
+    width: 210mm; height: 297mm; background: white; margin: 20px auto;
+    padding: 14mm 14mm 12mm; position: relative; overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    display: flex; flex-direction: column; gap: 6mm;
+  }
+  @media print { body { background: white; } .page { margin: 0; box-shadow: none; } }
+
+  /* Header */
+  .hdr { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid var(--brand); padding-bottom: 5mm; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .logo { width: 52px; height: 52px; border-radius: 12px; background: linear-gradient(135deg, var(--brand), var(--brand-dark)); display: flex; align-items: center; justify-content: center; color: white; font-size: 26px; }
+  .brand-text h1 { margin: 0; font-size: 26px; font-family: 'Inter', sans-serif; font-weight: 800; letter-spacing: -0.5px; }
+  .brand-text .fa { font-size: 15px; color: var(--muted); margin-top: 2px; font-weight: 600; direction: rtl; }
+  .hdr-right { text-align: right; font-size: 11px; color: var(--muted); }
+  .hdr-right .url { color: var(--brand); font-weight: 700; font-family: 'Inter'; font-size: 13px; }
+
+  /* Hero */
+  .hero { text-align: center; padding: 3mm 0 1mm; }
+  .hero .en { font-family: 'Inter'; font-size: 22px; font-weight: 800; color: var(--ink); line-height: 1.25; }
+  .hero .en .accent { color: var(--brand); }
+  .hero .fa { font-size: 18px; margin-top: 5px; color: var(--muted); direction: rtl; font-weight: 600; }
+
+  /* Problem/Solution row */
+  .pain-gain { display: grid; grid-template-columns: 1fr 1fr; gap: 8mm; }
+  .card { background: var(--card); border-radius: 10px; padding: 5mm 6mm; }
+  .card.warn { background: #fef2f2; border-right: 4px solid var(--warn); }
+  .card.win { background: #ecfdf5; border-right: 4px solid var(--accent); }
+  .card h3 { margin: 0 0 3mm; font-size: 13px; font-family: 'Inter'; text-transform: uppercase; letter-spacing: 1px; }
+  .card.warn h3 { color: var(--warn); }
+  .card.win h3 { color: var(--accent); }
+  .card .en { font-size: 12.5px; font-family: 'Inter'; line-height: 1.5; margin-bottom: 2mm; }
+  .card .fa { font-size: 11.5px; color: var(--muted); line-height: 1.7; direction: rtl; }
+
+  /* Features */
+  .features { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4mm; }
+  .feat { text-align: center; padding: 4mm 2mm; background: white; border: 1px solid var(--line); border-radius: 10px; }
+  .feat .icon { font-size: 24px; margin-bottom: 2mm; }
+  .feat .num { font-family: 'Inter'; font-weight: 800; font-size: 20px; color: var(--brand); }
+  .feat .lbl { font-size: 10.5px; font-family: 'Inter'; margin-top: 1mm; font-weight: 600; }
+  .feat .fa { font-size: 10px; color: var(--muted); direction: rtl; margin-top: 1mm; }
+
+  /* How it works */
+  .how { background: var(--ink); color: white; border-radius: 12px; padding: 5mm 6mm; }
+  .how h3 { margin: 0 0 3mm; font-size: 13px; font-family: 'Inter'; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; }
+  .how h3 .fa { color: #94a3b8; font-size: 12px; margin-right: 6px; direction: rtl; }
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4mm; }
+  .step { position: relative; padding-right: 4mm; }
+  .step .n { position: absolute; right: -2mm; top: -3mm; font-family: 'Inter'; font-weight: 800; font-size: 42px; color: rgba(255,255,255,0.08); line-height: 1; }
+  .step .t { font-size: 11.5px; font-family: 'Inter'; font-weight: 700; }
+  .step .fa { font-size: 10.5px; color: #cbd5e1; direction: rtl; margin-top: 1mm; }
+
+  /* Pricing + CTA */
+  .bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; align-items: stretch; }
+  .pricing { background: linear-gradient(135deg, #eff6ff, #dbeafe); border-radius: 10px; padding: 5mm; }
+  .pricing h3 { margin: 0 0 3mm; font-size: 12px; font-family: 'Inter'; text-transform: uppercase; letter-spacing: 1px; color: var(--brand-dark); }
+  .plan { display: flex; justify-content: space-between; align-items: baseline; padding: 2mm 0; border-bottom: 1px dashed rgba(74,123,255,0.25); font-family: 'Inter'; }
+  .plan:last-child { border: 0; }
+  .plan .name { font-weight: 700; font-size: 12.5px; }
+  .plan .desc { font-size: 10px; color: var(--muted); }
+  .plan .price { font-weight: 800; color: var(--brand-dark); font-size: 13px; }
+  .cta { background: var(--brand); color: white; border-radius: 10px; padding: 5mm; display: flex; align-items: center; gap: 4mm; }
+  .qr-box { background: white; padding: 3mm; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .qr-box canvas, .qr-box img { display: block; width: 28mm !important; height: 28mm !important; }
+  .cta-text { flex: 1; }
+  .cta-text .en { font-family: 'Inter'; font-weight: 700; font-size: 14px; }
+  .cta-text .fa { font-size: 12px; margin-top: 2mm; direction: rtl; }
+  .cta-text .url { display: block; margin-top: 2mm; font-family: 'Inter'; font-size: 11px; opacity: 0.85; }
+
+  /* Languages */
+  .langs { border-top: 2px solid var(--line); padding-top: 4mm; }
+  .langs h3 { margin: 0 0 3mm; font-size: 11px; font-family: 'Inter'; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); text-align: center; }
+  .langs h3 .fa { direction: rtl; margin-right: 4px; }
+  .flags { display: flex; justify-content: center; flex-wrap: wrap; gap: 3mm; font-size: 17px; }
+  .flags span { padding: 1mm 2mm; }
+
+  /* Multi-language QR row */
+  .lang-qrs { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3mm; margin-top: 3mm; }
+  .lang-qr { text-align: center; }
+  .lang-qr .box { background: var(--card); border-radius: 6px; padding: 1.5mm; margin: 0 auto; width: 16mm; height: 16mm; display: flex; align-items: center; justify-content: center; }
+  .lang-qr .box canvas, .lang-qr .box img { width: 13mm !important; height: 13mm !important; }
+  .lang-qr .lbl { font-size: 9px; margin-top: 1mm; font-family: 'Inter'; color: var(--muted); font-weight: 600; }
+
+  /* Footer */
+  .foot { text-align: center; font-size: 10px; color: var(--muted); font-family: 'Inter'; padding-top: 2mm; border-top: 1px solid var(--line); margin-top: auto; }
+  .foot .heart { color: var(--warn); }
+</style>
+
+<div class="page">
+
+  <div class="hdr">
+    <div class="brand">
+      <div class="logo">🎧</div>
+      <div class="brand-text">
+        <h1>Zoom Live Subtitles</h1>
+        <div class="fa">زیرنویس زندهٔ جلسات زوم</div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <div class="url">easypromptai.net/zoom</div>
+      <div style="margin-top:2px">v0.2 · Windows 11</div>
+    </div>
+  </div>
+
+  <div class="hero">
+    <div class="en">Real-time captions in <span class="accent">14 languages</span>, on <span class="accent">any</span> Zoom meeting</div>
+    <div class="fa">زیرنویس زنده به ۱۴ زبان، روی هر جلسهٔ زوم — بدون نیاز به تنظیمات میزبان</div>
+  </div>
+
+  <div class="pain-gain">
+    <div class="card warn">
+      <h3>The problem &nbsp;·&nbsp; مشکل</h3>
+      <div class="en">Zoom's Live Translation is locked behind a paid AI Companion license, and only the meeting host can enable it. When your host hasn't, you're stuck.</div>
+      <div class="fa">ترجمهٔ زندهٔ زوم فقط با اشتراک پولی AI Companion فعال می‌شود و باید میزبان جلسه آن را روشن کند. وقتی روشن نکرده، کاری از دست‌ات برنمی‌آید.</div>
+    </div>
+    <div class="card win">
+      <h3>Our solution &nbsp;·&nbsp; راه‌حل ما</h3>
+      <div class="en">A tiny Windows app that reads Zoom's audio from your own speakers, transcribes with Deepgram Nova-3, and translates with Claude AI — completely independent of the host.</div>
+      <div class="fa">یک اپ کوچک ویندوز که صدای زوم را از بلندگوهای خودت می‌گیرد، با Deepgram متن می‌کند و با Claude ترجمه می‌کند — کاملاً مستقل از میزبان جلسه.</div>
+    </div>
+  </div>
+
+  <div class="features">
+    <div class="feat">
+      <div class="icon">⚡</div>
+      <div class="num">~1s</div>
+      <div class="lbl">End-to-end latency</div>
+      <div class="fa">تأخیر کل</div>
+    </div>
+    <div class="feat">
+      <div class="icon">🌍</div>
+      <div class="num">14×14</div>
+      <div class="lbl">Source × target languages</div>
+      <div class="fa">زبان مبدأ و مقصد</div>
+    </div>
+    <div class="feat">
+      <div class="icon">🎯</div>
+      <div class="num">Any host</div>
+      <div class="lbl">Works on every Zoom call</div>
+      <div class="fa">روی هر جلسه‌ای</div>
+    </div>
+    <div class="feat">
+      <div class="icon">🔒</div>
+      <div class="num">0 stored</div>
+      <div class="lbl">Audio never saved</div>
+      <div class="fa">صدا ذخیره نمی‌شود</div>
+    </div>
+  </div>
+
+  <div class="how">
+    <h3>How it works &nbsp;<span class="fa">· چطور کار می‌کند</span></h3>
+    <div class="steps">
+      <div class="step">
+        <div class="n">1</div>
+        <div class="t">Capture</div>
+        <div class="fa">صدای زوم از بلندگو گرفته می‌شود (WASAPI loopback)</div>
+      </div>
+      <div class="step">
+        <div class="n">2</div>
+        <div class="t">Transcribe</div>
+        <div class="fa">Deepgram Nova-3 صدا را به متن تبدیل می‌کند</div>
+      </div>
+      <div class="step">
+        <div class="n">3</div>
+        <div class="t">Translate</div>
+        <div class="fa">Claude Haiku 4.5 به زبان مقصدت ترجمه می‌کند</div>
+      </div>
+      <div class="step">
+        <div class="n">4</div>
+        <div class="t">Overlay</div>
+        <div class="fa">زیرنویس روی یک overlay شفاف بالای زوم می‌نشیند</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom">
+    <div class="pricing">
+      <h3>Pricing &nbsp;·&nbsp; قیمت</h3>
+      <div class="plan">
+        <div>
+          <div class="name">Free — BYOK</div>
+          <div class="desc">Your own Deepgram + Claude keys · با کلید‌های خودت</div>
+        </div>
+        <div class="price">$0</div>
+      </div>
+      <div class="plan">
+        <div>
+          <div class="name">Starter</div>
+          <div class="desc">10 hours pay-as-you-go · ۱۰ ساعت بسته‌ای</div>
+        </div>
+        <div class="price">$15</div>
+      </div>
+      <div class="plan">
+        <div>
+          <div class="name">Pro monthly</div>
+          <div class="desc">20 hours per month · ۲۰ ساعت ماهانه</div>
+        </div>
+        <div class="price">$19/mo</div>
+      </div>
+      <div class="plan">
+        <div>
+          <div class="name">Pay with</div>
+          <div class="desc">PayPal · USDT (TRC20/ERC20/BEP20/ARB)</div>
+        </div>
+        <div class="price" style="font-size:11px">💳 ₮</div>
+      </div>
+    </div>
+
+    <div class="cta">
+      <div class="qr-box"><div id="qr-main"></div></div>
+      <div class="cta-text">
+        <div class="en">Download now</div>
+        <div class="fa">همین حالا دانلود کن</div>
+        <div class="url">easypromptai.net/zoom</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="langs">
+    <h3>Read this brochure in your language &nbsp;<span class="fa">· این بروشور را به زبان خودت بخوان</span></h3>
+    <div class="lang-qrs" id="lang-qrs"></div>
+  </div>
+
+  <div class="foot">
+    Made with <span class="heart">♥</span> by Easy Prompt AI &nbsp;·&nbsp; easypromptai.net &nbsp;·&nbsp; © 2026
+  </div>
+
+</div>
+
+<script>
+  const BASE = 'https://easypromptai.net/zoom';
+  const QR_OPTS = { correctLevel: QRCode.CorrectLevel.M };
+
+  new QRCode(document.getElementById('qr-main'), {
+    text: BASE, width: 128, height: 128,
+    colorDark: '#0f172a', colorLight: '#ffffff', ...QR_OPTS
+  });
+
+  const LANGS = [
+    { code: 'en', flag: '🇬🇧', label: 'English' },
+    { code: 'zh', flag: '🇨🇳', label: '中文' },
+    { code: 'ru', flag: '🇷🇺', label: 'Русский' },
+    { code: 'ar', flag: '🇸🇦', label: 'العربية' },
+    { code: 'tr', flag: '🇹🇷', label: 'Türkçe' },
+    { code: 'fr', flag: '🇫🇷', label: 'Français' },
+    { code: 'it', flag: '🇮🇹', label: 'Italiano' },
+    { code: 'de', flag: '🇩🇪', label: 'Deutsch' },
+    { code: 'es', flag: '🇪🇸', label: 'Español' },
+    { code: 'ja', flag: '🇯🇵', label: '日本語' },
+    { code: 'ko', flag: '🇰🇷', label: '한국어' },
+    { code: 'pt', flag: '🇵🇹', label: 'Português' },
+    { code: 'hi', flag: '🇮🇳', label: 'हिन्दी' },
+    { code: 'fa', flag: '🇮🇷', label: 'فارسی' },
+  ];
+  const grid = document.getElementById('lang-qrs');
+  LANGS.forEach(l => {
+    const cell = document.createElement('div');
+    cell.className = 'lang-qr';
+    const box = document.createElement('div');
+    box.className = 'box';
+    const qr = document.createElement('div');
+    box.appendChild(qr);
+    const lbl = document.createElement('div');
+    lbl.className = 'lbl';
+    lbl.innerHTML = l.flag + ' ' + l.label;
+    cell.appendChild(box);
+    cell.appendChild(lbl);
+    grid.appendChild(cell);
+    new QRCode(qr, { text: BASE + '/brochure/' + l.code + '.pdf', width: 60, height: 60,
+      colorDark: '#0f172a', colorLight: '#f1f5f9', ...QR_OPTS });
+  });
+</script>

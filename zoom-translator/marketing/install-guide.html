@@ -1,0 +1,247 @@
+<meta charset="utf-8">
+<title>Zoom Live Subtitles — Install Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<style>
+  @page { size: A4; margin: 0; }
+  :root { --brand: #4a7bff; --brand-dark: #2d5be6; --ink: #0f172a; --muted: #64748b;
+    --card: #f1f5f9; --line: #e2e8f0; --accent: #10b981; --warn: #ef4444; --warm: #f59e0b; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #cbd5e1; }
+  body { font-family: 'Vazirmatn', 'Inter', sans-serif; color: var(--ink); }
+  .page { width: 210mm; min-height: 297mm; background: white; margin: 20px auto;
+    padding: 12mm 14mm; position: relative; overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15); display: flex; flex-direction: column; gap: 5mm; }
+  @media print { body { background: white; } .page { margin: 0; box-shadow: none; } }
+
+  .hdr { display: flex; justify-content: space-between; align-items: flex-start;
+    border-bottom: 3px solid var(--brand); padding-bottom: 4mm; }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .logo { width: 46px; height: 46px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+    display: flex; align-items: center; justify-content: center; color: white; font-size: 22px; }
+  .brand-text h1 { margin: 0; font-family: 'Inter'; font-size: 20px; font-weight: 800; }
+  .brand-text .sub { font-size: 13px; color: var(--brand); font-weight: 700; font-family: 'Inter'; margin-top: 1px; }
+  .brand-text .fa { font-size: 12px; color: var(--muted); direction: rtl; margin-top: 2px; }
+  .hdr-right { text-align: right; font-size: 10.5px; color: var(--muted); font-family: 'Inter'; }
+  .hdr-right .url { color: var(--brand); font-weight: 700; font-size: 12px; }
+
+  .intro { font-size: 12px; color: var(--muted); text-align: center; direction: rtl; padding: 0 4mm; }
+  .intro .en { font-family: 'Inter'; direction: ltr; margin-top: 2mm; }
+
+  .steps { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .step { background: var(--card); border-radius: 10px; padding: 4mm 5mm; position: relative; overflow: hidden; }
+  .step .n { position: absolute; left: 4mm; top: 3mm; width: 20px; height: 20px; border-radius: 50%;
+    background: var(--brand); color: white; font-family: 'Inter'; font-weight: 800; font-size: 12px;
+    display: flex; align-items: center; justify-content: center; }
+  .step h3 { margin: 0 0 2mm 8mm; font-family: 'Inter'; font-size: 13px; font-weight: 800; }
+  .step .fa-t { margin-right: 8mm; font-size: 12px; font-weight: 700; color: var(--muted); direction: rtl; margin-bottom: 2mm; }
+  .step .en { font-family: 'Inter'; font-size: 10.5px; line-height: 1.5; margin-bottom: 2mm; }
+  .step .fa { font-size: 10.5px; line-height: 1.65; direction: rtl; color: var(--muted); }
+  .step.warn-step { background: #fef3c7; border-right: 4px solid var(--warm); }
+  .step.warn-step .n { background: var(--warm); }
+  .step code { background: white; padding: 1px 5px; border-radius: 4px; font-family: 'Inter', monospace;
+    font-size: 10px; color: var(--brand-dark); border: 1px solid var(--line); }
+
+  .tip { background: linear-gradient(135deg, #dbeafe, #eff6ff); border-radius: 10px; padding: 4mm 5mm; display: flex; gap: 4mm; align-items: center; }
+  .tip .icon { font-size: 28px; }
+  .tip .en { font-family: 'Inter'; font-size: 11.5px; line-height: 1.5; font-weight: 600; }
+  .tip .fa { font-size: 11px; line-height: 1.6; direction: rtl; color: var(--muted); margin-top: 1mm; }
+
+  .trouble { background: white; border: 2px solid var(--line); border-radius: 10px; padding: 4mm 5mm; }
+  .trouble h3 { margin: 0 0 2mm; font-family: 'Inter'; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--warn); }
+  .trouble h3 .fa { color: var(--warn); direction: rtl; margin-right: 5px; font-size: 11px; }
+  .trouble .row { display: flex; gap: 3mm; padding: 2mm 0; border-bottom: 1px dashed var(--line); font-size: 10.5px; }
+  .trouble .row:last-child { border: 0; }
+  .trouble .q { flex: 1; font-family: 'Inter'; font-weight: 700; }
+  .trouble .q .fa { display: block; color: var(--muted); font-weight: 400; direction: rtl; margin-top: 1mm; font-family: 'Vazirmatn'; }
+  .trouble .a { flex: 1.5; font-family: 'Inter'; }
+  .trouble .a .fa { display: block; color: var(--muted); direction: rtl; margin-top: 1mm; font-family: 'Vazirmatn'; }
+
+  .cta-row { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin-top: auto; }
+  .cta { background: var(--ink); color: white; border-radius: 10px; padding: 4mm; display: flex; gap: 4mm; align-items: center; }
+  .cta .qr-box { background: white; padding: 2mm; border-radius: 6px; }
+  .cta .qr-box canvas, .cta .qr-box img { width: 22mm !important; height: 22mm !important; display: block; }
+  .cta .t { flex: 1; }
+  .cta .t .en { font-family: 'Inter'; font-weight: 800; font-size: 12.5px; }
+  .cta .t .fa { font-size: 11.5px; direction: rtl; color: #cbd5e1; margin-top: 1mm; }
+  .cta .t .url { display: block; margin-top: 2mm; font-family: 'Inter'; font-size: 10px; color: var(--brand); }
+
+  .langs { text-align: center; border-top: 1px solid var(--line); padding-top: 3mm; margin-top: 2mm; }
+  .langs h4 { margin: 0 0 2mm; font-family: 'Inter'; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+  .langs h4 .fa { direction: rtl; margin-right: 4px; }
+  .lang-qrs { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2mm; }
+  .lang-qr { text-align: center; }
+  .lang-qr .box { background: var(--card); border-radius: 5px; padding: 1mm; margin: 0 auto; width: 14mm; height: 14mm; display: flex; align-items: center; justify-content: center; }
+  .lang-qr .box canvas, .lang-qr .box img { width: 12mm !important; height: 12mm !important; }
+  .lang-qr .lbl { font-size: 8.5px; margin-top: 1mm; font-family: 'Inter'; color: var(--muted); font-weight: 600; }
+
+  .foot { text-align: center; font-size: 9.5px; color: var(--muted); font-family: 'Inter'; padding-top: 2mm; }
+</style>
+
+<div class="page">
+
+  <div class="hdr">
+    <div class="brand">
+      <div class="logo">🎧</div>
+      <div class="brand-text">
+        <h1>Zoom Live Subtitles</h1>
+        <div class="sub">Install & setup guide</div>
+        <div class="fa">راهنمای نصب و راه‌اندازی</div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <div class="url">easypromptai.net/zoom</div>
+      <div style="margin-top:2px">v0.2 · Windows 10 / 11</div>
+    </div>
+  </div>
+
+  <div class="intro">
+    ۵ دقیقه از دانلود تا اولین زیرنویس فارسی روی جلسهٔ زوم. با هدفون کار می‌کند و مستقل از میزبان جلسه است.
+    <div class="en">Five minutes from download to your first live Persian subtitle on a Zoom call. Works with headphones and is independent of the meeting host.</div>
+  </div>
+
+  <div class="steps">
+
+    <div class="step">
+      <div class="n">1</div>
+      <h3>Download the installer</h3>
+      <div class="fa-t">نصب‌کننده را دانلود کن</div>
+      <div class="en">Scan the QR code at the bottom or open <code>easypromptai.net/zoom</code>. Save <code>ZoomLiveSubtitles-Setup.exe</code> to your Downloads folder.</div>
+      <div class="fa">QR پایین صفحه را اسکن کن یا آدرس <code>easypromptai.net/zoom</code> را در مرورگر باز کن. فایل <code>ZoomLiveSubtitles-Setup.exe</code> را در پوشهٔ Downloads ذخیره کن.</div>
+    </div>
+
+    <div class="step warn-step">
+      <div class="n">2</div>
+      <h3>Bypass Windows SmartScreen</h3>
+      <div class="fa-t">هشدار SmartScreen را رد کن</div>
+      <div class="en">Double-click the <code>.exe</code>. Windows may show <b>"Windows protected your PC"</b> because the file isn't code-signed. Click <b>More info → Run anyway</b>.</div>
+      <div class="fa">روی <code>.exe</code> دو بار کلیک کن. ویندوز ممکن است بگوید <b>«Windows protected your PC»</b>. روی <b>More info → Run anyway</b> بزن.</div>
+    </div>
+
+    <div class="step">
+      <div class="n">3</div>
+      <h3>Install</h3>
+      <div class="fa-t">نصب</div>
+      <div class="en">The wizard opens. Accept the default path (or change it), keep <b>Desktop shortcut</b> checked, click <b>Install</b>. Takes ~20 seconds.</div>
+      <div class="fa">Wizard باز می‌شود. مسیر پیش‌فرض را قبول کن، تیک <b>Desktop shortcut</b> فعال باشد، <b>Install</b> را بزن. حدود ۲۰ ثانیه طول می‌کشد.</div>
+    </div>
+
+    <div class="step">
+      <div class="n">4</div>
+      <h3>Enter your keys</h3>
+      <div class="fa-t">کلیدهای API را وارد کن</div>
+      <div class="en">On first launch, the Settings window opens. Paste your <b>Deepgram</b> key and <b>Anthropic</b> (Claude) key. Or paste your <b>subscription code</b> from easypromptai.net/zoom.</div>
+      <div class="fa">اولین بار، پنجرهٔ Settings باز می‌شود. کلید <b>Deepgram</b> و کلید <b>Anthropic</b> را paste کن. یا اگر <b>کد اشتراک</b> خریده‌ای، آن را وارد کن.</div>
+    </div>
+
+    <div class="step">
+      <div class="n">5</div>
+      <h3>Pick source & target</h3>
+      <div class="fa-t">زبان مبدأ و مقصد را انتخاب کن</div>
+      <div class="en">Choose what your meeting is <b>in</b> (source) and what you want the subtitles <b>in</b> (target). 14 languages both sides.</div>
+      <div class="fa">جلسه‌ات به چه زبانی است (مبدأ) و زیرنویس را به چه زبانی می‌خواهی (مقصد). ۱۴ زبان در هر طرف.</div>
+    </div>
+
+    <div class="step">
+      <div class="n">6</div>
+      <h3>Open Zoom & Start</h3>
+      <div class="fa-t">زوم را باز کن و «شروع» را بزن</div>
+      <div class="en">Join your meeting. On the overlay, click <b>Start</b>. Windows asks what to share — pick <b>Entire screen</b> and <b>tick "Share system audio"</b>. Subtitles appear in ~1 second.</div>
+      <div class="fa">وارد جلسه شو. روی overlay دکمهٔ <b>شروع</b> را بزن. ویندوز می‌پرسد چه چیز share شود — <b>Entire screen</b> را انتخاب کن و حتماً تیک <b>Share system audio</b> را بزن. زیرنویس تا ۱ ثانیه ظاهر می‌شود.</div>
+    </div>
+
+  </div>
+
+  <div class="tip">
+    <div class="icon">💡</div>
+    <div>
+      <div class="en">Add the app to Windows Startup so it launches with your PC: Win+R → <code>shell:startup</code> → drop a shortcut of Zoom Live Subtitles into that folder.</div>
+      <div class="fa">اپ را به Startup ویندوز اضافه کن تا با هر بار روشن‌شدن سیستم خودکار بالا بیاید: Win+R → <code>shell:startup</code> → یک shortcut از اپ را داخل آن پوشه بگذار.</div>
+    </div>
+  </div>
+
+  <div class="trouble">
+    <h3>Troubleshooting &nbsp;<span class="fa">· عیب‌یابی</span></h3>
+    <div class="row">
+      <div class="q">"No audio track found"<div class="fa">«هیچ ترک صوتی پیدا نشد»</div></div>
+      <div class="a">You forgot to tick <b>Share system audio</b> when Windows asked. Click Stop, click Start again, and tick it this time.<div class="fa">تیک <b>Share system audio</b> را نزده‌ای. Stop بزن، دوباره Start بزن و این‌بار تیک بزن.</div></div>
+    </div>
+    <div class="row">
+      <div class="q">Nothing appears<div class="fa">هیچ‌ چیز ظاهر نمی‌شود</div></div>
+      <div class="a">Zoom might be silent, or the wrong output device is selected in Zoom's audio settings. Also check Windows volume mixer.<div class="fa">شاید Zoom بی‌صداست یا device اشتباهی برای خروجی در Zoom انتخاب شده. Volume Mixer ویندوز را هم چک کن.</div></div>
+    </div>
+    <div class="row">
+      <div class="q">Deepgram disconnected<div class="fa">اتصال Deepgram قطع شد</div></div>
+      <div class="a">Your Deepgram key is invalid or the account credit is empty. Log in at console.deepgram.com to check.<div class="fa">کلید Deepgram اعتبار ندارد. در console.deepgram.com چک کن.</div></div>
+    </div>
+    <div class="row">
+      <div class="q">Subtitles are lagging<div class="fa">زیرنویس عقب افتاده است</div></div>
+      <div class="a">Slow internet. Switch to a different Wi-Fi or use ethernet. Latency below 1.5s needs a stable connection.<div class="fa">اینترنت کند است. Wi-Fi را عوض کن یا از کابل استفاده کن.</div></div>
+    </div>
+  </div>
+
+  <div class="cta-row">
+    <div class="cta">
+      <div class="qr-box"><div id="qr-download"></div></div>
+      <div class="t">
+        <div class="en">Download the installer</div>
+        <div class="fa">دانلود فایل نصب</div>
+        <div class="url">easypromptai.net/zoom</div>
+      </div>
+    </div>
+    <div class="cta" style="background:var(--brand)">
+      <div class="qr-box"><div id="qr-buy"></div></div>
+      <div class="t">
+        <div class="en">Buy a subscription</div>
+        <div class="fa">خرید اشتراک (PayPal · USDT)</div>
+        <div class="url" style="color:#dbeafe">easypromptai.net/zoom#buy</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="langs">
+    <h4>Read this guide in your language &nbsp;<span class="fa">· این راهنما را به زبان خودت بخوان</span></h4>
+    <div class="lang-qrs" id="lang-qrs"></div>
+  </div>
+
+  <div class="foot">
+    Made with ♥ by Easy Prompt AI &nbsp;·&nbsp; easypromptai.net &nbsp;·&nbsp; © 2026
+  </div>
+
+</div>
+
+<script>
+  const BASE = 'https://easypromptai.net/zoom';
+  const QR_OPTS = { correctLevel: QRCode.CorrectLevel.M };
+  new QRCode(document.getElementById('qr-download'), { text: BASE, width: 100, height: 100, colorDark: '#0f172a', colorLight: '#ffffff', ...QR_OPTS });
+  new QRCode(document.getElementById('qr-buy'), { text: BASE + '#buy', width: 100, height: 100, colorDark: '#ffffff', colorLight: '#4a7bff', ...QR_OPTS });
+
+  const LANGS = [
+    { code: 'en', flag: '🇬🇧', label: 'English' },
+    { code: 'zh', flag: '🇨🇳', label: '中文' },
+    { code: 'ru', flag: '🇷🇺', label: 'Русский' },
+    { code: 'ar', flag: '🇸🇦', label: 'العربية' },
+    { code: 'tr', flag: '🇹🇷', label: 'Türkçe' },
+    { code: 'fr', flag: '🇫🇷', label: 'Français' },
+    { code: 'it', flag: '🇮🇹', label: 'Italiano' },
+    { code: 'de', flag: '🇩🇪', label: 'Deutsch' },
+    { code: 'es', flag: '🇪🇸', label: 'Español' },
+    { code: 'ja', flag: '🇯🇵', label: '日本語' },
+    { code: 'ko', flag: '🇰🇷', label: '한국어' },
+    { code: 'pt', flag: '🇵🇹', label: 'Português' },
+    { code: 'hi', flag: '🇮🇳', label: 'हिन्दी' },
+    { code: 'fa', flag: '🇮🇷', label: 'فارسی' },
+  ];
+  const grid = document.getElementById('lang-qrs');
+  LANGS.forEach(l => {
+    const cell = document.createElement('div'); cell.className = 'lang-qr';
+    const box = document.createElement('div'); box.className = 'box';
+    const qr = document.createElement('div'); box.appendChild(qr);
+    const lbl = document.createElement('div'); lbl.className = 'lbl';
+    lbl.innerHTML = l.flag + ' ' + l.label;
+    cell.appendChild(box); cell.appendChild(lbl); grid.appendChild(cell);
+    new QRCode(qr, { text: BASE + '/install/' + l.code + '.pdf', width: 55, height: 55, colorDark: '#0f172a', colorLight: '#f1f5f9', ...QR_OPTS });
+  });
+</script>
