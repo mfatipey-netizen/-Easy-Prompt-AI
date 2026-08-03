@@ -1,8 +1,13 @@
-# Zoom Persian Subtitles
+# Zoom Live Subtitles
 
-زیرنویس فارسی زندهٔ جلسات Zoom روی ویندوز ۱۱ — صدای سیستم را loopback می‌گیرد، با
-Deepgram Nova-3 متن انگلیسی را استخراج می‌کند، با Claude Haiku 4.5 به فارسی ترجمه
-می‌کند، و روی یک overlay شفاف always-on-top نمایش می‌دهد.
+Real-time multilingual subtitle overlay for Zoom on Windows.
+Captures system loopback audio, transcribes with Deepgram Nova-3/Nova-2,
+translates with Claude Haiku 4.5, and shows live captions on a
+transparent always-on-top overlay.
+
+**۱۴ زبان مبدأ / ۱۴ زبان مقصد:**
+English · فارسی · 中文 · Русский · العربية · Türkçe · Français · Italiano ·
+Deutsch · Español · 日本語 · 한국어 · Português · हिन्दी · Nederlands
 
 مستقل از تنظیمات میزبان جلسه کار می‌کند (به فعال بودن Live Translation در حساب
 Zoom میزبان نیازی نیست).

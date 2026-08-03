@@ -1,7 +1,7 @@
 {
   "name": "zoom-translator",
-  "version": "0.1.0",
-  "description": "Real-time Persian subtitles overlay for Zoom (Windows). Loopback audio → Deepgram STT → Claude translation → RTL captions.",
+  "version": "0.2.0",
+  "description": "Real-time multilingual subtitle overlay for Zoom (Windows). Loopback audio → Deepgram STT → Claude translation → live captions in 14 languages.",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -16,11 +16,11 @@
   },
   "build": {
     "appId": "net.easypromptai.zoomtranslator",
-    "productName": "Zoom Persian Subtitles",
+    "productName": "Zoom Live Subtitles",
     "files": ["main.js", "preload.js", "src/**/*", "package.json"],
     "win": {
       "target": ["nsis"],
-      "artifactName": "ZoomPersianSubtitles-Setup-${version}.${ext}"
+      "artifactName": "ZoomLiveSubtitles-Setup-${version}.${ext}"
     }
   }
 }

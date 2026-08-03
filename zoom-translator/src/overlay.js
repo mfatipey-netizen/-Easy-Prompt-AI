@@ -19,6 +19,7 @@ const HISTORY_MAX = 3;
 const history = [];  // {text, id}
 let interimLine = null;
 
+const RTL_LANGS = new Set(['fa', 'ar', 'he', 'ur']);
 function applyStyle() {
   document.documentElement.style.setProperty('--fs', (cfg.fontSize || 28) + 'px');
   document.documentElement.style.setProperty('--fg', cfg.textColor || '#ffffff');
@@ -26,6 +27,8 @@ function applyStyle() {
   const op = (cfg.opacity == null ? 0.75 : cfg.opacity);
   const rgb = hexToRgb(bg);
   document.documentElement.style.setProperty('--bg', `rgba(${rgb.r},${rgb.g},${rgb.b},${op})`);
+  const target = cfg.targetLang || 'fa';
+  captionsEl.style.direction = RTL_LANGS.has(target) ? 'rtl' : 'ltr';
 }
 function hexToRgb(hex) {
   const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex || '#000000');
@@ -159,10 +162,15 @@ function float32ToInt16(f32) {
 }
 
 // ─── Deepgram streaming ─────────────────────────────────────────────────────
+// Deepgram model selection per language
+const NOVA3_LANGS = new Set(['en', 'es', 'multi']);
+function pickModel(lang) { return NOVA3_LANGS.has(lang) ? 'nova-3' : 'nova-2'; }
+
 async function openDeepgram() {
+  const lang = cfg.sourceLang || 'en';
   const params = new URLSearchParams({
-    model: 'nova-3',
-    language: cfg.sourceLang || 'en',
+    model: pickModel(lang),
+    language: lang,
     smart_format: 'true',
     interim_results: 'true',
     utterance_end_ms: '1000',
@@ -232,6 +240,15 @@ async function translateAndPush(english) {
   translating = false;
 }
 
+const LANG_NAMES = {
+  en: 'English', fa: 'Persian (Farsi)', zh: 'Chinese (Simplified)', ru: 'Russian',
+  ar: 'Modern Standard Arabic', tr: 'Turkish', fr: 'French', it: 'Italian',
+  de: 'German', es: 'Spanish', ja: 'Japanese', ko: 'Korean', pt: 'Portuguese',
+  nl: 'Dutch', hi: 'Hindi',
+};
+function sourceName() { return LANG_NAMES[cfg.sourceLang] || 'the source language'; }
+function targetName() { return LANG_NAMES[cfg.targetLang || 'fa'] || 'Persian (Farsi)'; }
+
 async function callClaude(text) {
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -244,7 +261,7 @@ async function callClaude(text) {
     body: JSON.stringify({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 512,
-      system: 'You are a live simultaneous interpreter. Translate the user\'s English (a live meeting transcript fragment) into natural, conversational Persian (Farsi). Output ONLY the Persian translation as a single line. Do not add explanations, quotes, or English words. If the input is empty or non-speech, output an empty line.',
+      system: `You are a live simultaneous interpreter. Translate the user's ${sourceName()} (a live meeting transcript fragment) into natural, conversational ${targetName()}. Output ONLY the ${targetName()} translation as a single line. Do not add explanations, quotes, transliteration, or source-language words. If the input is empty or non-speech, output an empty line.`,
       messages: [{ role: 'user', content: text }],
     }),
   });

@@ -27,16 +27,39 @@
 
 <label>زبان مبدأ (چیزی که می‌شنوی)</label>
 <select id="sourceLang">
-  <option value="en">انگلیسی</option>
-  <option value="multi">چندزبانه (تشخیص خودکار)</option>
-  <option value="es">اسپانیایی</option>
-  <option value="fr">فرانسه</option>
-  <option value="de">آلمانی</option>
-  <option value="ar">عربی</option>
-  <option value="tr">ترکی</option>
-  <option value="ru">روسی</option>
-  <option value="zh">چینی</option>
-  <option value="ja">ژاپنی</option>
+  <option value="en">🇬🇧 انگلیسی</option>
+  <option value="multi">🌐 چندزبانه (تشخیص خودکار)</option>
+  <option value="zh">🇨🇳 چینی</option>
+  <option value="ru">🇷🇺 روسی</option>
+  <option value="ar">🇸🇦 عربی</option>
+  <option value="tr">🇹🇷 ترکی</option>
+  <option value="fr">🇫🇷 فرانسه</option>
+  <option value="it">🇮🇹 ایتالیایی</option>
+  <option value="de">🇩🇪 آلمانی</option>
+  <option value="es">🇪🇸 اسپانیایی</option>
+  <option value="ja">🇯🇵 ژاپنی</option>
+  <option value="ko">🇰🇷 کره‌ای</option>
+  <option value="pt">🇵🇹 پرتغالی</option>
+  <option value="nl">🇳🇱 هلندی</option>
+  <option value="hi">🇮🇳 هندی</option>
+</select>
+
+<label>زبان مقصد (زیرنویسی که می‌بینی)</label>
+<select id="targetLang">
+  <option value="fa">🇮🇷 فارسی</option>
+  <option value="en">🇬🇧 English</option>
+  <option value="zh">🇨🇳 中文 (چینی)</option>
+  <option value="ru">🇷🇺 Русский (روسی)</option>
+  <option value="ar">🇸🇦 العربية (عربی)</option>
+  <option value="tr">🇹🇷 Türkçe (ترکی)</option>
+  <option value="fr">🇫🇷 Français (فرانسه)</option>
+  <option value="it">🇮🇹 Italiano (ایتالیایی)</option>
+  <option value="de">🇩🇪 Deutsch (آلمانی)</option>
+  <option value="es">🇪🇸 Español (اسپانیایی)</option>
+  <option value="ja">🇯🇵 日本語 (ژاپنی)</option>
+  <option value="ko">🇰🇷 한국어 (کره‌ای)</option>
+  <option value="pt">🇵🇹 Português (پرتغالی)</option>
+  <option value="hi">🇮🇳 हिन्दी (هندی)</option>
 </select>
 
 <div class="row">
@@ -72,6 +95,7 @@ async function load() {
   document.getElementById('deepgramKey').value = cfg.deepgramKey || '';
   document.getElementById('anthropicKey').value = cfg.anthropicKey || '';
   document.getElementById('sourceLang').value = cfg.sourceLang || 'en';
+  document.getElementById('targetLang').value = cfg.targetLang || 'fa';
   document.getElementById('fontSize').value = cfg.fontSize ?? 28;
   document.getElementById('opacity').value = cfg.opacity ?? 0.75;
   document.getElementById('textColor').value = cfg.textColor || '#ffffff';
@@ -83,6 +107,7 @@ document.getElementById('save').onclick = async () => {
     deepgramKey: document.getElementById('deepgramKey').value.trim(),
     anthropicKey: document.getElementById('anthropicKey').value.trim(),
     sourceLang: document.getElementById('sourceLang').value,
+    targetLang: document.getElementById('targetLang').value,
     fontSize: parseInt(document.getElementById('fontSize').value, 10) || 28,
     opacity: Math.max(0, Math.min(1, parseFloat(document.getElementById('opacity').value) || 0.75)),
     textColor: document.getElementById('textColor').value,
