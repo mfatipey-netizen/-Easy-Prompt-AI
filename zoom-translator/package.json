@@ -6,10 +6,15 @@
   "scripts": {
     "start": "electron .",
     "dev": "electron . --enable-logging",
-    "build:win": "electron-builder --win --x64"
+    "build:win": "electron-builder --win --x64 --publish never"
   },
-  "author": "Easy Prompt AI",
+  "author": { "name": "Easy Prompt AI", "email": "support@easypromptai.net" },
   "license": "MIT",
+  "homepage": "https://easypromptai.net",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mfatipey-netizen/-Easy-Prompt-AI.git"
+  },
   "devDependencies": {
     "electron": "^32.0.0",
     "electron-builder": "^25.0.0"
@@ -17,10 +22,22 @@
   "build": {
     "appId": "net.easypromptai.zoomtranslator",
     "productName": "Zoom Live Subtitles",
+    "asar": true,
     "files": ["main.js", "preload.js", "src/**/*", "package.json"],
+    "directories": { "output": "dist" },
     "win": {
-      "target": ["nsis"],
-      "artifactName": "ZoomLiveSubtitles-Setup-${version}.${ext}"
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "artifactName": "ZoomLiveSubtitles-Setup-${version}.${ext}",
+      "signAndEditExecutable": false,
+      "signtoolOptions": null
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Zoom Live Subtitles"
     }
   }
 }
