@@ -3,16 +3,18 @@
 <style>
   html, body { margin: 0; padding: 0; height: 100%; background: transparent; overflow: hidden;
     font-family: 'Vazirmatn', 'IRANSans', 'Tahoma', sans-serif; user-select: none; -webkit-user-select: none; }
-  #root { display: flex; flex-direction: column; height: 100%; }
-  #bar { -webkit-app-region: drag; height: 22px; display: flex; align-items: center; justify-content: space-between;
-    padding: 0 8px; background: rgba(0,0,0,0.35); color: #fff; font-size: 11px; opacity: 0; transition: opacity .15s; }
+  #root { display: flex; flex-direction: column; justify-content: flex-end; height: 100%; padding-bottom: 12px; }
+  #bar { -webkit-app-region: drag; display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 14px; margin: 0 16px 8px; background: rgba(0,0,0,0.55); color: #fff; font-size: 13px;
+    border-radius: 10px; opacity: 0.35; transition: opacity .15s; backdrop-filter: blur(4px); }
   body:hover #bar { opacity: 1; }
-  #bar .btns { -webkit-app-region: no-drag; display: flex; gap: 6px; }
-  #bar button { background: rgba(255,255,255,0.15); border: 0; color: #fff; padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
-  #bar button:hover { background: rgba(255,255,255,0.30); }
-  #status { color: #ffd76a; font-size: 10px; }
-  #captions { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center;
-    padding: 8px 16px 12px; direction: rtl; text-align: center; gap: 6px; }
+  #bar .btns { -webkit-app-region: no-drag; display: flex; gap: 8px; flex-wrap: wrap; }
+  #bar button { background: rgba(255,255,255,0.18); border: 0; color: #fff; padding: 7px 14px;
+    border-radius: 7px; cursor: pointer; font-size: 13px; font-family: inherit; font-weight: 500; }
+  #bar button:hover { background: rgba(255,255,255,0.32); }
+  #status { color: #ffd76a; font-size: 12px; min-width: 120px; }
+  #captions { display: flex; flex-direction: column; align-items: center;
+    padding: 0 16px; direction: rtl; text-align: center; gap: 6px; }
   .line { max-width: 100%; padding: 6px 14px; border-radius: 10px; line-height: 1.5;
     background: var(--bg, rgba(0,0,0,0.75)); color: var(--fg, #fff); font-size: var(--fs, 28px);
     text-shadow: 0 1px 3px rgba(0,0,0,0.9); word-wrap: break-word; }
@@ -24,7 +26,7 @@
     <div id="status">در حال آماده‌سازی…</div>
     <div class="btns">
       <button id="mic">شروع</button>
-      <button id="less">A-</button>
+      <button id="less">A−</button>
       <button id="more">A+</button>
       <button id="through">قفل</button>
       <button id="settings">تنظیمات</button>
