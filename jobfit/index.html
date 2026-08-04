@@ -36,6 +36,40 @@
   nav .tab { padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--muted); font-size: 14px; border: 0; background: transparent; }
   nav .tab.active { background: var(--ink); color: var(--bg); }
   @media (max-width: 640px) { nav .tab { padding: 6px 10px; font-size: 13px; } }
+  nav .user-pill { display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; background: var(--card); border: 1px solid var(--line); border-radius: 999px; cursor: pointer; font-size: 12px; font-weight: 600; }
+  nav .user-pill:hover { border-color: var(--brand); }
+  nav .user-pill .avatar { width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, var(--brand), var(--brand-dark)); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; }
+  nav .user-pill .plan-badge { padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+  nav .user-pill .plan-badge.free  { background: rgba(100,116,139,0.15); color: var(--muted); }
+  nav .user-pill .plan-badge.byok  { background: rgba(37,99,235,0.15);  color: var(--accent); }
+  nav .user-pill .plan-badge.basic { background: rgba(245,158,11,0.15); color: var(--warn); }
+  nav .user-pill .plan-badge.pro   { background: rgba(16,185,129,0.15); color: var(--good); }
+  nav .user-pill .rem { color: var(--muted); }
+  @media (max-width: 640px) {
+    nav .wrap { flex-wrap: wrap; }
+    nav .user-pill .rem { display: none; }
+    nav .tabs { order: 3; width: 100%; overflow-x: auto; }
+  }
+
+  .memory-alert { background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(220,38,38,0.08));
+    border-left: 4px solid var(--warn); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 12px; font-size: 14px; }
+  .memory-alert .icon { font-size: 22px; }
+  .memory-alert b { color: var(--warn); }
+  .related-jobs { border-top: 1px solid var(--line); padding-top: 20px; margin-top: 20px; }
+  .related-jobs h4 { margin: 0 0 12px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); font-weight: 700; }
+  .related-jobs .rel { display: flex; gap: 10px; padding: 8px 12px; background: var(--bg); border-radius: 8px; margin-bottom: 6px; cursor: pointer; font-size: 13px; align-items: center; }
+  .related-jobs .rel:hover { background: color-mix(in srgb, var(--brand) 10%, var(--bg)); }
+  .related-jobs .rel .mini-score { padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 11px; }
+  .related-jobs .rel .mini-score.go { background: rgba(16,185,129,0.15); color: var(--good); }
+  .related-jobs .rel .mini-score.wait { background: rgba(245,158,11,0.15); color: var(--warn); }
+  .related-jobs .rel .mini-score.skip { background: rgba(220,38,38,0.15); color: var(--brand); }
+
+  .companies-summary { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; margin-top: 8px; }
+  .company-card { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 13px; }
+  .company-card .n { font-weight: 800; color: var(--brand); font-size: 16px; }
+  .company-card .name { font-weight: 600; margin-top: 2px; }
+  .company-card .last { color: var(--muted); font-size: 11px; margin-top: 2px; }
 
   main { max-width: 1100px; margin: 0 auto; padding: 24px 20px 80px; }
   .view { display: none; }
@@ -189,6 +223,11 @@
       <button class="tab" data-view="profile">Profile</button>
       <button class="tab" data-view="history">History</button>
     </div>
+    <button class="user-pill" onclick="openPlan()" id="user-pill-btn">
+      <span class="avatar" id="user-avatar">?</span>
+      <span class="plan-badge free" id="plan-badge">Guest</span>
+      <span class="rem" id="plan-rem">Sign in</span>
+    </button>
   </div>
 </nav>
 
@@ -280,6 +319,18 @@
           <option value="">— Not specified —</option>
         </select>
       </div>
+      <div>
+        <label>Answer language (analysis output)</label>
+        <select id="answer-lang"></select>
+      </div>
+      <div>
+        <label>Tone</label>
+        <select id="answer-tone">
+          <option value="brutal">Brutally honest (recommended)</option>
+          <option value="balanced">Balanced</option>
+          <option value="encouraging">Encouraging</option>
+        </select>
+      </div>
     </div>
   </div>
 
@@ -358,6 +409,12 @@
     <div class="chip-add"><input type="text" id="cert-input" placeholder="Pick or type…" list="dl-certs"><button class="btn-ghost" onclick="addChip('certs')">Add</button></div>
   </div>
 
+  <div class="step-card" id="companies-section" style="display:none">
+    <h2><span class="n">🧠</span> Companies you've analyzed</h2>
+    <p class="help">JobFit remembers every posting you've fed it, so if the same role or the same employer comes back you'll be warned before wasting another analysis.</p>
+    <div class="companies-summary" id="companies-summary"></div>
+  </div>
+
   <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:16px">
     <button class="btn-ghost" onclick="openKeys()">🔑 API key (BYOK)</button>
     <button class="btn-primary" onclick="saveProfile()">Save profile</button>
@@ -390,6 +447,14 @@
   <option value="Leadership"><option value="Customer service"><option value="Sales"><option value="Negotiation">
 </datalist>
 
+<div class="modal" id="plan-modal">
+  <div class="modal-body">
+    <button class="modal-close" onclick="closePlan()">×</button>
+    <h3 id="plan-title">Your account</h3>
+    <div id="plan-body"></div>
+  </div>
+</div>
+
 <div class="modal" id="keys-modal">
   <div class="modal-body">
     <button class="modal-close" onclick="closeKeys()">×</button>
@@ -408,20 +473,65 @@
 <script>
 const D = window.JOBFIT_DATA;
 
+// Answer languages (what language Claude replies in) ------------
+const ANSWER_LANGS = [
+  { code: 'en', name: 'English',   native: 'English' },
+  { code: 'fa', name: 'Persian',   native: 'فارسی' },
+  { code: 'fr', name: 'French',    native: 'Français' },
+  { code: 'zh', name: 'Chinese',   native: '中文' },
+  { code: 'ar', name: 'Arabic',    native: 'العربية' },
+  { code: 'es', name: 'Spanish',   native: 'Español' },
+  { code: 'pt', name: 'Portuguese',native: 'Português' },
+  { code: 'de', name: 'German',    native: 'Deutsch' },
+  { code: 'it', name: 'Italiano',  native: 'Italiano' },
+  { code: 'hi', name: 'Hindi',     native: 'हिन्दी' },
+  { code: 'ur', name: 'Urdu',      native: 'اردو' },
+  { code: 'ko', name: 'Korean',    native: '한국어' },
+  { code: 'ja', name: 'Japanese',  native: '日本語' },
+  { code: 'ru', name: 'Russian',   native: 'Русский' },
+  { code: 'tr', name: 'Turkish',   native: 'Türkçe' },
+  { code: 'pa', name: 'Punjabi',   native: 'ਪੰਜਾਬੀ' },
+  { code: 'tl', name: 'Tagalog',   native: 'Tagalog' },
+  { code: 'vi', name: 'Vietnamese',native: 'Tiếng Việt' },
+  { code: 'uk', name: 'Ukrainian', native: 'Українська' },
+  { code: 'nl', name: 'Dutch',     native: 'Nederlands' },
+];
+const RTL_LANGS = new Set(['fa','ar','ur','he']);
+
 // State ---------------------------------------------------------
 const STORE_KEY = 'jobfit.v1';
 const state = {
-  profile: { skills: [], courses: [], certs: [], languages: [] },
+  profile: { skills: [], courses: [], certs: [], languages: [], answerLang: 'en', tone: 'brutal' },
   history: [],
   apiKey: '',
+  plan: null,  // set by ensurePlan()
+  user: { email: '', name: '' },
 };
 function load() {
   try { Object.assign(state, JSON.parse(localStorage.getItem(STORE_KEY) || '{}')); } catch {}
   state.profile ||= {};
   state.profile.skills ||= []; state.profile.courses ||= []; state.profile.certs ||= [];
   state.profile.languages ||= [];
+  state.profile.answerLang ||= 'en';
+  state.profile.tone ||= 'brutal';
+  state.user ||= { email: '', name: '' };
+  ensurePlan();
 }
-function save() { localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+function save() { localStorage.setItem(STORE_KEY, JSON.stringify(state)); renderUserPill(); }
+
+// Plan / entitlement (client-side for MVP; will move to worker later)
+function ensurePlan() {
+  if (!state.plan) state.plan = { type: 'free', remaining: 3, renewsAt: null };
+  // BYOK auto-upgrade: if user has their own key, treat as unlimited BYOK
+  if (state.apiKey && state.plan.type === 'free') state.plan = { type: 'byok', remaining: null, renewsAt: null };
+  if (!state.apiKey && state.plan.type === 'byok') state.plan = { type: 'free', remaining: 3, renewsAt: null };
+}
+const PLAN_INFO = {
+  free:  { label: 'Free',  remCap: 3,    color: 'free',  desc: 'Free tier · 3 analyses total' },
+  byok:  { label: 'BYOK',  remCap: null, color: 'byok',  desc: 'Bring-your-own-key · Unlimited' },
+  basic: { label: 'Basic', remCap: 20,   color: 'basic', desc: 'Basic · 20 analyses / month' },
+  pro:   { label: 'Pro',   remCap: null, color: 'pro',   desc: 'Pro · Unlimited' },
+};
 load();
 
 // Populate reference dropdowns/datalists ------------------------
@@ -439,8 +549,72 @@ function populateStatic() {
 
   const salarySel = document.getElementById('job-salary');
   D.salaryBands.forEach(b => { const o = document.createElement('option'); o.value = b.code; o.textContent = b.label; salarySel.appendChild(o); });
+
+  const ansSel = document.getElementById('answer-lang');
+  ANSWER_LANGS.forEach(l => { const o = document.createElement('option'); o.value = l.code; o.textContent = `${l.native} — ${l.name}`; ansSel.appendChild(o); });
+  ansSel.value = state.profile.answerLang || 'en';
+  ansSel.onchange = () => { state.profile.answerLang = ansSel.value; save(); };
+  const toneSel = document.getElementById('answer-tone');
+  toneSel.value = state.profile.tone || 'brutal';
+  toneSel.onchange = () => { state.profile.tone = toneSel.value; save(); };
 }
 populateStatic();
+
+// User pill / plan modal ---------------------------------------
+function renderUserPill() {
+  const info = PLAN_INFO[state.plan.type];
+  const badge = document.getElementById('plan-badge');
+  const rem = document.getElementById('plan-rem');
+  const avatar = document.getElementById('user-avatar');
+  badge.className = 'plan-badge ' + info.color;
+  badge.textContent = info.label;
+  if (state.plan.remaining == null) rem.textContent = '∞';
+  else rem.textContent = state.plan.remaining + ' left';
+  const initials = (state.user.name || state.user.email || '?')[0].toUpperCase();
+  avatar.textContent = initials;
+}
+function openPlan() {
+  const info = PLAN_INFO[state.plan.type];
+  const usedPct = info.remCap ? Math.round(((info.remCap - (state.plan.remaining ?? 0)) / info.remCap) * 100) : 0;
+  document.getElementById('plan-title').textContent = state.user.email ? state.user.email : 'Your account';
+  document.getElementById('plan-body').innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--brand-dark));color:white;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px">${(state.user.name || state.user.email || '?')[0].toUpperCase()}</div>
+      <div><div style="font-weight:700">${state.user.name || 'Guest user'}</div><div style="color:var(--muted);font-size:13px">${state.user.email || 'Not signed in'}</div></div>
+    </div>
+    <div style="background:var(--bg);border-radius:12px;padding:14px 16px;margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-weight:700">${info.label} plan</span>
+        <span style="font-size:12px;color:var(--muted)">${info.desc}</span>
+      </div>
+      ${info.remCap ? `
+        <div style="height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin:6px 0">
+          <div style="height:100%;width:${usedPct}%;background:var(--brand);transition:.3s"></div>
+        </div>
+        <div style="font-size:12px;color:var(--muted)"><b style="color:var(--brand)">${state.plan.remaining}</b> of ${info.remCap} analyses left</div>
+      ` : `<div style="font-size:13px;color:var(--good);margin-top:4px">✓ Unlimited analyses</div>`}
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      ${!state.user.email ? `
+        <label>Email (optional — used for subscription)</label>
+        <input type="email" id="user-email-inp" placeholder="you@example.com" value="${state.user.email || ''}" style="padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:14px">
+        <button class="btn-ghost" onclick="signIn()" style="margin-top:6px">Save email</button>
+      ` : `
+        <button class="btn-ghost" onclick="signOut()">Sign out</button>
+      `}
+      ${state.plan.type === 'free' ? `<button class="btn-primary" onclick="buy('basic')">Upgrade — $5.99/mo</button>` : ''}
+      ${state.plan.type === 'basic' ? `<button class="btn-primary" onclick="buy('pro')">Upgrade to Pro — $11.99/mo</button>` : ''}
+    </div>`;
+  document.getElementById('plan-modal').classList.add('open');
+}
+function closePlan() { document.getElementById('plan-modal').classList.remove('open'); }
+function signIn() {
+  const em = document.getElementById('user-email-inp').value.trim();
+  if (!em) return;
+  state.user.email = em; state.user.name = em.split('@')[0]; save(); closePlan(); toast('Signed in ✓');
+}
+function signOut() { state.user = { email: '', name: '' }; save(); closePlan(); toast('Signed out'); }
+renderUserPill();
 
 // Navigation ----------------------------------------------------
 function go(v) {
@@ -470,6 +644,25 @@ function renderProfile() {
   });
   ['skills','courses','certs'].forEach(k => renderChips(k));
   renderLangs();
+  renderCompaniesSummary();
+}
+function renderCompaniesSummary() {
+  const section = document.getElementById('companies-section');
+  const grid = document.getElementById('companies-summary');
+  const byCo = {};
+  state.history.forEach(h => {
+    const c = (h.company || '').trim(); if (!c) return;
+    byCo[c] ||= { count: 0, last: 0, scores: [] };
+    byCo[c].count++; byCo[c].last = Math.max(byCo[c].last, h.ts); byCo[c].scores.push(h.score);
+  });
+  const items = Object.entries(byCo).sort((a,b) => b[1].count - a[1].count).slice(0, 24);
+  if (!items.length) { section.style.display = 'none'; return; }
+  section.style.display = '';
+  grid.innerHTML = items.map(([name, d]) => {
+    const avg = Math.round(d.scores.reduce((a,b)=>a+b,0) / d.scores.length);
+    const days = Math.round((Date.now() - d.last) / 86400000);
+    return `<div class="company-card"><div class="n">${d.count}×</div><div class="name">${esc(name)}</div><div class="last">avg fit ${avg} · last ${days === 0 ? 'today' : days + 'd ago'}</div></div>`;
+  }).join('');
 }
 function renderChips(key) {
   const box = document.getElementById('chips-' + key);
@@ -615,7 +808,7 @@ function applyExtracted(e) {
 // API keys ------------------------------------------------------
 function openKeys() { document.getElementById('api-key').value = state.apiKey || ''; document.getElementById('keys-modal').classList.add('open'); }
 function closeKeys() { document.getElementById('keys-modal').classList.remove('open'); }
-function saveKey() { state.apiKey = document.getElementById('api-key').value.trim(); save(); closeKeys(); toast('Key saved ✓'); }
+function saveKey() { state.apiKey = document.getElementById('api-key').value.trim(); ensurePlan(); save(); closeKeys(); toast('Key saved ✓'); }
 
 // Toast ---------------------------------------------------------
 function toast(msg) {
@@ -629,11 +822,17 @@ function buy(plan) { window.open('https://easypromptai.net/zoom#buy', '_blank');
 
 // Analyze -------------------------------------------------------
 async function analyze() {
+  ensurePlan();
   if (!state.apiKey) { openKeys(); toast('Add your API key first'); return; }
   const mode = document.querySelector('#job-input-mode button.active').dataset.mode;
   const jobText = mode === 'text' ? document.getElementById('job-text').value.trim() : document.getElementById('job-url').value.trim();
   if (!jobText) { toast('Paste the job first'); return; }
   if (!state.profile.experience && !state.profile.title) { toast('Set up your profile first'); go('profile'); return; }
+
+  if (state.plan.remaining != null && state.plan.remaining <= 0) {
+    openPlan(); toast('You are out of analyses on the ' + state.plan.type + ' plan');
+    return;
+  }
 
   const btn = document.getElementById('analyze-btn');
   btn.disabled = true; btn.innerHTML = '<span class="loader"></span> Analyzing…';
@@ -646,14 +845,18 @@ async function analyze() {
     profile: state.profile,
     jobLocation: document.getElementById('job-loc').value.trim(),
     salaryExpectation: salaryBand ? salaryBand.label : '',
+    answerLang: state.profile.answerLang || 'en',
+    tone: state.profile.tone || 'brutal',
     job: jobText, jobIsUrl: mode === 'url',
   };
   try {
     const result = await callClaude(context);
+    if (state.plan.remaining != null) state.plan.remaining = Math.max(0, state.plan.remaining - 1);
+    const related = findRelated(result);
     state.history.unshift({ ts: Date.now(), title: result.jobTitle || 'Unknown role', company: result.company || '', score: result.score, verdict: result.verdict, result });
-    if (state.history.length > 100) state.history.length = 100;
+    if (state.history.length > 200) state.history.length = 200;
     save();
-    renderResult(result);
+    renderResult(result, related);
   } catch (e) {
     document.getElementById('result-wrap').innerHTML = `<div class="result" style="border-color:var(--brand);color:var(--brand)"><b>Error:</b> ${e.message}</div>`;
   } finally {
@@ -661,18 +864,47 @@ async function analyze() {
   }
 }
 
+// Memory: find prior analyses with the same company or a similar title
+function findRelated(r) {
+  const co = (r.company || '').toLowerCase().trim();
+  const tt = (r.jobTitle || '').toLowerCase().trim();
+  const out = { duplicate: null, sameCompany: [], sameTitle: [] };
+  if (!co && !tt) return out;
+  state.history.forEach(h => {
+    const hCo = (h.company || '').toLowerCase().trim();
+    const hTt = (h.title || '').toLowerCase().trim();
+    const sameCo = co && hCo && (hCo === co || hCo.includes(co) || co.includes(hCo));
+    const sameTt = tt && hTt && (hTt === tt || hTt.includes(tt) || tt.includes(hTt));
+    if (sameCo && sameTt && !out.duplicate) out.duplicate = h;
+    else if (sameCo) out.sameCompany.push(h);
+    else if (sameTt) out.sameTitle.push(h);
+  });
+  out.sameCompany = out.sameCompany.slice(0, 4);
+  out.sameTitle = out.sameTitle.slice(0, 3);
+  return out;
+}
+
 async function callClaude(ctx) {
-  const system = `You are a brutally honest Canadian career advisor. Given a job posting and a candidate profile, produce a realistic fit analysis. Be candid about gaps. Use Canada-specific context: work permit type, official-language proficiency (English/French), credential recognition, PGWP/BOWP, LMIA-exempt roles, Express Entry advantages, NOC codes, provincial regulatory bodies. Output ONLY valid JSON:
+  const lang = ANSWER_LANGS.find(l => l.code === ctx.answerLang) || ANSWER_LANGS[0];
+  const toneLine = ctx.tone === 'balanced'    ? 'Be even-handed: neither downplay nor exaggerate.' :
+                   ctx.tone === 'encouraging' ? 'Be encouraging without hiding gaps; keep language warm.' :
+                                                 'Be brutally honest — spell out gaps and downsides bluntly.';
+  const system = `You are a senior Canadian career advisor. Given a job posting and a candidate profile, produce a realistic fit analysis. ${toneLine}
+Use Canada-specific context: work permit type, official-language proficiency (English/French), credential recognition, PGWP/BOWP, LMIA-exempt roles, Express Entry / NOC classifications, provincial regulatory bodies (PEO, WSIB, RECO, LLQP, etc.).
+
+IMPORTANT — OUTPUT LANGUAGE: Write every string VALUE in ${lang.name} (${lang.native}). Keep the JSON KEYS in English. "jobTitle" and "company" stay in the original language of the posting (do not translate proper nouns).
+
+Output ONLY valid JSON:
 {
   "jobTitle": string, "company": string, "score": number (0-100),
   "verdict": "GO" | "MAYBE" | "SKIP",
-  "verdictLine": string (one sentence saying what to do),
-  "explanation": string (2-3 sentences),
-  "strengths": string[] (3-6 concrete matched strengths),
-  "gaps": string[] (3-6 concrete gaps),
-  "actions": string[] (3-5 specific next steps ranked by impact)
+  "verdictLine": string (one sentence, in ${lang.name}),
+  "explanation": string (2-3 sentences, in ${lang.name}),
+  "strengths": string[] (3-6 items, in ${lang.name}),
+  "gaps": string[] (3-6 items, in ${lang.name}),
+  "actions": string[] (3-5 items ranked by impact, in ${lang.name})
 }`;
-  const user = `CANDIDATE PROFILE:\n${JSON.stringify(ctx.profile, null, 2)}\n\nJOB LOCATION: ${ctx.jobLocation || 'not specified'}\nSALARY EXPECTATION: ${ctx.salaryExpectation || 'not specified'}\n\nJOB ${ctx.jobIsUrl ? 'URL' : 'DESCRIPTION'}:\n${ctx.job}\n\nProduce the JSON analysis now.`;
+  const user = `CANDIDATE PROFILE:\n${JSON.stringify(ctx.profile, null, 2)}\n\nJOB LOCATION: ${ctx.jobLocation || 'not specified'}\nSALARY EXPECTATION: ${ctx.salaryExpectation || 'not specified'}\n\nJOB ${ctx.jobIsUrl ? 'URL' : 'DESCRIPTION'}:\n${ctx.job}\n\nProduce the JSON analysis now — remember, all text values in ${lang.name}.`;
 
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -686,14 +918,39 @@ async function callClaude(ctx) {
   return JSON.parse(m[0]);
 }
 
-function renderResult(r) {
+function renderResult(r, related) {
   const badge = r.verdict === 'GO' ? 'go' : r.verdict === 'MAYBE' ? 'wait' : 'skip';
   const color = badge === 'go' ? 'var(--good)' : badge === 'wait' ? 'var(--warn)' : 'var(--brand)';
   const label = r.verdict === 'GO' ? 'Apply' : r.verdict === 'MAYBE' ? 'Maybe' : 'Skip';
   const circ = 2 * Math.PI * 60; const off = circ - (r.score / 100) * circ;
+  const rtl = RTL_LANGS.has(state.profile.answerLang || 'en') ? 'rtl' : 'ltr';
+
+  let alertHtml = '';
+  if (related && related.duplicate) {
+    const days = Math.round((Date.now() - related.duplicate.ts) / 86400000);
+    alertHtml = `<div class="memory-alert"><div class="icon">🧠</div><div><b>Déjà vu.</b> You already analyzed <b>${esc(related.duplicate.title)}</b> at <b>${esc(related.duplicate.company)}</b> ${days === 0 ? 'today' : days + ' day' + (days === 1 ? '' : 's') + ' ago'} — fit score was ${related.duplicate.score}. Save your analyses.</div></div>`;
+  } else if (related && related.sameCompany.length) {
+    alertHtml = `<div class="memory-alert"><div class="icon">🧠</div><div><b>${related.sameCompany.length + 1} interactions with ${esc(r.company)}.</b> You've analyzed ${related.sameCompany.length} other role${related.sameCompany.length === 1 ? '' : 's'} here — worth reviewing the pattern.</div></div>`;
+  }
+
+  let relatedHtml = '';
+  if (related && (related.sameCompany.length + related.sameTitle.length)) {
+    const rows = [
+      ...related.sameCompany.map(h => ({ ...h, why: 'Same company' })),
+      ...related.sameTitle.map(h => ({ ...h, why: 'Similar title' })),
+    ];
+    relatedHtml = `<div class="related-jobs"><h4>You've seen these before</h4>${rows.map((h, i) => {
+      const cls = h.verdict === 'GO' ? 'go' : h.verdict === 'MAYBE' ? 'wait' : 'skip';
+      const d = new Date(h.ts).toLocaleDateString();
+      const histIdx = state.history.indexOf(h);
+      return `<div class="rel" onclick="openHist(${histIdx})"><span class="mini-score ${cls}">${h.score}</span><div style="flex:1"><b>${esc(h.title)}</b> · ${esc(h.company || '')}</div><div style="color:var(--muted);font-size:11px">${esc(h.why)} · ${d}</div></div>`;
+    }).join('')}</div>`;
+  }
+
   document.getElementById('result-wrap').innerHTML = `
-    <div class="result">
-      <div class="score-hero">
+    ${alertHtml}
+    <div class="result" dir="${rtl}">
+      <div class="score-hero" dir="ltr">
         <div class="score-ring">
           <svg viewBox="0 0 140 140">
             <circle cx="70" cy="70" r="60" stroke="var(--line)" stroke-width="14" fill="none"/>
@@ -702,18 +959,19 @@ function renderResult(r) {
           </svg>
           <div class="n"><b>${r.score}</b><s>fit score</s></div>
         </div>
-        <div class="verdict">
-          <span class="badge ${badge}">${label}</span>
+        <div class="verdict" dir="${rtl}">
+          <span class="badge ${badge}" dir="ltr">${label}</span>
           <h3>${esc(r.jobTitle || 'Job')} ${r.company ? '· ' + esc(r.company) : ''}</h3>
           <p><b>${esc(r.verdictLine || '')}</b></p>
           <p style="margin-top:8px">${esc(r.explanation || '')}</p>
         </div>
       </div>
       <div class="breakdown">
-        <div class="col strengths"><h4>Your strengths for this role</h4><ul>${(r.strengths || []).map(s => `<li>${esc(s)}</li>`).join('')}</ul></div>
-        <div class="col gaps"><h4>Gaps you need to close</h4><ul>${(r.gaps || []).map(s => `<li>${esc(s)}</li>`).join('')}</ul></div>
+        <div class="col strengths"><h4>${rtl==='rtl'?'نقاط قوت شما برای این نقش':'Your strengths for this role'}</h4><ul>${(r.strengths || []).map(s => `<li>${esc(s)}</li>`).join('')}</ul></div>
+        <div class="col gaps"><h4>${rtl==='rtl'?'شکاف‌هایی که باید پر کنی':'Gaps you need to close'}</h4><ul>${(r.gaps || []).map(s => `<li>${esc(s)}</li>`).join('')}</ul></div>
       </div>
-      <div class="action-list"><h4>Action plan (ranked by impact)</h4><ol>${(r.actions || []).map(s => `<li>${esc(s)}</li>`).join('')}</ol></div>
+      <div class="action-list"><h4>${rtl==='rtl'?'برنامهٔ اقدام (به ترتیب اثر)':'Action plan (ranked by impact)'}</h4><ol>${(r.actions || []).map(s => `<li>${esc(s)}</li>`).join('')}</ol></div>
+      ${relatedHtml}
     </div>`;
   document.getElementById('result-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -736,7 +994,7 @@ function renderHistory() {
     </div>`;
   }).join('');
 }
-function openHist(i) { go('analyze'); renderResult(state.history[i].result); }
+function openHist(i) { go('analyze'); const h = state.history[i]; renderResult(h.result, findRelated(h.result)); }
 
 // PWA -----------------------------------------------------------
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
