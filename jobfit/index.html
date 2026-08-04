@@ -5,11 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0f172a">
 <title>JobFit.ca — Should you apply, or not?</title>
-<meta name="description" content="AI-powered job fit analysis for Canada. Stop wasting time applying to jobs you won't get. Know your real chances before you click Apply.">
+<meta name="description" content="AI-powered job fit analysis for Canada. Stop wasting time applying to jobs you won't get.">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🎯%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Vazirmatn:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+<script src="data.js"></script>
 <style>
   :root {
     --bg: #f8fafc; --card: #ffffff; --ink: #0f172a; --muted: #64748b; --line: #e2e8f0;
@@ -24,9 +27,7 @@
   body { min-height: 100vh; }
   a { color: var(--accent); text-decoration: none; }
 
-  /* Nav */
-  nav { position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, var(--bg) 92%, transparent);
-    backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+  nav { position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
   nav .wrap { max-width: 1100px; margin: 0 auto; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
   nav .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 17px; letter-spacing: -0.4px; }
   nav .brand .flag { display: inline-block; width: 22px; height: 15px; background: linear-gradient(to right, var(--canada) 25%, white 25%, white 75%, var(--canada) 75%); position: relative; border-radius: 2px; }
@@ -40,7 +41,6 @@
   .view { display: none; }
   .view.active { display: block; }
 
-  /* Landing */
   .hero { text-align: center; padding: 40px 0 30px; }
   .hero .kicker { display: inline-block; padding: 4px 12px; border-radius: 999px; background: rgba(220,38,38,0.1); color: var(--brand); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
   .hero h1 { margin: 0 0 16px; font-size: clamp(28px, 5vw, 48px); font-weight: 900; letter-spacing: -1.5px; line-height: 1.1; }
@@ -81,17 +81,18 @@
   .price-card button { width: 100%; padding: 12px; border-radius: 10px; border: 0; font-weight: 700; font-size: 14px; cursor: pointer; background: var(--ink); color: var(--bg); }
   .price-card.popular button { background: var(--brand); color: white; }
 
-  /* Analyze view */
   .step-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 24px; margin-bottom: 16px; }
   .step-card h2 { margin: 0 0 8px; font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
   .step-card h2 .n { width: 28px; height: 28px; border-radius: 50%; background: var(--brand); color: white; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; }
   .step-card p.help { margin: 0 0 16px; color: var(--muted); font-size: 14px; }
-  .input-row { display: grid; grid-template-columns: 120px 1fr; gap: 8px; align-items: center; }
   .segmented { display: inline-flex; background: var(--bg); padding: 4px; border-radius: 10px; border: 1px solid var(--line); gap: 4px; }
   .segmented button { padding: 8px 14px; border: 0; background: transparent; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; color: var(--muted); }
   .segmented button.active { background: var(--ink); color: var(--bg); }
-  textarea, input[type=text], input[type=url], input[type=password], select { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font-family: inherit; font-size: 14px; box-sizing: border-box; }
-  textarea { min-height: 140px; resize: vertical; }
+  textarea, input[type=text], input[type=url], input[type=password], select {
+    width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line);
+    background: var(--bg); color: var(--ink); font-family: inherit; font-size: 14px; box-sizing: border-box;
+  }
+  textarea { min-height: 100px; resize: vertical; }
   textarea:focus, input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
@@ -101,13 +102,30 @@
   .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
   .btn-ghost { padding: 10px 16px; background: transparent; color: var(--ink); border: 1px solid var(--line); border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; }
 
-  /* Chips (courses, certs, skills) */
+  /* Resume upload */
+  .resume-drop {
+    background: linear-gradient(135deg, rgba(37,99,235,0.06), rgba(220,38,38,0.06));
+    border: 2px dashed var(--accent); border-radius: 12px; padding: 24px;
+    text-align: center; cursor: pointer; transition: all 0.15s;
+  }
+  .resume-drop:hover, .resume-drop.dragover { background: rgba(37,99,235,0.1); border-color: var(--brand); }
+  .resume-drop .icon { font-size: 32px; margin-bottom: 8px; }
+  .resume-drop .t { font-weight: 700; font-size: 15px; }
+  .resume-drop .h { color: var(--muted); font-size: 13px; margin-top: 4px; }
+  .resume-drop input[type=file] { display: none; }
+  .resume-progress { margin-top: 12px; padding: 12px 16px; background: var(--bg); border-radius: 8px; font-size: 13px; color: var(--muted); display: none; align-items: center; gap: 10px; }
+  .resume-progress.active { display: flex; }
+
   .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
   .chip { padding: 5px 10px; background: var(--bg); border: 1px solid var(--line); border-radius: 999px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; }
   .chip button { background: transparent; border: 0; color: var(--muted); cursor: pointer; padding: 0; font-size: 14px; line-height: 1; }
   .chip-add { display: flex; gap: 6px; margin-top: 8px; }
   .chip-add input { flex: 1; padding: 8px 12px; font-size: 13px; }
   .chip-add button { padding: 8px 14px; }
+
+  /* Language rows */
+  .lang-row { display: grid; grid-template-columns: 1fr 1fr 30px; gap: 8px; margin-bottom: 8px; align-items: center; }
+  .lang-row button.rm { background: transparent; border: 1px solid var(--line); border-radius: 8px; color: var(--muted); cursor: pointer; padding: 8px 0; }
 
   /* Result */
   .result { background: var(--card); border-radius: 20px; padding: 28px; border: 1px solid var(--line); }
@@ -137,7 +155,6 @@
   .action-list ol { margin: 0; padding-left: 20px; }
   .action-list li { padding: 6px 0; font-size: 14px; line-height: 1.5; }
 
-  /* History */
   .hist-item { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 14px; cursor: pointer; }
   .hist-item:hover { border-color: var(--brand); }
   .hist-item .score { font-size: 22px; font-weight: 900; padding: 8px 12px; border-radius: 10px; min-width: 60px; text-align: center; }
@@ -147,15 +164,12 @@
   .hist-item .title { font-weight: 700; font-size: 15px; }
   .hist-item .meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
 
-  /* Empty states */
   .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
   .empty .icon { font-size: 48px; margin-bottom: 12px; }
 
-  /* Loading */
   .loader { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* Modal */
   .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 100; }
   .modal.open { display: flex; }
   .modal-body { background: var(--card); border-radius: 16px; padding: 28px; max-width: 500px; width: 100%; max-height: 90vh; overflow: auto; }
@@ -204,9 +218,9 @@
   <h2 style="text-align:center;margin:40px 0 8px;font-size:28px;font-weight:800">How it works</h2>
   <p style="text-align:center;color:var(--muted);margin:0 0 24px">Three minutes. Total honesty about your chances.</p>
   <div class="how">
-    <div class="how-card"><div class="n">1</div><h3>Set up your profile</h3><p>Once. Add your experience, skills, education, certificates. Update anytime you finish a course or land a new cert.</p></div>
+    <div class="how-card"><div class="n">1</div><h3>Upload your resume</h3><p>Drop a PDF and we auto-fill everything. Or type it in — dropdowns from NOC / Statistics Canada save your fingers.</p></div>
     <div class="how-card"><div class="n">2</div><h3>Paste the job</h3><p>Drop a LinkedIn/Indeed URL or paste the job description text. We handle the rest.</p></div>
-    <div class="how-card"><div class="n">3</div><h3>Get your verdict</h3><p>A fit score (0–100), your matched strengths, real gaps, and a "should you apply?" recommendation with next steps.</p></div>
+    <div class="how-card"><div class="n">3</div><h3>Get your verdict</h3><p>A fit score (0–100), matched strengths, real gaps, and a "should you apply?" call with next steps.</p></div>
   </div>
 
   <h2 style="text-align:center;margin:60px 0 24px;font-size:28px;font-weight:800">Pricing</h2>
@@ -238,7 +252,7 @@
 <section class="view" id="view-analyze">
   <div class="step-card">
     <h2><span class="n">1</span> The job you're eyeing</h2>
-    <p class="help">Paste a URL from LinkedIn / Indeed / company site, OR paste the job description text.</p>
+    <p class="help">Paste a URL from LinkedIn / Indeed / company site, OR paste the full job description text.</p>
     <div class="segmented" id="job-input-mode">
       <button class="active" data-mode="text">📋 Paste text</button>
       <button data-mode="url">🔗 Job URL</button>
@@ -258,11 +272,13 @@
     <div class="grid-2">
       <div>
         <label>Location / City</label>
-        <input type="text" id="job-loc" placeholder="Toronto, ON">
+        <input type="text" id="job-loc" list="dl-cities" placeholder="Pick or type a Canadian city…">
       </div>
       <div>
-        <label>Salary expectation (CAD)</label>
-        <input type="text" id="job-salary" placeholder="$85K–$110K">
+        <label>Salary expectation (CRA-aligned)</label>
+        <select id="job-salary">
+          <option value="">— Not specified —</option>
+        </select>
       </div>
     </div>
   </div>
@@ -277,59 +293,57 @@
 
 <!-- PROFILE -->
 <section class="view" id="view-profile">
+
   <div class="step-card">
-    <h2><span class="n">👤</span> Your profile</h2>
-    <p class="help">This stays on your device. We only send it to the AI when you analyze a job.</p>
+    <h2><span class="n">📄</span> Auto-fill from your resume</h2>
+    <p class="help">Upload a PDF — we extract everything into the fields below with AI. You review and edit. <b>Your key is required</b> (set it once via 🔑 API key below).</p>
+    <label class="resume-drop" id="resume-drop">
+      <input type="file" id="resume-file" accept=".pdf,.txt">
+      <div class="icon">📄</div>
+      <div class="t">Drop your resume here — or click to choose</div>
+      <div class="h">PDF or TXT · Extracted with Claude · Nothing uploaded to us</div>
+    </label>
+    <div class="resume-progress" id="resume-progress"><span class="loader" style="border-color:rgba(0,0,0,0.15);border-top-color:var(--brand)"></span> <span id="resume-status">Extracting…</span></div>
+  </div>
+
+  <div class="step-card">
+    <h2><span class="n">👤</span> The basics</h2>
     <div class="grid-2">
-      <div>
-        <label>Full name</label>
-        <input type="text" id="p-name" placeholder="Jane Doe">
-      </div>
-      <div>
-        <label>Current title</label>
-        <input type="text" id="p-title" placeholder="Software Developer">
-      </div>
-      <div>
-        <label>Years of experience</label>
-        <input type="text" id="p-years" placeholder="5">
-      </div>
-      <div>
-        <label>Location in Canada</label>
-        <input type="text" id="p-loc" placeholder="Vancouver, BC">
-      </div>
-      <div>
-        <label>Work permit status</label>
-        <select id="p-permit">
-          <option>Citizen / PR</option>
-          <option>Open work permit</option>
-          <option>Employer-specific permit</option>
-          <option>Student / PGWP</option>
-          <option>Need sponsorship</option>
+      <div><label>Full name</label><input type="text" id="p-name" placeholder="Jane Doe"></div>
+      <div><label>Current job title</label><input type="text" id="p-title" list="dl-titles" placeholder="Pick or type your NOC title…"></div>
+      <div><label>Years of experience</label>
+        <select id="p-years">
+          <option>0 (student / new grad)</option><option>1</option><option>2</option><option>3</option>
+          <option>4</option><option>5</option><option>6</option><option>7</option><option>8</option>
+          <option>9</option><option>10</option><option>11–15</option><option>16–20</option><option>20+</option>
         </select>
       </div>
-      <div>
-        <label>English proficiency</label>
-        <select id="p-english">
-          <option>Native</option>
-          <option>Fluent (C1/C2)</option>
-          <option>Advanced (B2)</option>
-          <option>Intermediate (B1)</option>
-        </select>
+      <div><label>Location in Canada</label><input type="text" id="p-loc" list="dl-cities" placeholder="Pick a city…"></div>
+      <div><label>Work permit / status</label>
+        <select id="p-permit"></select>
       </div>
+      <div><label>Target job title</label><input type="text" id="p-target" list="dl-titles" placeholder="What role are you seeking?"></div>
     </div>
   </div>
 
   <div class="step-card">
-    <h2>💼 Experience & skills</h2>
+    <h2><span class="n">🗣️</span> Languages you speak</h2>
+    <p class="help">Add each language and your level. Most Canadian employers care about English + French; other languages help for niche roles and diaspora markets.</p>
+    <div id="lang-rows"></div>
+    <button class="btn-ghost" onclick="addLangRow()" style="margin-top:8px">+ Add a language</button>
+  </div>
+
+  <div class="step-card">
+    <h2><span class="n">💼</span> Experience</h2>
     <label>Recent work experience (companies, titles, key accomplishments)</label>
     <textarea id="p-experience" placeholder="e.g. Senior Developer at ACME (2021–now) — led a team of 4 building a React SaaS…"></textarea>
     <label style="margin-top:12px">Skills</label>
     <div id="chips-skills" class="chips"></div>
-    <div class="chip-add"><input type="text" id="skill-input" placeholder="e.g. React, TypeScript, AWS"><button class="btn-ghost" onclick="addChip('skills')">Add</button></div>
+    <div class="chip-add"><input type="text" id="skill-input" placeholder="e.g. React, TypeScript, AWS" list="dl-skills"><button class="btn-ghost" onclick="addChip('skills')">Add</button></div>
   </div>
 
   <div class="step-card">
-    <h2>🎓 Education & courses</h2>
+    <h2><span class="n">🎓</span> Education & courses</h2>
     <label>Degrees</label>
     <textarea id="p-education" placeholder="e.g. B.Sc. Computer Science, University of Waterloo, 2020"></textarea>
     <label style="margin-top:12px">Courses you've taken (add as you finish them)</label>
@@ -338,10 +352,10 @@
   </div>
 
   <div class="step-card">
-    <h2>📜 Certifications</h2>
-    <label>Certificates (add new ones as you get them)</label>
+    <h2><span class="n">📜</span> Certifications</h2>
+    <label>Add new certs as you earn them</label>
     <div id="chips-certs" class="chips"></div>
-    <div class="chip-add"><input type="text" id="cert-input" placeholder="e.g. AWS Certified SAA, PMP"><button class="btn-ghost" onclick="addChip('certs')">Add</button></div>
+    <div class="chip-add"><input type="text" id="cert-input" placeholder="Pick or type…" list="dl-certs"><button class="btn-ghost" onclick="addChip('certs')">Add</button></div>
   </div>
 
   <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:16px">
@@ -358,12 +372,29 @@
 
 </main>
 
-<!-- API key modal -->
+<!-- Datalists (autocomplete backing) -->
+<datalist id="dl-titles"></datalist>
+<datalist id="dl-cities"></datalist>
+<datalist id="dl-certs"></datalist>
+<datalist id="dl-skills">
+  <option value="Python"><option value="JavaScript"><option value="TypeScript"><option value="React">
+  <option value="Node.js"><option value="Java"><option value="C#"><option value="Go"><option value="Rust">
+  <option value="SQL"><option value="AWS"><option value="Azure"><option value="GCP"><option value="Docker">
+  <option value="Kubernetes"><option value="Terraform"><option value="Git"><option value="Linux">
+  <option value="Excel"><option value="PowerPoint"><option value="Word"><option value="Salesforce">
+  <option value="SAP"><option value="Oracle"><option value="Tableau"><option value="Power BI">
+  <option value="AutoCAD"><option value="Revit"><option value="Procore"><option value="Primavera P6">
+  <option value="Photoshop"><option value="Illustrator"><option value="Figma"><option value="Sketch">
+  <option value="Adobe XD"><option value="Premiere Pro"><option value="After Effects">
+  <option value="Project management"><option value="Agile"><option value="Scrum"><option value="Kanban">
+  <option value="Leadership"><option value="Customer service"><option value="Sales"><option value="Negotiation">
+</datalist>
+
 <div class="modal" id="keys-modal">
   <div class="modal-body">
     <button class="modal-close" onclick="closeKeys()">×</button>
     <h3>🔑 Bring your own Anthropic key</h3>
-    <p>While we build the hosted subscription, you can use JobFit with your own <b>Claude API key</b> — completely free. Get one at <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a>.</p>
+    <p>While we build the hosted subscription, use JobFit with your own <b>Claude API key</b> — completely free. Get one at <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a>.</p>
     <label>Anthropic API key</label>
     <input type="password" id="api-key" placeholder="sk-ant-…">
     <p style="font-size:12px;color:var(--muted);margin-top:8px">Stored only in your browser (localStorage). Never sent to us.</p>
@@ -375,21 +406,41 @@
 </div>
 
 <script>
+const D = window.JOBFIT_DATA;
+
 // State ---------------------------------------------------------
 const STORE_KEY = 'jobfit.v1';
 const state = {
-  profile: { skills: [], courses: [], certs: [] },
+  profile: { skills: [], courses: [], certs: [], languages: [] },
   history: [],
   apiKey: '',
-  freeCount: 0,
 };
 function load() {
   try { Object.assign(state, JSON.parse(localStorage.getItem(STORE_KEY) || '{}')); } catch {}
-  state.profile ||= { skills: [], courses: [], certs: [] };
+  state.profile ||= {};
   state.profile.skills ||= []; state.profile.courses ||= []; state.profile.certs ||= [];
+  state.profile.languages ||= [];
 }
 function save() { localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
 load();
+
+// Populate reference dropdowns/datalists ------------------------
+function populateStatic() {
+  const dl = (id, values) => {
+    const el = document.getElementById(id); el.innerHTML = '';
+    values.forEach(v => { const o = document.createElement('option'); o.value = v; el.appendChild(o); });
+  };
+  dl('dl-titles', D.jobTitles);
+  dl('dl-cities', D.canadianCities);
+  dl('dl-certs', D.commonCerts);
+
+  const permitSel = document.getElementById('p-permit');
+  D.workPermits.forEach(p => { const o = document.createElement('option'); o.textContent = p; permitSel.appendChild(o); });
+
+  const salarySel = document.getElementById('job-salary');
+  D.salaryBands.forEach(b => { const o = document.createElement('option'); o.value = b.code; o.textContent = b.label; salarySel.appendChild(o); });
+}
+populateStatic();
 
 // Navigation ----------------------------------------------------
 function go(v) {
@@ -411,13 +462,14 @@ document.querySelectorAll('#job-input-mode button').forEach(b => {
   };
 });
 
-// Profile chips -------------------------------------------------
+// Profile -------------------------------------------------------
 function renderProfile() {
   const p = state.profile;
-  ['name','title','years','loc','permit','english','experience','education'].forEach(k => {
+  ['name','title','years','loc','permit','target','experience','education'].forEach(k => {
     const el = document.getElementById('p-' + k); if (el && p[k] != null) el.value = p[k];
   });
   ['skills','courses','certs'].forEach(k => renderChips(k));
+  renderLangs();
 }
 function renderChips(key) {
   const box = document.getElementById('chips-' + key);
@@ -431,28 +483,139 @@ function renderChips(key) {
   });
 }
 function addChip(key) {
-  const inputMap = { skills: 'skill-input', courses: 'course-input', certs: 'cert-input' };
-  const inp = document.getElementById(inputMap[key]);
+  const map = { skills: 'skill-input', courses: 'course-input', certs: 'cert-input' };
+  const inp = document.getElementById(map[key]);
   const v = inp.value.trim(); if (!v) return;
   (state.profile[key] ||= []).push(v);
   inp.value = ''; save(); renderChips(key);
 }
+
+// Languages -----------------------------------------------------
+function renderLangs() {
+  const box = document.getElementById('lang-rows');
+  box.innerHTML = '';
+  (state.profile.languages || []).forEach((L, i) => box.appendChild(langRow(L, i)));
+  if (!state.profile.languages.length) addLangRow();
+}
+function langRow(L, i) {
+  const row = document.createElement('div'); row.className = 'lang-row';
+  const langSel = document.createElement('select');
+  D.languages.forEach(l => { const o = document.createElement('option'); o.value = l.code; o.textContent = `${l.native} — ${l.name}`; langSel.appendChild(o); });
+  langSel.value = L.code || 'en';
+  const lvlSel = document.createElement('select');
+  D.langLevels.forEach(lv => { const o = document.createElement('option'); o.value = lv.code; o.textContent = lv.label; lvlSel.appendChild(o); });
+  lvlSel.value = L.level || 'native';
+  const rm = document.createElement('button'); rm.className = 'rm'; rm.textContent = '×';
+  langSel.onchange = () => { state.profile.languages[i].code = langSel.value; save(); };
+  lvlSel.onchange = () => { state.profile.languages[i].level = lvlSel.value; save(); };
+  rm.onclick = () => { state.profile.languages.splice(i,1); save(); renderLangs(); };
+  row.append(langSel, lvlSel, rm);
+  return row;
+}
+function addLangRow() {
+  (state.profile.languages ||= []).push({ code: 'en', level: 'native' });
+  save(); renderLangs();
+}
+
 function saveProfile() {
   const p = state.profile;
-  ['name','title','years','loc','permit','english','experience','education'].forEach(k => {
+  ['name','title','years','loc','permit','target','experience','education'].forEach(k => {
     const el = document.getElementById('p-' + k); if (el) p[k] = el.value.trim();
   });
-  save();
-  toast('Profile saved ✓');
+  save(); toast('Profile saved ✓');
+}
+
+// Resume upload → Claude extraction -----------------------------
+const drop = document.getElementById('resume-drop');
+const fileInput = document.getElementById('resume-file');
+['dragenter','dragover'].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.add('dragover'); }));
+['dragleave','drop'].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.remove('dragover'); }));
+drop.addEventListener('drop', ev => { const f = ev.dataTransfer.files[0]; if (f) handleResume(f); });
+fileInput.addEventListener('change', ev => { const f = ev.target.files[0]; if (f) handleResume(f); });
+
+async function handleResume(file) {
+  if (!state.apiKey) { openKeys(); toast('Add your API key first'); return; }
+  const progress = document.getElementById('resume-progress');
+  const status = document.getElementById('resume-status');
+  progress.classList.add('active'); status.textContent = 'Reading file…';
+  try {
+    let text = '';
+    if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
+      text = await pdfToText(file);
+    } else {
+      text = await file.text();
+    }
+    if (!text.trim()) throw new Error('No text extracted from the file');
+    status.textContent = 'Extracting with Claude…';
+    const extracted = await claudeExtractProfile(text);
+    applyExtracted(extracted);
+    status.textContent = '✓ Fields filled — review below and Save';
+    setTimeout(() => progress.classList.remove('active'), 3000);
+    toast('Resume parsed ✓');
+  } catch (e) {
+    console.error(e);
+    status.textContent = '✗ ' + e.message;
+    setTimeout(() => progress.classList.remove('active'), 4500);
+  }
+}
+
+async function pdfToText(file) {
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+  const pages = [];
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    pages.push(content.items.map(it => it.str).join(' '));
+  }
+  return pages.join('\n\n');
+}
+
+async function claudeExtractProfile(resumeText) {
+  const system = `Extract a Canadian job-seeker profile from the resume text. Output ONLY valid JSON with these keys (all optional; skip a field if unknown):
+{
+  "name": string,
+  "title": string,
+  "years": string,
+  "loc": string,
+  "permit": string,
+  "target": string,
+  "experience": string (2-4 sentences summary),
+  "education": string,
+  "skills": string[],
+  "courses": string[],
+  "certs": string[],
+  "languages": [{ "code": string (ISO 639-1), "level": one of "native","C2","C1","B2","B1","A2" }]
+}
+For "loc" prefer a Canadian city with province (e.g. "Toronto, ON"). For "title" prefer the person's current or most recent title.`;
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-api-key': state.apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001', max_tokens: 2048, system,
+      messages: [{ role: 'user', content: 'RESUME:\n\n' + resumeText.slice(0, 15000) }],
+    }),
+  });
+  if (!res.ok) throw new Error('Claude ' + res.status);
+  const data = await res.json();
+  const text = (data.content?.[0]?.text || '').trim();
+  const m = text.match(/\{[\s\S]*\}/); if (!m) throw new Error('AI did not return JSON');
+  return JSON.parse(m[0]);
+}
+
+function applyExtracted(e) {
+  const p = state.profile;
+  ['name','title','loc','permit','target','experience','education'].forEach(k => { if (e[k]) p[k] = e[k]; });
+  if (e.years) p.years = String(e.years);
+  ['skills','courses','certs'].forEach(k => { if (Array.isArray(e[k])) p[k] = e[k]; });
+  if (Array.isArray(e.languages) && e.languages.length) p.languages = e.languages;
+  save(); renderProfile();
 }
 
 // API keys ------------------------------------------------------
 function openKeys() { document.getElementById('api-key').value = state.apiKey || ''; document.getElementById('keys-modal').classList.add('open'); }
 function closeKeys() { document.getElementById('keys-modal').classList.remove('open'); }
-function saveKey() {
-  state.apiKey = document.getElementById('api-key').value.trim();
-  save(); closeKeys(); toast('Key saved ✓');
-}
+function saveKey() { state.apiKey = document.getElementById('api-key').value.trim(); save(); closeKeys(); toast('Key saved ✓'); }
 
 // Toast ---------------------------------------------------------
 function toast(msg) {
@@ -462,24 +625,27 @@ function toast(msg) {
   setTimeout(() => t.remove(), 2200);
 }
 
-// Analyze -------------------------------------------------------
 function buy(plan) { window.open('https://easypromptai.net/zoom#buy', '_blank'); }
 
+// Analyze -------------------------------------------------------
 async function analyze() {
   if (!state.apiKey) { openKeys(); toast('Add your API key first'); return; }
   const mode = document.querySelector('#job-input-mode button.active').dataset.mode;
   const jobText = mode === 'text' ? document.getElementById('job-text').value.trim() : document.getElementById('job-url').value.trim();
   if (!jobText) { toast('Paste the job first'); return; }
-  const profile = state.profile;
-  if (!profile.experience && !profile.title) { toast('Set up your profile first'); go('profile'); return; }
+  if (!state.profile.experience && !state.profile.title) { toast('Set up your profile first'); go('profile'); return; }
 
   const btn = document.getElementById('analyze-btn');
   btn.disabled = true; btn.innerHTML = '<span class="loader"></span> Analyzing…';
   document.getElementById('result-wrap').innerHTML = '';
 
-  const context = { profile,
+  const salaryCode = document.getElementById('job-salary').value;
+  const salaryBand = D.salaryBands.find(b => b.code === salaryCode);
+
+  const context = {
+    profile: state.profile,
     jobLocation: document.getElementById('job-loc').value.trim(),
-    salaryExpectation: document.getElementById('job-salary').value.trim(),
+    salaryExpectation: salaryBand ? salaryBand.label : '',
     job: jobText, jobIsUrl: mode === 'url',
   };
   try {
@@ -496,32 +662,22 @@ async function analyze() {
 }
 
 async function callClaude(ctx) {
-  const system = `You are a brutally honest Canadian career advisor. Given a job posting and a candidate profile, produce a realistic fit analysis. Be candid about gaps. Use Canada-specific context (work permit, language, credential recognition, PGWP, LMIA-exempt roles, express entry advantages). Output ONLY valid JSON matching this schema:
+  const system = `You are a brutally honest Canadian career advisor. Given a job posting and a candidate profile, produce a realistic fit analysis. Be candid about gaps. Use Canada-specific context: work permit type, official-language proficiency (English/French), credential recognition, PGWP/BOWP, LMIA-exempt roles, Express Entry advantages, NOC codes, provincial regulatory bodies. Output ONLY valid JSON:
 {
   "jobTitle": string, "company": string, "score": number (0-100),
   "verdict": "GO" | "MAYBE" | "SKIP",
   "verdictLine": string (one sentence saying what to do),
-  "explanation": string (2-3 sentences on why the score),
+  "explanation": string (2-3 sentences),
   "strengths": string[] (3-6 concrete matched strengths),
   "gaps": string[] (3-6 concrete gaps),
   "actions": string[] (3-5 specific next steps ranked by impact)
 }`;
-  const user = `CANDIDATE PROFILE:\n${JSON.stringify(ctx.profile, null, 2)}\n\nJOB LOCATION: ${ctx.jobLocation || 'not specified'}\nSALARY EXPECTATION (CAD): ${ctx.salaryExpectation || 'not specified'}\n\nJOB ${ctx.jobIsUrl ? 'URL' : 'DESCRIPTION'}:\n${ctx.job}\n\nProduce the JSON analysis now.`;
+  const user = `CANDIDATE PROFILE:\n${JSON.stringify(ctx.profile, null, 2)}\n\nJOB LOCATION: ${ctx.jobLocation || 'not specified'}\nSALARY EXPECTATION: ${ctx.salaryExpectation || 'not specified'}\n\nJOB ${ctx.jobIsUrl ? 'URL' : 'DESCRIPTION'}:\n${ctx.job}\n\nProduce the JSON analysis now.`;
 
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      'x-api-key': state.apiKey,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true',
-    },
-    body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 2048,
-      system,
-      messages: [{ role: 'user', content: user }],
-    }),
+    headers: { 'content-type': 'application/json', 'x-api-key': state.apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+    body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 2048, system, messages: [{ role: 'user', content: user }] }),
   });
   if (!res.ok) throw new Error('Claude ' + res.status + ': ' + (await res.text()).slice(0, 200));
   const data = await res.json();
@@ -548,24 +704,20 @@ function renderResult(r) {
         </div>
         <div class="verdict">
           <span class="badge ${badge}">${label}</span>
-          <h3>${escapeHtml(r.jobTitle || 'Job')} ${r.company ? '· ' + escapeHtml(r.company) : ''}</h3>
-          <p><b>${escapeHtml(r.verdictLine || '')}</b></p>
-          <p style="margin-top:8px">${escapeHtml(r.explanation || '')}</p>
+          <h3>${esc(r.jobTitle || 'Job')} ${r.company ? '· ' + esc(r.company) : ''}</h3>
+          <p><b>${esc(r.verdictLine || '')}</b></p>
+          <p style="margin-top:8px">${esc(r.explanation || '')}</p>
         </div>
       </div>
       <div class="breakdown">
-        <div class="col strengths"><h4>Your strengths for this role</h4><ul>${(r.strengths || []).map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ul></div>
-        <div class="col gaps"><h4>Gaps you need to close</h4><ul>${(r.gaps || []).map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ul></div>
+        <div class="col strengths"><h4>Your strengths for this role</h4><ul>${(r.strengths || []).map(s => `<li>${esc(s)}</li>`).join('')}</ul></div>
+        <div class="col gaps"><h4>Gaps you need to close</h4><ul>${(r.gaps || []).map(s => `<li>${esc(s)}</li>`).join('')}</ul></div>
       </div>
-      <div class="action-list">
-        <h4>Action plan (ranked by impact)</h4>
-        <ol>${(r.actions || []).map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ol>
-      </div>
+      <div class="action-list"><h4>Action plan (ranked by impact)</h4><ol>${(r.actions || []).map(s => `<li>${esc(s)}</li>`).join('')}</ol></div>
     </div>`;
   document.getElementById('result-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
-
-function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
 
 // History -------------------------------------------------------
 function renderHistory() {
@@ -579,7 +731,7 @@ function renderHistory() {
     const d = new Date(h.ts); const when = d.toLocaleDateString() + ' · ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     return `<div class="hist-item" onclick="openHist(${i})">
       <div class="score ${cls}">${h.score}</div>
-      <div style="flex:1"><div class="title">${escapeHtml(h.title)}${h.company ? ' · ' + escapeHtml(h.company) : ''}</div><div class="meta">${when}</div></div>
+      <div style="flex:1"><div class="title">${esc(h.title)}${h.company ? ' · ' + esc(h.company) : ''}</div><div class="meta">${when}</div></div>
       <div style="color:var(--muted)">›</div>
     </div>`;
   }).join('');
