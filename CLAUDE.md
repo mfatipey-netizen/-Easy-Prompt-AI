@@ -64,3 +64,44 @@ Live: frontend at **easypromptai.net**, API at **api.easypromptai.net**.
 - No committed test suite. Sanity-check the Worker with `node --check worker/src/index.js`
   and `worker/src/engine.js` before pushing. (A throwaway mocked-D1 harness has been used
   ad hoc in the session scratchpad.)
+
+---
+
+## Other projects owned by this user
+
+This user (`mfatipey-netizen`, m.f.atipey@gmail.com) has **4 active projects**.
+Central profile is in Google Drive: **`PROFILE.md`** at
+<https://drive.google.com/file/d/1fq7wgV2lsuKDGK4xXN2Q0lqs7xVxiIoM/view>.
+Quick-reference command cheat-sheet: **`COMMANDS`** Google Sheet at
+<https://docs.google.com/spreadsheets/d/18II5XKRxCtI_whmFwFvTlQSnmIDDMDesO-W8nNhBIsE/edit>.
+
+| # | Project | Where the code lives | Status |
+|---|---|---|---|
+| 1 | **Easy Prompt AI** | this repo | live @ easypromptai.net |
+| 1a | **Zoom Live Subtitles** | this repo, `zoom-translator/` sub-folder | .exe released, `$9.99/month` pricing planned (device-bound license) |
+| 2 | **JobFit.ca** | `mfatipey-netizen/jobfit` (private) | v0.1 MVP, BYOK works, paid tiers pending |
+| 3 | **YardPact** | `mfatipey-netizen/yardpact` (private) | landing live @ yardpact.netlify.app |
+| 4 | **Crypto Trading Bot** | `mfatipey-netizen/crypto-trading-bot` (private) | dev; Kraken key was leaked → revoked; new keys ONLY in Cloudflare secrets |
+
+## Sync convention (do this after every commit)
+
+After a commit lands in any of the above repos:
+
+1. **Update Drive** — upload the changed files to the matching subfolder in
+   the master Drive folder <https://drive.google.com/drive/folders/1mAz8W1I5IkVUiXvuZnV56T_0Yds4G1__>.
+   (Drive is a backup, not source of truth; my tool only has `create_file`, so each
+   update stacks a new revision alongside the old one — periodic manual cleanup.)
+2. **Bump the profile** — if the commit changed the project's status,
+   pricing, architecture, or a "decided" item, edit `PROFILE.md` and re-upload it
+   to Drive root.
+3. **Add new commands to `COMMANDS`** — if a new frequently-used command showed
+   up in the workflow, append a row to `COMMANDS.csv` (in this repo) and re-upload
+   to Drive.
+
+## Golden rules
+
+- **Language for chat with this user: Persian.** Code, commit messages, PR bodies: English.
+- **Never commit secrets.** They live in Cloudflare Worker Secrets only.
+- **Never open a PR unless explicitly asked.**
+- **Never push straight to `main`.** Feature branch → PR → squash-merge.
+- **Before push, run `node --check` on any JS changed** (Worker files especially).
