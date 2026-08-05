@@ -1,0 +1,97 @@
+# Zoom Live Subtitles
+
+Real-time multilingual subtitle overlay for Zoom on Windows.
+Captures system loopback audio, transcribes with Deepgram Nova-3/Nova-2,
+translates with Claude Haiku 4.5, and shows live captions on a
+transparent always-on-top overlay.
+
+**۱۴ زبان مبدأ / ۱۴ زبان مقصد:**
+English · فارسی · 中文 · Русский · العربية · Türkçe · Français · Italiano ·
+Deutsch · Español · 日本語 · 한국어 · Português · हिन्दी · Nederlands
+
+مستقل از تنظیمات میزبان جلسه کار می‌کند (به فعال بودن Live Translation در حساب
+Zoom میزبان نیازی نیست).
+
+---
+
+## پیش‌نیاز
+
+- **ویندوز ۱۰/۱۱**
+- **Node.js 20+** — <https://nodejs.org>
+- کلید **Deepgram** — <https://console.deepgram.com/signup> (200$ اعتبار رایگان)
+- کلید **Anthropic** — <https://console.anthropic.com/settings/keys>
+
+## نصب و اجرا (از سورس)
+
+```powershell
+cd zoom-translator
+npm install
+npm start
+```
+
+بار اول که اجرا کنی:
+1. پنجرهٔ تنظیمات باز می‌شود — کلید Deepgram و کلید Anthropic را وارد و **ذخیره** کن.
+2. overlay شفاف پایین صفحه ظاهر می‌شود. با موس هاور کنی نوار کنترل بالای آن پیدا می‌شود.
+3. Zoom را در پنجرهٔ دیگر باز کن، وارد جلسه شو (با هدفون).
+4. روی overlay دکمهٔ **شروع** را بزن. ویندوز از تو می‌پرسد کدام پنجره / تمام صفحه را
+   share کنی — **تمام صفحه** را انتخاب کن و حتماً تیک **Share system audio** (یا
+   Share tab audio) را بزن.
+5. زیرنویس فارسی زنده ظاهر می‌شود.
+
+## کلیدها و کنترل‌ها
+
+هاور روی overlay → نوار بالا:
+
+- **شروع / توقف** — ضبط و ترجمه
+- **A- / A+** — کوچک/بزرگ کردن فونت
+- **قفل / باز** — click-through: وقتی روشن است، موس از روی زیرنویس رد می‌شود
+  (روی Zoom کلیک می‌کنی، نه روی زیرنویس)
+- **تنظیمات** — از منوی سینی سیستم (system tray) هم قابل دسترسی
+- **پنهان** — مخفی کردن overlay (از tray دوباره نمایش)
+
+از **سینی سیستم (Tray)**: راست‌کلیک روی آیکون → Settings، Click-through toggle، Quit.
+
+## معماری
+
+```
+Windows loopback (getDisplayMedia + system audio)
+  → 48 kHz mono float32
+  → downsample به 16 kHz Int16 (linear16)
+  → WebSocket به Deepgram Nova-3 (interim + final + utterance_end)
+  → روی هر utterance نهایی → Claude Haiku 4.5 برای ترجمه به فارسی
+  → درج در نوار زیرنویس RTL
+```
+
+تأخیر معمول: ۱ تا ۱.۵ ثانیه.
+
+## هزینه‌ها (تقریبی)
+
+- Deepgram Nova-3 streaming: ~$0.0077 per minute → **~$0.46/hour**
+- Claude Haiku 4.5: ~$0.02/hour ترجمه
+- **جمعاً ~$0.5/hour جلسه**
+
+## عیب‌یابی
+
+- **«هیچ ترک صوتی پیدا نشد»** — موقع share صفحه تیک *Share system audio* را نزده‌ای.
+  دوباره Stop کن و Start بزن.
+- **زیرنویس ظاهر نمی‌شود** — مطمئن شو Zoom در حال پخش صداست (هدفون درست وصل است و صدا از سیستم می‌آید). Deepgram روی
+  سکوت متن تولید نمی‌کند.
+- **اتصال Deepgram قطع شد** — کلید API معتبر است؟ اعتبار حساب Deepgram صفر نشده؟
+- **زیرنویس عقب افتاده / کند** — اگر اینترنت بی‌ثبات است، مدل را از Nova-3 به `nova-2`
+  در `src/overlay.js` تغییر بده (کمی سریع‌تر).
+- **بلندی صدای Zoom در هدفون افت کرد** — این اپ صدا را «شنود» می‌کند، دستکاری نمی‌کند.
+  اگر افت شنیدی، شاید مشکل driver ویندوز باشد؛ Zoom را ری‌استارت کن.
+
+## ساخت نصب‌کننده Windows (اختیاری)
+
+```powershell
+npm run build:win
+```
+
+فایل نصب در `dist/` ساخته می‌شود.
+
+## سلب مسئولیت
+
+این ابزار برای استفادهٔ شخصی طراحی شده. صدای جلسات را ضبط یا ذخیره نمی‌کند، فقط
+بلادرنگ به Deepgram و Anthropic ارسال می‌کند. قبل از استفاده در جلسات کاری، سیاست‌های
+حریم خصوصی سازمانت را چک کن.
