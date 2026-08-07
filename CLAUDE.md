@@ -5,7 +5,7 @@
 > Three products live in this repo, one per branch. Switch first, then work:
 > - `project/easy-prompt-ai` — multilingual prompt builder (live at easypromptai.net)
 > - `project/zoom-live-subtitles` — this one (Windows overlay for real-time Zoom subtitles)
-> - `project/jobfit` — JobFit.ca PWA
+> - `project/jobfit` — BestApply.ca PWA (Canadian job-fit analyzer; formerly JobFit)
 >
 > Never edit files that belong to another project from this branch — the two folders
 > that matter here are `zoom-translator/` and `.github/workflows/build-zoom-translator.yml`.
@@ -99,7 +99,7 @@ Quick-reference command cheat-sheet: **`COMMANDS`** Google Sheet at
 |---|---|---|---|
 | 1 | **Easy Prompt AI** | this repo, branch `project/easy-prompt-ai` | live @ easypromptai.net |
 | 2 | **Zoom Live Subtitles** (this branch) | this repo, branch `project/zoom-live-subtitles` | .exe released, `$9.99/month` pricing planned (device-bound license) |
-| 3 | **JobFit** | this repo, branch `project/jobfit` | v0.3 MVP — domain migration pending (jobfit.ca was auctioned off; picking new domain) |
+| 3 | **BestApply.ca** (formerly JobFit) | this repo, branch `project/jobfit`, folder `bestapply/` | v0.3 MVP rebranded; domain purchase + backend endpoints pending |
 | 4 | **YardPact** | `mfatipey-netizen/yardpact` (private) | landing live @ yardpact.netlify.app |
 | 5 | **Crypto Trading Bot** | `mfatipey-netizen/crypto-trading-bot` (private) | dev; Kraken key was leaked → revoked; new keys ONLY in Cloudflare secrets |
 
