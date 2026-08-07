@@ -103,6 +103,19 @@ Quick-reference command cheat-sheet: **`COMMANDS`** Google Sheet at
 | 4 | **YardPact** | `mfatipey-netizen/yardpact` (private) | landing live @ yardpact.netlify.app |
 | 5 | **Crypto Trading Bot** | `mfatipey-netizen/crypto-trading-bot` (private) | dev; Kraken key was leaked → revoked; new keys ONLY in Cloudflare secrets |
 
+## Shared accounts (used across products)
+
+- **Personal Gmail:** `m.f.atipey@gmail.com` — day-to-day account; GitHub
+  `mfatipey-netizen`; domain registrant contact at Namecheap.
+- **Business Gmail + PayPal Business:** `easypromptai2026@gmail.com` — separate
+  account created specifically to hold the **PayPal Business** used across all
+  paid products (Easy Prompt AI, BestApply.app, and this Windows overlay when
+  we ship the $9.99/mo device-bound license). Every checkout / webhook / invoice
+  runs through this merchant identity — never a personal PayPal. Its
+  credentials live in the Easy Prompt AI branch's Worker Secrets
+  (`PAYPAL_CLIENT_ID` / `PAYPAL_SECRET`); this branch's future licensing
+  server (whenever we build it) will reuse the same account.
+
 ## Sync convention (do this after every commit)
 
 After a commit lands in any of the above repos:
