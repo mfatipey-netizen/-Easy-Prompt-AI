@@ -273,18 +273,18 @@
     <div class="price-card popular">
       <div class="tag">Most popular</div>
       <h4>Basic</h4>
-      <div class="price"><span class="cur">$</span>5.99<span class="per">/mo</span></div>
+      <div class="price"><span class="cur">C$</span>7.99<span class="per">/mo</span></div>
       <ul><li>20 analyses per month</li><li>Save unlimited jobs</li><li>PDF export</li><li>Priority AI</li></ul>
       <button onclick="buy('basic')">Get Basic</button>
     </div>
     <div class="price-card">
       <h4>Pro</h4>
-      <div class="price"><span class="cur">$</span>11.99<span class="per">/mo</span></div>
+      <div class="price"><span class="cur">C$</span>14.99<span class="per">/mo</span></div>
       <ul><li>Unlimited analyses</li><li>Cover-letter drafts</li><li>Interview-prep questions</li><li>Everything in Basic</li></ul>
       <button onclick="buy('pro')">Get Pro</button>
     </div>
   </div>
-  <p style="text-align:center;color:var(--muted);font-size:13px;margin-top:16px">Pay with PayPal · USDT · Prices in USD</p>
+  <p style="text-align:center;color:var(--muted);font-size:13px;margin-top:16px">Pay with PayPal · USDT · 🍁 Prices in Canadian dollars (CAD)</p>
 </section>
 
 <!-- ANALYZE -->
@@ -607,8 +607,8 @@ function openPlan() {
       ` : `
         <button class="btn-ghost" onclick="signOut()">Sign out</button>
       `}
-      ${state.plan.type === 'free' ? `<button class="btn-primary" onclick="buy('basic')">Upgrade — $5.99/mo</button>` : ''}
-      ${state.plan.type === 'basic' ? `<button class="btn-primary" onclick="buy('pro')">Upgrade to Pro — $11.99/mo</button>` : ''}
+      ${state.plan.type === 'free' ? `<button class="btn-primary" onclick="buy('basic')">Upgrade — C$7.99/mo</button>` : ''}
+      ${state.plan.type === 'basic' ? `<button class="btn-primary" onclick="buy('pro')">Upgrade to Pro — C$14.99/mo</button>` : ''}
     </div>`;
   document.getElementById('plan-modal').classList.add('open');
 }

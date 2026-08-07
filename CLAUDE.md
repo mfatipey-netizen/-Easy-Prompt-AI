@@ -61,7 +61,7 @@ Target market: Canada. Marketing angle: *"Tired of applying to jobs that never r
 - ✅ Multi-language profile (answer language = profile language)
 - ✅ Account pill + plan meter, job memory
 - ✅ BYOK (bring your own Anthropic key) — free tier during launch
-- ⏳ Hosted subscription (**$5.99 Basic / $11.99 Pro**) — Worker endpoint pending
+- ⏳ Hosted subscription (**C$7.99 Basic / C$14.99 Pro** — priced in Canadian dollars to lean into the Canada-first positioning) — Worker endpoint pending
 - ⏳ PayPal + USDT checkout — reuses Easy Prompt AI Worker
 - ⏳ 14-language brochure & install guide
 

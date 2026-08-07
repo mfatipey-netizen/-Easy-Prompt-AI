@@ -12,7 +12,7 @@ Target market: Canada. Marketing angle: *"Tired of applying to jobs that never r
 - ✅ Home / Analyze / Profile / History tabs
 - ✅ Persistent profile stored in localStorage (courses & certs are appendable)
 - ✅ BYOK (bring your own Anthropic key) — free tier during launch
-- ⏳ Hosted subscription ($5.99 Basic / $11.99 Pro) — worker endpoint pending
+- ⏳ Hosted subscription (C$7.99 Basic / C$14.99 Pro — priced in Canadian dollars) — worker endpoint pending
 - ⏳ PayPal + USDT checkout — reuses Easy Prompt AI worker
 - ⏳ 14-language brochure & install guide
 
@@ -51,7 +51,7 @@ Future:
 
 ## What's next
 
-- Worker endpoint that proxies Claude and enforces the $5.99 / $11.99 quotas
+- Worker endpoint that proxies Claude and enforces the C$7.99 / C$14.99 quotas
 - Landing/marketing brochure (single-A4 PDF, same style as Zoom Live Subtitles)
 - Cover-letter generation for Pro tier
 - Interview-prep question packs for Pro tier
