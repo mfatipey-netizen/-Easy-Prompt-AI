@@ -1,75 +1,95 @@
-# CLAUDE.md — Project memory for Easy Prompt AI
+# CLAUDE.md — Project memory for Zoom Live Subtitles
 
-> این فایل حافظهٔ دائمی پروژه است. Claude Code آن را در شروع هر سشن خودکار می‌خواند،
-> پس لازم نیست هر بار همه‌چیز را یادآوری کنی. وقتی تصمیم مهمی گرفتیم، همین‌جا اضافه‌اش کن.
+> **📍 THIS BRANCH: `project/zoom-live-subtitles` — the Windows overlay app.**
+>
+> Three products live in this repo, one per branch. Switch first, then work:
+> - `project/easy-prompt-ai` — multilingual prompt builder (live at easypromptai.net)
+> - `project/zoom-live-subtitles` — this one (Windows overlay for real-time Zoom subtitles)
+> - `project/jobfit` — JobFit.ca PWA
+>
+> Never edit files that belong to another project from this branch — the two folders
+> that matter here are `zoom-translator/` and `.github/workflows/build-zoom-translator.yml`.
+> `worker/` and `index.html` belong to Easy Prompt AI; leave them alone here.
+
+> این فایل حافظهٔ دائمی پروژه است. Claude Code آن را در شروع هر سشن خودکار می‌خواند.
+> وقتی تصمیم مهمی گرفتیم، همین‌جا اضافه‌اش کن.
 
 ## What this is
-Easy Prompt AI — a multilingual "professional prompt builder." The user answers ~20
-adaptive questions for a chosen topic and gets a structured, ready-to-use prompt in any
-of 13 languages. Persian is the primary language (the question bank is authored in
-Persian; other languages are AI-translated and cached).
+Zoom Live Subtitles — a Windows-only Electron overlay that shows real-time subtitles on
+top of Zoom (or any app playing audio) without needing the Zoom host's Live Translation
+feature turned on. Captures system-loopback audio, transcribes with Deepgram, translates
+with Claude Haiku 4.5.
 
-Live: frontend at **easypromptai.net**, API at **api.easypromptai.net**.
+Market: sold as a standalone Windows installer. Planned pricing: `$9.99/month`
+(device-bound license). Marketing angle: "بدون نیاز به فعال بودن ترجمهٔ زمان‌واقعی در حساب
+میزبان جلسه — روی هر جلسه‌ای کار می‌کند."
 
 ## Architecture
-- **`index.html`** — the entire frontend in one file (UI + thin API client). No build step.
-- **`worker/src/index.js`** — Cloudflare Worker backend (all API endpoints, pricing,
-  entitlement, AI calls, TTS). Secrets/logic live here so they can't be read from the browser.
-- **`worker/src/engine.js`** — the prompt engine (`nextQuestion`, `generatePrompt`, categories).
-- **`worker/wrangler.toml`** — Worker config + D1 binding. Root dir for builds is `worker/`.
-- **D1 database** (binding `DB`) — stores codes, payments, feedback, history, and the
-  `i18n` translation cache.
+```
+Windows loopback (getDisplayMedia + system audio)
+  → 48 kHz mono float32
+  → downsample به 16 kHz Int16 (linear16)
+  → WebSocket به Deepgram Nova-3 (interim + final + utterance_end)
+  → روی هر utterance نهایی → Claude Haiku 4.5 برای ترجمه به زبان هدف
+  → درج در نوار زیرنویس (RTL برای فارسی/عربی)
+```
 
-## Deploy flow (important)
-- Cloudflare **Workers Builds** is connected to this GitHub repo. **Any push to `main`
-  auto-deploys** the Worker (build: `npm install`, deploy: `npx wrangler deploy`, root: `worker`).
-- So the workflow is: develop on the feature branch → open PR → **squash-merge to `main`**
-  → Cloudflare deploys within ~1–2 min. Check Worker → **Deployments** for the green build.
-- Adding/editing a secret in the dashboard also creates a new active version (on top of the
-  currently deployed code) — it does NOT deploy new code by itself.
-- Frontend (`index.html`) is served separately (GitHub Pages / custom domain easypromptai.net).
+## Files (in this branch, only edit these)
+- **`zoom-translator/main.js`** — Electron main process (window, tray, IPC, click-through).
+- **`zoom-translator/preload.js`** — IPC bridge.
+- **`zoom-translator/src/overlay.html` / `overlay.js`** — the transparent always-on-top
+  subtitle overlay + the audio capture + Deepgram WebSocket + Claude translation.
+- **`zoom-translator/src/settings.html`** — settings window (API keys, source/target lang).
+- **`zoom-translator/package.json`** — electron-builder config (Windows portable + nsis).
+- **`zoom-translator/marketing/`** — bilingual A4 brochure + install guide (HTML + PDF build).
+- **`.github/workflows/build-zoom-translator.yml`** — CI: builds Windows installer on push
+  and publishes as a **rolling `dev` prerelease** so the installer is always downloadable
+  from GitHub Releases without a manual tag.
 
-## Branch & git convention
-- Develop on branch **`claude/ai-prompt-generator-app-sxpbno`**, PR into `main`, squash-merge.
-- Because we squash-merge, the feature branch diverges from `main` after each merge. Next
-  change: `git fetch origin main && git merge origin/main`, resolve the TTS block conflicts
-  by keeping the newest version, then continue.
+## Keys the user needs (they enter these in the app's Settings window; NEVER commit them)
+- **Deepgram API key** — <https://console.deepgram.com/signup> ($200 free credit)
+- **Anthropic API key** — <https://console.anthropic.com/settings/keys>
 
-## Secrets / env (set in Cloudflare → Settings → Variables and secrets — NEVER commit values)
-- `ADMIN_TOKEN`, `ANTHROPIC_API_KEY` (Claude), `AI_MODEL`, `ALLOWED_ORIGIN` (CSV of origins)
-- `PAYPAL_CLIENT_ID` / `PAYPAL_SECRET` / `PAYPAL_ENV=live`, `PRICE_USDT`
-- `USDT_TRC20_ADDRESS` / `USDT_ERC20_ADDRESS` / `USDT_BEP20_ADDRESS` / `USDT_ARB_ADDRESS`
-- **`AZURE_TTS_KEY`** (secret) + **`AZURE_TTS_REGION`** = `canadacentral` — for voice.
+Both live in `electron-store` on the user's machine only.
 
-## Voice / TTS (current state)
-- Endpoint **`POST /api/tts`** in `worker/src/index.js` → Azure Neural TTS → returns MP3.
-  Works in every language on any device (server-generated, not dependent on browser voices).
-- Frontend tries server TTS first; falls back to browser `speechSynthesis` if the Azure key
-  is missing. **Read-aloud is ON by default** (`epai_voice`).
-- Each language uses its **native male voice** (map `TTS_VOICE`); natural pitch, only a
-  gentle `rate='-4%'` slow-down. Do NOT re-add a pitch shift — it garbled Persian.
-- We tried one shared multilingual voice (Andrew) — rejected: it only truly covers a few
-  languages and fell back to a default (female) voice for Persian and others.
-- **Open item:** Azure's only male Persian voice (`fa-IR-FaridNeural`) is mediocre. If the
-  user wants more natural Persian, connect Google Chirp3-HD or ElevenLabs **for `fa` only**
-  (keep other languages on Azure) via the per-language override in `TTS_VOICE`.
+## Supported languages (14 source × 14 target)
+English · فارسی · 中文 · Русский · العربية · Türkçe · Français · Italiano · Deutsch ·
+Español · 日本語 · 한국어 · Português · हिन्दी · Nederlands
+
+## Deploy flow
+- CI (`.github/workflows/build-zoom-translator.yml`) builds on every push to this branch
+  and publishes a rolling `dev` prerelease with the installer.
+- User downloads from: <https://github.com/mfatipey-netizen/-Easy-Prompt-AI/releases>
+- Manual release: bump `zoom-translator/package.json` version, tag, push tag.
+
+## Cost model
+- Deepgram Nova-3 streaming: ~$0.0077/min → ~$0.46/hour
+- Claude Haiku 4.5: ~$0.02/hour translation
+- **Total ~$0.5/hour** of meeting
 
 ## Conventions
-- Match the surrounding code style; both source files favor compact, single-file code.
-- Question bank is Persian-first; UI strings and questions for other languages are
-  AI-translated and cached in D1 under `I18N_VERSION` (bump it when Persian wording changes).
-- Keep changes server-side when they involve secrets or logic that shouldn't be in the browser.
+- Windows-only for now (loopback capture uses `getDisplayMedia({audio:true})` which is
+  Windows/Chrome-specific behavior). Do NOT try to port to macOS via the same API —
+  needs BlackHole / a virtual audio device.
+- Overlay must stay **click-through by default** when locked so users can click Zoom
+  behind it (implemented via `setIgnoreMouseEvents(true, {forward:true})`; hover on the
+  control bar temporarily disables it).
+- Persian/Arabic subtitles → RTL text direction. All other languages → LTR.
+- Keep the overlay dependency-free of Node modules that need native compilation —
+  only pure JS to keep the Windows build fast.
 
 ## Testing
-- No committed test suite. Sanity-check the Worker with `node --check worker/src/index.js`
-  and `worker/src/engine.js` before pushing. (A throwaway mocked-D1 harness has been used
-  ad hoc in the session scratchpad.)
+- No test suite. Manual QA on Windows:
+  - `cd zoom-translator && npm install && npm start`
+  - Enter both keys, start a Zoom call, hit Start on the overlay, share screen with
+    "Share system audio" enabled.
+- Sanity-check with `node --check zoom-translator/src/overlay.js` before push.
 
 ---
 
 ## Other projects owned by this user
 
-This user (`mfatipey-netizen`, m.f.atipey@gmail.com) has **4 active projects**.
+This user (`mfatipey-netizen`, m.f.atipey@gmail.com) has **multiple active projects**.
 Central profile is in Google Drive: **`PROFILE.md`** at
 <https://drive.google.com/file/d/1fq7wgV2lsuKDGK4xXN2Q0lqs7xVxiIoM/view>.
 Quick-reference command cheat-sheet: **`COMMANDS`** Google Sheet at
@@ -77,11 +97,11 @@ Quick-reference command cheat-sheet: **`COMMANDS`** Google Sheet at
 
 | # | Project | Where the code lives | Status |
 |---|---|---|---|
-| 1 | **Easy Prompt AI** | this repo | live @ easypromptai.net |
-| 1a | **Zoom Live Subtitles** | this repo, `zoom-translator/` sub-folder | .exe released, `$9.99/month` pricing planned (device-bound license) |
-| 2 | **JobFit.ca** | `mfatipey-netizen/jobfit` (private) | v0.1 MVP, BYOK works, paid tiers pending |
-| 3 | **YardPact** | `mfatipey-netizen/yardpact` (private) | landing live @ yardpact.netlify.app |
-| 4 | **Crypto Trading Bot** | `mfatipey-netizen/crypto-trading-bot` (private) | dev; Kraken key was leaked → revoked; new keys ONLY in Cloudflare secrets |
+| 1 | **Easy Prompt AI** | this repo, branch `project/easy-prompt-ai` | live @ easypromptai.net |
+| 2 | **Zoom Live Subtitles** (this branch) | this repo, branch `project/zoom-live-subtitles` | .exe released, `$9.99/month` pricing planned (device-bound license) |
+| 3 | **JobFit** | this repo, branch `project/jobfit` | v0.3 MVP — domain migration pending (jobfit.ca was auctioned off; picking new domain) |
+| 4 | **YardPact** | `mfatipey-netizen/yardpact` (private) | landing live @ yardpact.netlify.app |
+| 5 | **Crypto Trading Bot** | `mfatipey-netizen/crypto-trading-bot` (private) | dev; Kraken key was leaked → revoked; new keys ONLY in Cloudflare secrets |
 
 ## Sync convention (do this after every commit)
 
@@ -89,19 +109,19 @@ After a commit lands in any of the above repos:
 
 1. **Update Drive** — upload the changed files to the matching subfolder in
    the master Drive folder <https://drive.google.com/drive/folders/1mAz8W1I5IkVUiXvuZnV56T_0Yds4G1__>.
-   (Drive is a backup, not source of truth; my tool only has `create_file`, so each
-   update stacks a new revision alongside the old one — periodic manual cleanup.)
 2. **Bump the profile** — if the commit changed the project's status,
    pricing, architecture, or a "decided" item, edit `PROFILE.md` and re-upload it
    to Drive root.
 3. **Add new commands to `COMMANDS`** — if a new frequently-used command showed
-   up in the workflow, append a row to `COMMANDS.csv` (in this repo) and re-upload
-   to Drive.
+   up in the workflow, append a row to `COMMANDS.csv` and re-upload to Drive.
 
 ## Golden rules
 
 - **Language for chat with this user: Persian.** Code, commit messages, PR bodies: English.
-- **Never commit secrets.** They live in Cloudflare Worker Secrets only.
+- **Never commit API keys.** They live in `electron-store` on the user's machine.
 - **Never open a PR unless explicitly asked.**
-- **Never push straight to `main`.** Feature branch → PR → squash-merge.
-- **Before push, run `node --check` on any JS changed** (Worker files especially).
+- **Never push straight to `main`.** This project stays on `project/zoom-live-subtitles`;
+  it does not squash to `main` (main is Easy Prompt AI territory).
+- **Before push, run `node --check` on any JS changed.**
+- **Stay on the branch that matches the project you're working on.** Never edit files
+  that belong to another project from this branch.
