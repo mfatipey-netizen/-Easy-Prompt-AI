@@ -485,6 +485,52 @@ export default {
         return json(env, ent);
       }
 
+      /* ---------- BestApply.app (waitlist first, real payments later) ---------- *
+       * Phase-1 launch strategy: instead of wiring the full PayPal+USDT flow up
+       * front, the Basic/Pro buttons on bestapply.app capture email + plan into
+       * a waitlist table. Once we have real signup demand we build the checkout
+       * and email the list a 50% launch discount. Keeps the site "sellable"
+       * today without a broken checkout for zero traffic.                     */
+      if (path === '/api/bestapply/waitlist' && request.method === 'POST') {
+        try {
+          await env.DB.prepare(
+            'CREATE TABLE IF NOT EXISTS bestapply_waitlist (' +
+            '  id INTEGER PRIMARY KEY AUTOINCREMENT,' +
+            '  email TEXT NOT NULL,' +
+            '  name TEXT,' +
+            '  plan TEXT NOT NULL,' +
+            '  source TEXT,' +
+            '  language TEXT,' +
+            '  referrer TEXT,' +
+            '  ip TEXT,' +
+            '  created_at INTEGER NOT NULL,' +
+            '  UNIQUE(email, plan)' +
+            ')'
+          ).run();
+        } catch (e) {}
+        const { email = '', name = '', plan = 'basic', source = '', language = '' } = await readJson(request);
+        const em = String(email).trim().toLowerCase();
+        if (!em || !em.includes('@') || em.length > 200) return json(env, { error: 'bad_email' }, 400);
+        if (!['basic', 'pro'].includes(plan)) return json(env, { error: 'bad_plan' }, 400);
+        const ip = request.headers.get('CF-Connecting-IP') || '';
+        const ref = (request.headers.get('Referer') || '').slice(0, 300);
+        await env.DB.prepare(
+          'INSERT OR IGNORE INTO bestapply_waitlist (email,name,plan,source,language,referrer,ip,created_at) VALUES (?,?,?,?,?,?,?,?)'
+        ).bind(em, String(name).slice(0, 100), plan, String(source).slice(0, 100), String(language).slice(0, 10), ref, ip, now()).run();
+        // Return position so the UI can say "You're #47 on the list" — small excitement lever.
+        const cnt = await env.DB.prepare('SELECT COUNT(*) AS n FROM bestapply_waitlist WHERE plan=?').bind(plan).first().catch(() => ({ n: 0 }));
+        return json(env, { ok: true, position: cnt.n || 0, plan });
+      }
+
+      // Admin: list BestApply waitlist signups (newest first).
+      if (path === '/api/admin/bestapply/waitlist') {
+        if (!isAdmin(request, env)) return json(env, { error: 'unauthorized' }, 401);
+        const rows = await env.DB.prepare(
+          'SELECT id, email, name, plan, source, language, referrer, created_at FROM bestapply_waitlist ORDER BY id DESC LIMIT 500'
+        ).all().catch(() => ({ results: [] }));
+        return json(env, { items: rows.results || [] });
+      }
+
       // Cloud history (per activation code) — synced across devices for Pro users
       if (path === '/api/history') {
         const code = (request.headers.get('Authorization') || '').replace(/^Bearer\s+/, '').trim();
