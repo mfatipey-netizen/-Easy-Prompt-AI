@@ -1,37 +1,45 @@
-# CLAUDE.md — Project memory for JobFit
+# CLAUDE.md — Project memory for BestApply.ca
 
-> **📍 THIS BRANCH: `project/jobfit` — the Canadian job-fit analyzer PWA.**
+> **📍 THIS BRANCH: `project/jobfit` — the Canadian job-fit analyzer PWA (branded BestApply.ca).**
 >
 > Three products live in this repo, one per branch. Switch first, then work:
 > - `project/easy-prompt-ai` — multilingual prompt builder (live at easypromptai.net)
 > - `project/zoom-live-subtitles` — Windows overlay for real-time Zoom subtitles
-> - `project/jobfit` — this one (Canadian job-fit analyzer PWA)
+> - `project/jobfit` — this one (Canadian job-fit analyzer PWA, brand = BestApply.ca)
 >
 > Never edit files that belong to another project from this branch — the folder
-> that matters here is `jobfit/`. `worker/` and root `index.html` belong to
-> Easy Prompt AI; leave them alone here unless we're adding a JobFit endpoint
+> that matters here is `bestapply/`. `worker/` and root `index.html` belong to
+> Easy Prompt AI; leave them alone here unless we're adding a BestApply endpoint
 > to the shared Worker (see "Backend" below).
+>
+> (Historical note: this branch is still named `project/jobfit` because that's
+> where the code lives; the product itself was rebranded from JobFit to
+> BestApply.ca after `jobfit.ca` was lost in auction 2026-07-15. If you want,
+> ask the user before renaming the branch to `project/bestapply`.)
 
 > این فایل حافظهٔ دائمی پروژه است. Claude Code آن را در شروع هر سشن خودکار می‌خواند.
 > وقتی تصمیم مهمی گرفتیم، همین‌جا اضافه‌اش کن.
 
 ## What this is
-JobFit — an AI-powered Canadian job-fit analyzer. Paste a job posting → get a fit
-score, matched strengths, real gaps, and a "should you apply?" recommendation with
-a ranked action plan. Persistent bilingual profile (resume, courses, certs, work
-memory) stored locally.
+BestApply.ca — an AI-powered Canadian job-fit analyzer. Paste a job posting → get
+a fit score, matched strengths, real gaps, and a "should you apply?" recommendation
+with a ranked action plan. Persistent bilingual profile (resume, courses, certs,
+work memory) stored locally.
 
 Target market: Canada. Marketing angle: *"Tired of applying to jobs that never reply?"*
 
-## 🌐 Domain — DECIDING
+## 🌐 Domain — DECIDED: `bestapply.ca`
 - **Original plan:** `jobfit.ca` — **lost in auction on 2026-07-15.**
-- **Frontrunner candidate:** `myjobfit.ca` (available).
-- Other options on the table: `jobfit.ai`, `fitjob.ca`, `jobmatch.ca`, `rolefit.ca`.
-- **Action item:** pick the domain, then find/replace `jobfit.ca` across:
-  - `jobfit/README.md` (marketing copy, deploy instructions)
-  - `jobfit/index.html` (all page titles, meta tags, canonical URL)
-  - `jobfit/manifest.webmanifest` (name, short_name, start_url)
-  - `jobfit/sw.js` (any hard-coded URL)
+- **Alternatives considered:** `myjobfit.ca`, `jobfit.ai`, `fitjob.ca`, `jobmatch.ca`, `rolefit.ca`.
+- **Chosen:** **`bestapply.ca`** — value prop right in the name, clean slate (no
+  overlap/confusion with the auctioned jobfit.ca), keeps the `.ca` Canadian signal.
+- **Rebrand applied:** All references in `bestapply/*` were renamed from `JobFit` /
+  `jobfit.ca` to `BestApply` / `bestapply.ca`. The old `localStorage` key
+  `jobfit.v1` is migrated one-time to `bestapply.v1` inside `bestapply/index.html`
+  so existing users don't lose data.
+- **Still to do:** register the domain (Namecheap/CIRA), verify no trademark
+  conflict on "BestApply" (CIPO/USPTO), then either point the domain at GitHub
+  Pages (see Deploy) or attach it to Cloudflare Workers directly.
 
 ## Status: v0.3 MVP
 - ✅ Single-file PWA — Windows, Mac, Linux, iPhone, Android
@@ -63,35 +71,36 @@ Planned:
 ```
 
 ## Files (in this branch, only edit these)
-- **`jobfit/index.html`** — the entire PWA in one file (UI + analyze flow + profile).
-- **`jobfit/data.js`** — NOC codes, StatCan job families, CRA-backed lists for Canadian
+- **`bestapply/index.html`** — the entire PWA in one file (UI + analyze flow + profile).
+- **`bestapply/data.js`** — NOC codes, StatCan job families, CRA-backed lists for Canadian
   job-code dropdowns.
-- **`jobfit/manifest.webmanifest`** — PWA manifest (icons, name, colors, start_url).
-- **`jobfit/sw.js`** — service worker (offline app shell).
-- **`jobfit/README.md`** — public README; also the marketing text.
+- **`bestapply/manifest.webmanifest`** — PWA manifest (icons, name, colors, start_url).
+- **`bestapply/sw.js`** — service worker (offline app shell).
+- **`bestapply/README.md`** — public README; also the marketing text.
 
 ## Backend (planned, shared with EPAI Worker)
 Reuses `worker/` from the Easy Prompt AI branch — same Cloudflare Worker, same D1.
-When we add JobFit endpoints:
-1. Add `/api/jobfit/analyze` and `/api/jobfit/subscription` handlers in
+When we add BestApply endpoints:
+1. Add `/api/bestapply/analyze` and `/api/bestapply/subscription` handlers in
    `worker/src/index.js` on the `project/easy-prompt-ai` branch (that's where the
    Worker code lives / gets deployed from), NOT on this branch.
-2. Add JobFit credit columns / plan rows to `worker/schema.sql`.
-3. Cross-branch note: this branch's `jobfit/index.html` will call
-   `https://api.easypromptai.net/api/jobfit/analyze` — the API domain stays shared.
+2. Add BestApply credit columns / plan rows to `worker/schema.sql`.
+3. Cross-branch note: this branch's `bestapply/index.html` will call
+   `https://api.easypromptai.net/api/bestapply/analyze` — the API domain stays shared.
 
 ## Deploy flow
 - **Option A (current, easy):** GitHub Pages under easypromptai.net — served at
-  `easypromptai.net/jobfit/`. No custom domain needed until we pick one.
-- **Option B (once we pick the domain):** add `CNAME` file with `<new-domain>` inside
-  `jobfit/` folder, point A records to GitHub Pages IPs
-  (185.199.108.153 / .109.153 / .110.153 / .111.153).
-- This branch never merges to `main` (main is Easy Prompt AI). To publish, we point
-  the domain / Pages path at this branch OR at a dedicated `mfatipey-netizen/jobfit`
-  repo if we want strict separation later.
+  `easypromptai.net/bestapply/`. Works today, no custom domain needed until we
+  buy `bestapply.ca`.
+- **Option B (once the domain is bought):** add a `CNAME` file containing
+  `bestapply.ca` inside the `bestapply/` folder, then point A records to GitHub
+  Pages IPs (185.199.108.153 / .109.153 / .110.153 / .111.153).
+- This branch never merges to `main` (main is Easy Prompt AI). To publish, we
+  point the domain / Pages path at this branch OR spin up a dedicated
+  `mfatipey-netizen/bestapply` repo if we want strict separation later.
 
 ## Conventions
-- Single-file PWA style — all UI and logic inline in `jobfit/index.html`. Avoid
+- Single-file PWA style — all UI and logic inline in `bestapply/index.html`. Avoid
   bringing in a build step; match the existing compact style.
 - Persian-first strings, then AI-translated where multilingual UI is needed.
 - BYOK keys **never** touch our servers — they stay in the user's browser localStorage.
@@ -100,9 +109,9 @@ When we add JobFit endpoints:
 
 ## Testing
 - No test suite. Manual QA:
-  - `cd jobfit && npx serve .` → open `http://localhost:3000`.
+  - `cd bestapply && npx serve .` → open `http://localhost:3000`.
   - Chrome offers "Install app" from the address bar.
-- Sanity-check with `node --check jobfit/data.js jobfit/sw.js` before push.
+- Sanity-check with `node --check bestapply/data.js bestapply/sw.js` before push.
 
 ---
 
@@ -118,7 +127,7 @@ Quick-reference command cheat-sheet: **`COMMANDS`** Google Sheet at
 |---|---|---|---|
 | 1 | **Easy Prompt AI** | this repo, branch `project/easy-prompt-ai` | live @ easypromptai.net |
 | 2 | **Zoom Live Subtitles** | this repo, branch `project/zoom-live-subtitles` | .exe released, `$9.99/month` pricing planned (device-bound license) |
-| 3 | **JobFit** (this branch) | this repo, branch `project/jobfit` | v0.3 MVP — domain migration pending (jobfit.ca was auctioned off; picking new domain) |
+| 3 | **BestApply.ca** (this branch, formerly JobFit) | this repo, branch `project/jobfit`, folder `bestapply/` | v0.3 MVP rebranded; domain purchase + backend endpoints pending |
 | 4 | **YardPact** | `mfatipey-netizen/yardpact` (private) | landing live @ yardpact.netlify.app |
 | 5 | **Crypto Trading Bot** | `mfatipey-netizen/crypto-trading-bot` (private) | dev; Kraken key was leaked → revoked; new keys ONLY in Cloudflare secrets |
 

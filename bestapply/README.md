@@ -1,4 +1,4 @@
-# JobFit.ca
+# BestApply.ca
 
 **AI-powered Canadian job fit analysis.** Paste a job posting → get a fit score, matched strengths, real gaps, and a "should you apply?" recommendation with a ranked action plan.
 
@@ -21,7 +21,7 @@ Target market: Canada. Marketing angle: *"Tired of applying to jobs that never r
 Any static file server works:
 
 ```bash
-cd jobfit
+cd bestapply
 npx serve .
 # or: python3 -m http.server 8000
 ```
@@ -30,9 +30,9 @@ Open `http://localhost:3000` (or your server's URL). Chrome will offer *Install 
 
 ## Deploy
 
-**Option A — GitHub Pages under easypromptai.net:** already served — path is `easypromptai.net/jobfit/`.
+**Option A — GitHub Pages under easypromptai.net:** already served — path is `easypromptai.net/bestapply/`.
 
-**Option B — Custom domain `jobfit.ca`:** buy the domain, add a `CNAME` file with `jobfit.ca` inside the `jobfit/` folder, and point DNS A records to GitHub Pages IPs (185.199.108.153 / .109.153 / .110.153 / .111.153).
+**Option B — Custom domain `bestapply.ca`:** buy the domain, add a `CNAME` file with `bestapply.ca` inside the `bestapply/` folder, and point DNS A records to GitHub Pages IPs (185.199.108.153 / .109.153 / .110.153 / .111.153).
 
 ## Architecture
 
@@ -44,8 +44,8 @@ Browser (PWA)
   └── Result & history → localStorage
 
 Future:
-  ├── /api/jobfit/analyze on Cloudflare Worker (proxies Claude, decrements quota)
-  ├── /api/jobfit/subscription (PayPal / USDT)
+  ├── /api/bestapply/analyze on Cloudflare Worker (proxies Claude, decrements quota)
+  ├── /api/bestapply/subscription (PayPal / USDT)
   └── D1 for user credits (reusing Easy Prompt AI schema)
 ```
 

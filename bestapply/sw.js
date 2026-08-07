@@ -1,5 +1,5 @@
 // Minimal offline shell — cache the app shell, always try network first for API
-const CACHE = 'jobfit-v1';
+const CACHE = 'bestapply-v1';
 const SHELL = ['./', './index.html', './manifest.webmanifest'];
 
 self.addEventListener('install', (e) => {
