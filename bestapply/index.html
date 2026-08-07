@@ -100,6 +100,42 @@
   .how-card h3 { margin: 0 0 8px; font-size: 18px; font-weight: 700; }
   .how-card p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
 
+  /* "Why us" 3-up */
+  .why-us { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 24px 0 32px; }
+  @media (max-width: 720px) { .why-us { grid-template-columns: 1fr; } }
+  .why-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 24px; }
+  .why-card .icon { font-size: 36px; margin-bottom: 12px; line-height: 1; }
+  .why-card h3 { margin: 0 0 8px; font-size: 18px; font-weight: 700; }
+  .why-card p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+
+  /* Comparison table */
+  .compare-wrap { overflow-x: auto; margin: 12px 0 20px; }
+  .compare { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--card);
+    border: 1px solid var(--line); border-radius: 16px; overflow: hidden; font-size: 14px; }
+  .compare th, .compare td { padding: 14px 18px; text-align: left; border-bottom: 1px solid var(--line); }
+  .compare thead th { background: var(--bg); font-weight: 700; font-size: 13px; }
+  .compare thead th.us { background: linear-gradient(135deg, rgba(220,38,38,0.08), rgba(220,38,38,0.02)); color: var(--brand); }
+  .compare thead th .sub { display: block; font-size: 11px; font-weight: 500; color: var(--muted); text-transform: none; letter-spacing: 0; margin-top: 2px; }
+  .compare tbody tr:last-child td { border-bottom: 0; }
+  .compare td.yes { color: var(--good); font-weight: 700; text-align: center; }
+  .compare td.no { color: var(--brand); font-weight: 700; text-align: center; }
+  .compare td.partial { color: var(--warn); font-weight: 700; text-align: center; font-size: 12px; }
+  @media (max-width: 640px) { .compare th, .compare td { padding: 10px 12px; font-size: 13px; } }
+
+  /* FAQ */
+  .faq { max-width: 780px; margin: 0 auto; }
+  .faq-item { background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 4px 20px; margin-bottom: 10px; transition: border-color 0.15s; }
+  .faq-item[open] { border-color: var(--brand); }
+  .faq-item summary { padding: 14px 0; cursor: pointer; font-weight: 700; font-size: 15px;
+    list-style: none; position: relative; padding-right: 32px; }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item summary::after { content: '+'; position: absolute; right: 4px; top: 50%;
+    transform: translateY(-50%); font-size: 22px; font-weight: 400; color: var(--muted); transition: transform 0.2s; }
+  .faq-item[open] summary::after { content: '−'; }
+  .faq-item p { margin: 0 0 14px; color: var(--muted); font-size: 14px; line-height: 1.65; }
+  .faq-item p b, .faq-item p i { color: var(--ink); }
+
   .pricing { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 40px 0 20px; }
   @media (max-width: 720px) { .pricing { grid-template-columns: 1fr; } }
   .price-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 28px 24px; position: relative; }
@@ -254,12 +290,51 @@
     </div>
   </div>
 
-  <h2 style="text-align:center;margin:40px 0 8px;font-size:28px;font-weight:800">How it works</h2>
+  <h2 style="text-align:center;margin:40px 0 8px;font-size:28px;font-weight:800">Why BestApply, not ChatGPT?</h2>
+  <p style="text-align:center;color:var(--muted);margin:0 0 24px;max-width:640px;margin-left:auto;margin-right:auto">Generic AI doesn't know NOC 41400 from NOC 21231, or what a PGWP is. BestApply is built end-to-end for the Canadian job market.</p>
+  <div class="why-us">
+    <div class="why-card">
+      <div class="icon">🇨🇦</div>
+      <h3>Canadian labour data</h3>
+      <p>NOC 2021 job codes, Statistics Canada CMA cities, CRA tax-bracket-aligned salary bands. Not scraped from a US job board.</p>
+    </div>
+    <div class="why-card">
+      <div class="icon">📋</div>
+      <h3>Understands your permit</h3>
+      <p>PGWP, BOWP, closed work permit, Express Entry, LMIA-exempt roles — real advice based on your immigration status, not a "consult a lawyer" cop-out.</p>
+    </div>
+    <div class="why-card">
+      <div class="icon">🌏</div>
+      <h3>Bilingual + diaspora-first</h3>
+      <p>Analysis in your language (English, French, فارسی, 中文, العربية, ਪੰਜਾਬੀ, and 14 more). Because a newcomer doesn't want the verdict in a second-language they're still learning.</p>
+    </div>
+  </div>
+
+  <h2 style="text-align:center;margin:60px 0 8px;font-size:28px;font-weight:800">How it works</h2>
   <p style="text-align:center;color:var(--muted);margin:0 0 24px">Three minutes. Total honesty about your chances.</p>
   <div class="how">
     <div class="how-card"><div class="n">1</div><h3>Upload your resume</h3><p>Drop a PDF and we auto-fill everything. Or type it in — dropdowns from NOC / Statistics Canada save your fingers.</p></div>
     <div class="how-card"><div class="n">2</div><h3>Paste the job</h3><p>Drop a LinkedIn/Indeed URL or paste the job description text. We handle the rest.</p></div>
     <div class="how-card"><div class="n">3</div><h3>Get your verdict</h3><p>A fit score (0–100), matched strengths, real gaps, and a "should you apply?" call with next steps.</p></div>
+  </div>
+
+  <h2 style="text-align:center;margin:60px 0 24px;font-size:28px;font-weight:800">Head to head</h2>
+  <div class="compare-wrap">
+    <table class="compare">
+      <thead>
+        <tr><th></th><th>Generic AI<br><span class="sub">(ChatGPT, Gemini, …)</span></th><th class="us">BestApply.app<br><span class="sub">🍁 built for Canada</span></th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Trained on the Canadian labour market</td><td class="no">✗</td><td class="yes">✓</td></tr>
+        <tr><td>Understands NOC 2021 codes &amp; TEER levels</td><td class="no">✗</td><td class="yes">✓</td></tr>
+        <tr><td>Factors in your work permit / PR status</td><td class="no">✗</td><td class="yes">✓</td></tr>
+        <tr><td>Salary bands aligned to CRA tax brackets</td><td class="no">✗</td><td class="yes">✓</td></tr>
+        <tr><td>Analysis language ≠ posting language</td><td class="partial">partial</td><td class="yes">✓ (17 languages)</td></tr>
+        <tr><td>Remembers every posting you've analyzed</td><td class="no">✗</td><td class="yes">✓ (private, local)</td></tr>
+        <tr><td>Runs offline once installed (PWA)</td><td class="no">✗</td><td class="yes">✓</td></tr>
+        <tr><td>Your resume ever leaves your device</td><td class="no">yes, always</td><td class="yes">never (BYOK)</td></tr>
+      </tbody>
+    </table>
   </div>
 
   <h2 style="text-align:center;margin:60px 0 24px;font-size:28px;font-weight:800">Pricing</h2>
@@ -285,6 +360,48 @@
     </div>
   </div>
   <p style="text-align:center;color:var(--muted);font-size:13px;margin-top:16px">Pay with PayPal · USDT · 🍁 Prices in Canadian dollars (CAD)</p>
+
+  <h2 style="text-align:center;margin:60px 0 24px;font-size:28px;font-weight:800">Questions Canadians actually ask</h2>
+  <div class="faq">
+    <details class="faq-item">
+      <summary>Does my resume or profile ever leave my browser?</summary>
+      <p>No. Your profile and job history live in your browser's local storage — never on our servers. Analysis happens by calling Claude directly from your browser with your own API key (BYOK), which means <b>we can't see it even if we wanted to</b>. When we launch the hosted plans, resume text is sent to Claude via a proxy, held for 24 hours for support, then deleted.</p>
+    </details>
+    <details class="faq-item">
+      <summary>How is this different from just pasting a job into ChatGPT?</summary>
+      <p>ChatGPT has read the whole internet — including US-first career blogs, US salary norms, and no clue what a PGWP is. BestApply is prompt-engineered on top of Claude with Canadian labour-market context baked in: NOC 2021 codes, Statistics Canada CMA cities, CRA tax brackets, and every Canadian work-permit category. The verdict factors in whether you can even <i>legally</i> take the job, not just your skills.</p>
+    </details>
+    <details class="faq-item">
+      <summary>I'm on a work permit / studying / applying for PR — will this help me?</summary>
+      <p>Yes — that's exactly who it's for. Tell it your status (PGWP, closed permit, student visa, applied under Express Entry, etc.) and the analysis will flag postings where the employer will need to sponsor you, LMIA-exempt roles you probably didn't know existed, and roles where your NOC code affects Express Entry points.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Is it available in French?</summary>
+      <p>Oui. Choose <b>Français</b> from the answer language dropdown and every analysis comes back in French — verdict, strengths, gaps, action plan. Right now the UI is English-first; a French UI is on the roadmap for launch. If you're in Quebec and want the whole app in French, join the waitlist and reply "FR please" — it moves French UI up the queue.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Can I try it before paying anything?</summary>
+      <p>Yes. Free tier gives you 3 full analyses — no credit card. Bring your own Anthropic API key and it becomes unlimited for free (BYOK mode). The paid plans exist for people who don't want to fiddle with API keys and want cover letters + interview prep.</p>
+    </details>
+    <details class="faq-item">
+      <summary>When does the paid version launch?</summary>
+      <p>We're taking the waitlist first so we don't build a checkout for zero traffic. Join the list, get 50% off launch pricing, and you'll be first when we open. Realistic ETA: 4–6 weeks after we hit 100 waitlist signups.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Does it work outside Canada?</summary>
+      <p>The AI analysis works globally, but the reference data (NOC codes, CMA cities, CRA brackets, work-permit categories) is Canadian. If you're job-hunting in the US or Europe, ChatGPT is probably a fine choice — this one is deliberately narrow so it can be sharper on Canada.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Who built this and why?</summary>
+      <p>Built by an immigrant to Canada who was tired of applying to jobs that never replied — and tired of watching friends do the same. If the market is going to auto-reject 98% of applications, at least you should know which 2% are worth your time.</p>
+    </details>
+  </div>
+
+  <div style="text-align:center;margin:60px 0 20px;padding:32px;background:linear-gradient(135deg,rgba(220,38,38,0.08),rgba(37,99,235,0.06));border-radius:20px;border:1px solid var(--line)">
+    <h2 style="margin:0 0 8px;font-size:26px;font-weight:800">Stop wasting weekends on applications that ghost you.</h2>
+    <p style="color:var(--muted);margin:0 0 20px;font-size:16px">Analyze your first job in the next three minutes. Free.</p>
+    <button class="cta" onclick="go('analyze')" style="padding:14px 32px">🎯 Analyze a job now <span>→</span></button>
+  </div>
 </section>
 
 <!-- ANALYZE -->

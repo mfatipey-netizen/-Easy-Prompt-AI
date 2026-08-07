@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>BestApply.app — A4 brochure (bilingual EN/FR)</title>
+<meta name="description" content="Print-ready A4 brochure for BestApply.app in English and French.">
+<style>
+  @page { size: A4; margin: 0; }
+  html, body { margin: 0; padding: 0; background: #f1f5f9; }
+  body { font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; color: #0f172a; }
+  .a4 { width: 210mm; min-height: 297mm; margin: 20px auto; background: white;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15); overflow: hidden; position: relative; page-break-after: always; }
+  @media print {
+    body { background: white; }
+    .a4 { margin: 0; box-shadow: none; page-break-after: always; }
+    .no-print { display: none !important; }
+  }
+  .print-btn { position: fixed; top: 20px; right: 20px; background: #dc2626; color: white;
+    padding: 12px 24px; border-radius: 8px; border: 0; font-weight: 700; cursor: pointer; box-shadow: 0 6px 20px rgba(220,38,38,0.35); z-index: 100; }
+
+  /* Page 1: English */
+  .page-en .header { padding: 22mm 18mm 12mm; background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; position: relative; }
+  .page-en .flag { display: inline-block; width: 30px; height: 20px; margin-right: 8px;
+    background: linear-gradient(to right, #ff0000 25%, white 25%, white 75%, #ff0000 75%); position: relative; border-radius: 2px; vertical-align: middle; }
+  .page-en .flag::after { content: '🍁'; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 14px; }
+  .page-en .kicker { display: inline-block; padding: 4px 12px; border-radius: 999px; background: rgba(255,255,255,0.2);
+    font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; }
+  .page-en h1 { margin: 0; font-size: 44px; font-weight: 900; letter-spacing: -1.5px; line-height: 1.05; }
+  .page-en h1 .hl { display: block; opacity: 0.9; font-weight: 700; margin-top: 4px; }
+  .page-en .subtitle { margin: 16px 0 0; font-size: 15px; opacity: 0.95; line-height: 1.5; max-width: 155mm; }
+  .page-en .body { padding: 15mm 18mm 12mm; }
+  .page-en .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10mm; margin-bottom: 12mm; }
+  .page-en .stat { text-align: center; padding: 8mm 4mm; background: #fef2f2; border-radius: 8px; border: 1px solid #fecaca; }
+  .page-en .stat .n { font-size: 32px; font-weight: 900; color: #dc2626; letter-spacing: -1px; }
+  .page-en .stat .l { font-size: 10px; color: #64748b; margin-top: 2px; line-height: 1.4; }
+  .page-en .pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6mm; margin-bottom: 10mm; }
+  .page-en .pillar { padding: 6mm 5mm; border: 1px solid #e2e8f0; border-radius: 8px; }
+  .page-en .pillar .icon { font-size: 22px; line-height: 1; margin-bottom: 4mm; }
+  .page-en .pillar h4 { margin: 0 0 2mm; font-size: 13px; font-weight: 800; }
+  .page-en .pillar p { margin: 0; font-size: 10.5px; color: #64748b; line-height: 1.55; }
+  .page-en .how-strip { background: #f8fafc; border-radius: 8px; padding: 6mm; margin-bottom: 8mm; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; }
+  .page-en .how-strip .step { padding-left: 8mm; position: relative; }
+  .page-en .how-strip .step .n { position: absolute; left: 0; top: -2px; width: 6mm; height: 6mm; border-radius: 50%;
+    background: #dc2626; color: white; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+  .page-en .how-strip .step h5 { margin: 0 0 1mm; font-size: 12px; font-weight: 800; }
+  .page-en .how-strip .step p { margin: 0; font-size: 10px; color: #64748b; line-height: 1.5; }
+  .page-en .cta-strip { text-align: center; padding: 8mm 6mm; background: linear-gradient(135deg, #0f172a, #1e293b); color: white; border-radius: 12px; }
+  .page-en .cta-strip h3 { margin: 0 0 3mm; font-size: 18px; font-weight: 800; }
+  .page-en .cta-strip p { margin: 0 0 5mm; font-size: 11px; opacity: 0.9; }
+  .page-en .cta-strip .url { display: inline-block; padding: 3mm 8mm; background: #dc2626; border-radius: 6px; font-weight: 800; font-size: 14px; }
+  .page-en .footer { position: absolute; bottom: 10mm; left: 18mm; right: 18mm; font-size: 9.5px; color: #94a3b8; display: flex; justify-content: space-between; align-items: center; }
+
+  /* Page 2: French — same visual language, mirrored copy */
+  .page-fr .header { padding: 22mm 18mm 12mm; background: linear-gradient(135deg, #0f172a, #1e293b); color: white; position: relative; }
+  .page-fr .flag { display: inline-block; width: 30px; height: 20px; margin-right: 8px;
+    background: linear-gradient(to right, #ff0000 25%, white 25%, white 75%, #ff0000 75%); position: relative; border-radius: 2px; vertical-align: middle; }
+  .page-fr .flag::after { content: '🍁'; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 14px; }
+  .page-fr .kicker { display: inline-block; padding: 4px 12px; border-radius: 999px; background: rgba(220,38,38,0.9);
+    font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; }
+  .page-fr h1 { margin: 0; font-size: 40px; font-weight: 900; letter-spacing: -1.5px; line-height: 1.1; }
+  .page-fr h1 .hl { color: #fca5a5; }
+  .page-fr .subtitle { margin: 16px 0 0; font-size: 15px; opacity: 0.9; line-height: 1.5; max-width: 155mm; }
+  .page-fr .body { padding: 15mm 18mm 12mm; }
+  .page-fr .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10mm; margin-bottom: 12mm; }
+  .page-fr .stat { text-align: center; padding: 8mm 4mm; background: #f0f9ff; border-radius: 8px; border: 1px solid #bae6fd; }
+  .page-fr .stat .n { font-size: 32px; font-weight: 900; color: #0f172a; letter-spacing: -1px; }
+  .page-fr .stat .l { font-size: 10px; color: #64748b; margin-top: 2px; line-height: 1.4; }
+  .page-fr .pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6mm; margin-bottom: 10mm; }
+  .page-fr .pillar { padding: 6mm 5mm; border: 1px solid #e2e8f0; border-radius: 8px; }
+  .page-fr .pillar .icon { font-size: 22px; line-height: 1; margin-bottom: 4mm; }
+  .page-fr .pillar h4 { margin: 0 0 2mm; font-size: 13px; font-weight: 800; }
+  .page-fr .pillar p { margin: 0; font-size: 10.5px; color: #64748b; line-height: 1.55; }
+  .page-fr .how-strip { background: #f8fafc; border-radius: 8px; padding: 6mm; margin-bottom: 8mm; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; }
+  .page-fr .how-strip .step { padding-left: 8mm; position: relative; }
+  .page-fr .how-strip .step .n { position: absolute; left: 0; top: -2px; width: 6mm; height: 6mm; border-radius: 50%;
+    background: #0f172a; color: white; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+  .page-fr .how-strip .step h5 { margin: 0 0 1mm; font-size: 12px; font-weight: 800; }
+  .page-fr .how-strip .step p { margin: 0; font-size: 10px; color: #64748b; line-height: 1.5; }
+  .page-fr .cta-strip { text-align: center; padding: 8mm 6mm; background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; border-radius: 12px; }
+  .page-fr .cta-strip h3 { margin: 0 0 3mm; font-size: 18px; font-weight: 800; }
+  .page-fr .cta-strip p { margin: 0 0 5mm; font-size: 11px; opacity: 0.95; }
+  .page-fr .cta-strip .url { display: inline-block; padding: 3mm 8mm; background: white; color: #dc2626; border-radius: 6px; font-weight: 800; font-size: 14px; }
+  .page-fr .footer { position: absolute; bottom: 10mm; left: 18mm; right: 18mm; font-size: 9.5px; color: #94a3b8; display: flex; justify-content: space-between; align-items: center; }
+</style>
+</head>
+<body>
+
+<button class="print-btn no-print" onclick="window.print()">🖨️ Print / Save as PDF</button>
+
+<!-- ===================== PAGE 1 — ENGLISH ===================== -->
+<div class="a4 page-en">
+  <div class="header">
+    <div><span class="flag"></span><span style="opacity:0.9;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase">BestApply.app</span></div>
+    <div style="margin-top:14px" class="kicker">🍁 Made for the Canadian job market</div>
+    <h1>Tired of applying to jobs<br>that <span class="hl">never reply?</span></h1>
+    <p class="subtitle">Before you spend another weekend polishing an application that gets auto-rejected, let AI tell you your <b>real chance</b> of getting it — and exactly what's missing.</p>
+  </div>
+  <div class="body">
+    <div class="stats">
+      <div class="stat"><div class="n">250+</div><div class="l">avg. applicants per posting on LinkedIn Canada</div></div>
+      <div class="stat"><div class="n">2%</div><div class="l">reply rate for online applications in 2026</div></div>
+      <div class="stat"><div class="n">80 hrs</div><div class="l">avg. time spent per job offer landed</div></div>
+    </div>
+
+    <div class="pillars">
+      <div class="pillar">
+        <div class="icon">🇨🇦</div>
+        <h4>Canadian labour data</h4>
+        <p>NOC 2021 codes, StatCan CMA cities, CRA tax-bracket-aligned salary bands — not a generic US job board.</p>
+      </div>
+      <div class="pillar">
+        <div class="icon">📋</div>
+        <h4>Understands your permit</h4>
+        <p>PGWP, BOWP, closed permit, Express Entry, LMIA-exempt roles — real advice based on your status.</p>
+      </div>
+      <div class="pillar">
+        <div class="icon">🌏</div>
+        <h4>Bilingual + diaspora-first</h4>
+        <p>Verdict in English, Français, فارسی, 中文, العربية, ਪੰਜਾਬੀ and 14 more languages.</p>
+      </div>
+    </div>
+
+    <div class="how-strip">
+      <div class="step"><div class="n">1</div><h5>Upload your resume</h5><p>PDF drop-in. Fields auto-fill from NOC/StatCan lists.</p></div>
+      <div class="step"><div class="n">2</div><h5>Paste the job</h5><p>LinkedIn URL or copy-pasted text.</p></div>
+      <div class="step"><div class="n">3</div><h5>Get your verdict</h5><p>Fit score 0–100, real gaps, and a "should you apply?" call.</p></div>
+    </div>
+
+    <div class="cta-strip">
+      <h3>Free — no credit card. First 3 analyses on us.</h3>
+      <p>Join the waitlist for launch pricing: <b>C$3.99/mo Basic · C$7.49/mo Pro</b> (50% off).</p>
+      <span class="url">bestapply.app</span>
+    </div>
+  </div>
+  <div class="footer">
+    <span>© 2026 BestApply.app — Made in Canada</span>
+    <span>1 / 2 · English</span>
+  </div>
+</div>
+
+<!-- ===================== PAGE 2 — FRENCH ===================== -->
+<div class="a4 page-fr">
+  <div class="header">
+    <div><span class="flag"></span><span style="opacity:0.9;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase">BestApply.app</span></div>
+    <div style="margin-top:14px" class="kicker">🍁 Conçu pour le marché du travail canadien</div>
+    <h1>Fatigué·e de postuler à des emplois<br>qui ne <span class="hl">répondent jamais?</span></h1>
+    <p class="subtitle">Avant de passer une autre fin de semaine à peaufiner une candidature qui sera rejetée automatiquement, laissez l'IA vous dire vos <b>vraies chances</b> — et exactement ce qui manque.</p>
+  </div>
+  <div class="body">
+    <div class="stats">
+      <div class="stat"><div class="n">250+</div><div class="l">candidats en moyenne par offre sur LinkedIn Canada</div></div>
+      <div class="stat"><div class="n">2 %</div><div class="l">taux de réponse aux candidatures en ligne en 2026</div></div>
+      <div class="stat"><div class="n">80 h</div><div class="l">temps moyen pour décrocher une offre d'emploi</div></div>
+    </div>
+
+    <div class="pillars">
+      <div class="pillar">
+        <div class="icon">🇨🇦</div>
+        <h4>Données canadiennes</h4>
+        <p>Codes CNP 2021, villes des RMR de Statistique Canada, tranches salariales alignées sur l'ARC — pas une source américaine.</p>
+      </div>
+      <div class="pillar">
+        <div class="icon">📋</div>
+        <h4>Comprend votre statut</h4>
+        <p>PTPD, PTOP, permis fermé, Entrée express, postes dispensés d'EIMT — conseils concrets selon votre situation.</p>
+      </div>
+      <div class="pillar">
+        <div class="icon">🌏</div>
+        <h4>Bilingue + diaspora</h4>
+        <p>Verdict en français, anglais, فارسی, 中文, العربية, ਪੰਜਾਬੀ et 14 autres langues.</p>
+      </div>
+    </div>
+
+    <div class="how-strip">
+      <div class="step"><div class="n">1</div><h5>Téléversez votre CV</h5><p>Glissez un PDF. Les champs se remplissent depuis la CNP / StatCan.</p></div>
+      <div class="step"><div class="n">2</div><h5>Collez l'offre</h5><p>URL LinkedIn ou texte copié-collé.</p></div>
+      <div class="step"><div class="n">3</div><h5>Obtenez votre verdict</h5><p>Score d'adéquation 0–100, écarts réels, et une décision « postuler ou non? ».</p></div>
+    </div>
+
+    <div class="cta-strip">
+      <h3>Gratuit — sans carte de crédit. Vos 3 premières analyses offertes.</h3>
+      <p>Inscrivez-vous à la liste d'attente pour le prix de lancement : <b>3,99 $ CA/mois Basic · 7,49 $ CA/mois Pro</b> (50 % de rabais).</p>
+      <span class="url">bestapply.app</span>
+    </div>
+  </div>
+  <div class="footer">
+    <span>© 2026 BestApply.app — Conçu au Canada</span>
+    <span>2 / 2 · Français</span>
+  </div>
+</div>
+
+</body>
+</html>
