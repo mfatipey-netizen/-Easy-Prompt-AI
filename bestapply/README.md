@@ -1,4 +1,4 @@
-# BestApply.ca
+# BestApply.app
 
 **AI-powered Canadian job fit analysis.** Paste a job posting → get a fit score, matched strengths, real gaps, and a "should you apply?" recommendation with a ranked action plan.
 
@@ -32,7 +32,7 @@ Open `http://localhost:3000` (or your server's URL). Chrome will offer *Install 
 
 **Option A — GitHub Pages under easypromptai.net:** already served — path is `easypromptai.net/bestapply/`.
 
-**Option B — Custom domain `bestapply.ca`:** buy the domain, add a `CNAME` file with `bestapply.ca` inside the `bestapply/` folder, and point DNS A records to GitHub Pages IPs (185.199.108.153 / .109.153 / .110.153 / .111.153).
+**Option B — Custom domain `bestapply.app`:** domain is registered at Namecheap (bought 2026-08-07). Add a `CNAME` file containing `bestapply.app` inside the `bestapply/` folder, then in Namecheap's Advanced DNS set the four `@` A records to GitHub Pages IPs (185.199.108.153 / .109.153 / .110.153 / .111.153) plus a `CNAME` for `www` → `mfatipey-netizen.github.io`. GitHub Pages issues a Let's Encrypt cert automatically once the `CNAME` propagates.
 
 ## Architecture
 

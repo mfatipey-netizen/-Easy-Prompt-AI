@@ -1,11 +1,11 @@
-# CLAUDE.md — Project memory for BestApply.ca
+# CLAUDE.md — Project memory for BestApply.app
 
-> **📍 THIS BRANCH: `project/jobfit` — the Canadian job-fit analyzer PWA (branded BestApply.ca).**
+> **📍 THIS BRANCH: `project/jobfit` — the Canadian job-fit analyzer PWA (branded BestApply.app).**
 >
 > Three products live in this repo, one per branch. Switch first, then work:
 > - `project/easy-prompt-ai` — multilingual prompt builder (live at easypromptai.net)
 > - `project/zoom-live-subtitles` — Windows overlay for real-time Zoom subtitles
-> - `project/jobfit` — this one (Canadian job-fit analyzer PWA, brand = BestApply.ca)
+> - `project/jobfit` — this one (Canadian job-fit analyzer PWA, brand = BestApply.app)
 >
 > Never edit files that belong to another project from this branch — the folder
 > that matters here is `bestapply/`. `worker/` and root `index.html` belong to
@@ -14,32 +14,41 @@
 >
 > (Historical note: this branch is still named `project/jobfit` because that's
 > where the code lives; the product itself was rebranded from JobFit to
-> BestApply.ca after `jobfit.ca` was lost in auction 2026-07-15. If you want,
+> BestApply.app after `jobfit.ca` was lost in auction 2026-07-15. If you want,
 > ask the user before renaming the branch to `project/bestapply`.)
 
 > این فایل حافظهٔ دائمی پروژه است. Claude Code آن را در شروع هر سشن خودکار می‌خواند.
 > وقتی تصمیم مهمی گرفتیم، همین‌جا اضافه‌اش کن.
 
 ## What this is
-BestApply.ca — an AI-powered Canadian job-fit analyzer. Paste a job posting → get
+BestApply.app — an AI-powered Canadian job-fit analyzer. Paste a job posting → get
 a fit score, matched strengths, real gaps, and a "should you apply?" recommendation
 with a ranked action plan. Persistent bilingual profile (resume, courses, certs,
 work memory) stored locally.
 
 Target market: Canada. Marketing angle: *"Tired of applying to jobs that never reply?"*
 
-## 🌐 Domain — DECIDED: `bestapply.ca`
+## 🌐 Domain — REGISTERED: `bestapply.app`
 - **Original plan:** `jobfit.ca` — **lost in auction on 2026-07-15.**
-- **Alternatives considered:** `myjobfit.ca`, `jobfit.ai`, `fitjob.ca`, `jobmatch.ca`, `rolefit.ca`.
-- **Chosen:** **`bestapply.ca`** — value prop right in the name, clean slate (no
-  overlap/confusion with the auctioned jobfit.ca), keeps the `.ca` Canadian signal.
-- **Rebrand applied:** All references in `bestapply/*` were renamed from `JobFit` /
-  `jobfit.ca` to `BestApply` / `bestapply.ca`. The old `localStorage` key
-  `jobfit.v1` is migrated one-time to `bestapply.v1` inside `bestapply/index.html`
-  so existing users don't lose data.
-- **Still to do:** register the domain (Namecheap/CIRA), verify no trademark
-  conflict on "BestApply" (CIPO/USPTO), then either point the domain at GitHub
-  Pages (see Deploy) or attach it to Cloudflare Workers directly.
+- **First replacement:** briefly picked `bestapply.ca`, but the user is on a
+  Canadian work permit and **CIRA's Canadian Presence Requirements do not
+  accept work-permit holders** as individual registrants (only citizens, PRs,
+  Canadian corporations, or trademark holders qualify). Registering `.ca` would
+  have risked CIRA revoking the domain on audit.
+- **Chosen:** **`bestapply.app`** — no residency requirement, Google-run TLD
+  with HTTPS/HSTS enforced by default, natural fit for a product name
+  ("bestapply.app"). Trademark cleared at CIPO (search returned 0 hits).
+  `.com` was walked away from because it's on GoDaddy Broker at ~C$22,886.
+- **Registered:** Namecheap, 2026-08-07. Order #210454195. Auto-renew ON.
+  Free Domain Privacy (WhoisGuard) enabled — WHOIS shows Namecheap proxy, not
+  the user's Toronto address / gmail.
+- **Rebrand applied:** All references in `bestapply/*` and this file were
+  renamed from `JobFit` / `jobfit.ca` to `BestApply` / `bestapply.app`. The old
+  `localStorage` key `jobfit.v1` is migrated one-time to `bestapply.v1` inside
+  `bestapply/index.html` so existing users don't lose data.
+- **Still to do:** DNS (point `bestapply.app` at GitHub Pages — see Deploy),
+  optional Cloudflare in front for caching, backend endpoints on the shared
+  Worker, and later `bestapply.ca` too once the user is a PR (redirect `.ca` → `.app`).
 
 ## Status: v0.3 MVP
 - ✅ Single-file PWA — Windows, Mac, Linux, iPhone, Android
@@ -91,9 +100,9 @@ When we add BestApply endpoints:
 ## Deploy flow
 - **Option A (current, easy):** GitHub Pages under easypromptai.net — served at
   `easypromptai.net/bestapply/`. Works today, no custom domain needed until we
-  buy `bestapply.ca`.
+  buy `bestapply.app`.
 - **Option B (once the domain is bought):** add a `CNAME` file containing
-  `bestapply.ca` inside the `bestapply/` folder, then point A records to GitHub
+  `bestapply.app` inside the `bestapply/` folder, then point A records to GitHub
   Pages IPs (185.199.108.153 / .109.153 / .110.153 / .111.153).
 - This branch never merges to `main` (main is Easy Prompt AI). To publish, we
   point the domain / Pages path at this branch OR spin up a dedicated
@@ -127,7 +136,7 @@ Quick-reference command cheat-sheet: **`COMMANDS`** Google Sheet at
 |---|---|---|---|
 | 1 | **Easy Prompt AI** | this repo, branch `project/easy-prompt-ai` | live @ easypromptai.net |
 | 2 | **Zoom Live Subtitles** | this repo, branch `project/zoom-live-subtitles` | .exe released, `$9.99/month` pricing planned (device-bound license) |
-| 3 | **BestApply.ca** (this branch, formerly JobFit) | this repo, branch `project/jobfit`, folder `bestapply/` | v0.3 MVP rebranded; domain purchase + backend endpoints pending |
+| 3 | **BestApply.app** (this branch, formerly JobFit) | this repo, branch `project/jobfit`, folder `bestapply/` | v0.3 MVP rebranded; domain purchase + backend endpoints pending |
 | 4 | **YardPact** | `mfatipey-netizen/yardpact` (private) | landing live @ yardpact.netlify.app |
 | 5 | **Crypto Trading Bot** | `mfatipey-netizen/crypto-trading-bot` (private) | dev; Kraken key was leaked → revoked; new keys ONLY in Cloudflare secrets |
 
