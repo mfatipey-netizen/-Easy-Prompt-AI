@@ -470,6 +470,44 @@
   </div>
 </div>
 
+<div class="modal" id="waitlist-modal">
+  <div class="modal-body">
+    <button class="modal-close" onclick="closeWaitlist()">×</button>
+    <div id="waitlist-body">
+      <div style="text-align:center;margin-bottom:12px">
+        <div style="display:inline-block;padding:4px 12px;border-radius:999px;background:rgba(220,38,38,0.12);color:var(--brand);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px">🍁 Launching soon</div>
+      </div>
+      <h3 style="text-align:center;margin:0 0 6px"><span id="waitlist-plan-label">Basic</span> is coming</h3>
+      <p style="text-align:center;color:var(--muted);margin:0 0 20px">Join the waitlist and lock in <b style="color:var(--brand)">50% off launch pricing</b> — plus early access before we open to the public.</p>
+      <div style="background:var(--bg);border-radius:12px;padding:14px 16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:12px">
+        <div>
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:700">Regular price</div>
+          <div style="font-weight:700;font-size:15px;text-decoration:line-through;color:var(--muted)"><span id="waitlist-price">C$7.99/mo</span></div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:11px;color:var(--brand);text-transform:uppercase;letter-spacing:1px;font-weight:800">Your launch price</div>
+          <div style="font-weight:900;font-size:22px;color:var(--brand);letter-spacing:-0.5px"><span id="waitlist-launch-price">C$3.99/mo</span></div>
+        </div>
+      </div>
+      <input type="hidden" id="waitlist-plan" value="basic">
+      <label>Email</label>
+      <input type="email" id="waitlist-email" placeholder="you@example.com" style="margin-bottom:10px">
+      <label>Name <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+      <input type="text" id="waitlist-name" placeholder="Jane Doe" style="margin-bottom:14px">
+      <div id="waitlist-status" style="display:none;color:var(--brand);font-size:13px;margin-bottom:10px"></div>
+      <button class="btn-primary" id="waitlist-submit" onclick="submitWaitlist()" style="width:100%">Get 50% off + Early access</button>
+      <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:12px">We'll email you the moment BestApply.app opens. No spam, ever.</p>
+    </div>
+    <div id="waitlist-success" style="display:none;text-align:center;padding:12px 0">
+      <div style="font-size:56px;margin-bottom:12px">🎉</div>
+      <h3 style="margin:0 0 8px">You're in!</h3>
+      <p style="color:var(--muted);margin:0 0 8px">You're <b style="color:var(--brand);font-size:22px">#<span id="waitlist-position">?</span></b> on the list.</p>
+      <p style="color:var(--muted);margin:0 0 20px;font-size:13px">We'll email you before launch with your personal 50%-off code.</p>
+      <button class="btn-primary" onclick="closeWaitlist()" style="width:100%">Awesome — keep exploring</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const D = window.JOBFIT_DATA;
 
@@ -823,7 +861,59 @@ function toast(msg) {
   setTimeout(() => t.remove(), 2200);
 }
 
-function buy(plan) { window.open('https://easypromptai.net/zoom#buy', '_blank'); }
+// API base for BestApply-specific endpoints (waitlist today, payments later).
+// Runs on the shared Easy Prompt AI Worker so we don't stand up a second one.
+const API_BASE = 'https://api.easypromptai.net';
+
+// Phase-1 buy behaviour: no live checkout yet. Buttons open a waitlist modal
+// that promises 50% off launch pricing + early access when the paid tiers open.
+function buy(plan) { openWaitlist(plan); }
+
+function openWaitlist(plan) {
+  const label = plan === 'pro' ? 'Pro' : 'Basic';
+  const price = plan === 'pro' ? 'C$14.99/mo' : 'C$7.99/mo';
+  const launchPrice = plan === 'pro' ? 'C$7.49/mo' : 'C$3.99/mo';
+  document.getElementById('waitlist-plan').value = plan;
+  document.getElementById('waitlist-plan-label').textContent = label;
+  document.getElementById('waitlist-price').textContent = price;
+  document.getElementById('waitlist-launch-price').textContent = launchPrice;
+  document.getElementById('waitlist-email').value = state.user.email || '';
+  document.getElementById('waitlist-name').value = state.user.name || '';
+  document.getElementById('waitlist-status').textContent = '';
+  document.getElementById('waitlist-status').style.display = 'none';
+  document.getElementById('waitlist-body').style.display = 'block';
+  document.getElementById('waitlist-success').style.display = 'none';
+  document.getElementById('waitlist-modal').classList.add('open');
+  setTimeout(() => document.getElementById('waitlist-email').focus(), 50);
+}
+function closeWaitlist() { document.getElementById('waitlist-modal').classList.remove('open'); }
+async function submitWaitlist() {
+  const email = document.getElementById('waitlist-email').value.trim();
+  const name  = document.getElementById('waitlist-name').value.trim();
+  const plan  = document.getElementById('waitlist-plan').value;
+  if (!email || !email.includes('@')) { toast('Enter a valid email'); return; }
+  const btn = document.getElementById('waitlist-submit');
+  btn.disabled = true; btn.innerHTML = '<span class="loader"></span> Joining…';
+  document.getElementById('waitlist-status').style.display = 'none';
+  try {
+    const res = await fetch(API_BASE + '/api/bestapply/waitlist', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, name, plan, language: state.profile.answerLang || 'en', source: 'bestapply.app' }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+    // Remember them locally so we don't ask again + the plan pill can greet them by name.
+    if (!state.user.email) { state.user.email = email; state.user.name = name || email.split('@')[0]; save(); }
+    document.getElementById('waitlist-body').style.display = 'none';
+    document.getElementById('waitlist-success').style.display = 'block';
+    document.getElementById('waitlist-position').textContent = data.position || '?';
+  } catch (e) {
+    document.getElementById('waitlist-status').textContent = 'Something went wrong: ' + e.message + '. Please try again.';
+    document.getElementById('waitlist-status').style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.innerHTML = 'Get 50% off + Early access';
+  }
+}
 
 // Analyze -------------------------------------------------------
 async function analyze() {
