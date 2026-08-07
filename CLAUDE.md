@@ -1,5 +1,14 @@
 # CLAUDE.md — Project memory for Easy Prompt AI
 
+> **📍 THIS BRANCH: `project/easy-prompt-ai` — the multilingual prompt builder.**
+>
+> Three products live in this repo, one per branch. Switch first, then work:
+> - `project/easy-prompt-ai` — this one (live at easypromptai.net)
+> - `project/zoom-live-subtitles` — Windows overlay for real-time Zoom subtitles
+> - `project/jobfit` — BestApply.app PWA (Canadian job-fit analyzer; formerly JobFit)
+>
+> Never edit files that belong to another project from this branch.
+
 > این فایل حافظهٔ دائمی پروژه است. Claude Code آن را در شروع هر سشن خودکار می‌خواند،
 > پس لازم نیست هر بار همه‌چیز را یادآوری کنی. وقتی تصمیم مهمی گرفتیم، همین‌جا اضافه‌اش کن.
 
@@ -23,16 +32,16 @@ Live: frontend at **easypromptai.net**, API at **api.easypromptai.net**.
 ## Deploy flow (important)
 - Cloudflare **Workers Builds** is connected to this GitHub repo. **Any push to `main`
   auto-deploys** the Worker (build: `npm install`, deploy: `npx wrangler deploy`, root: `worker`).
-- So the workflow is: develop on the feature branch → open PR → **squash-merge to `main`**
+- So the workflow is: develop on `project/easy-prompt-ai` → open PR → **squash-merge to `main`**
   → Cloudflare deploys within ~1–2 min. Check Worker → **Deployments** for the green build.
 - Adding/editing a secret in the dashboard also creates a new active version (on top of the
   currently deployed code) — it does NOT deploy new code by itself.
 - Frontend (`index.html`) is served separately (GitHub Pages / custom domain easypromptai.net).
 
 ## Branch & git convention
-- Develop on branch **`claude/ai-prompt-generator-app-sxpbno`**, PR into `main`, squash-merge.
+- Develop on branch **`project/easy-prompt-ai`**, PR into `main`, squash-merge.
 - Because we squash-merge, the feature branch diverges from `main` after each merge. Next
-  change: `git fetch origin main && git merge origin/main`, resolve the TTS block conflicts
+  change: `git fetch origin main && git merge origin/main`, resolve any block conflicts
   by keeping the newest version, then continue.
 
 ## Secrets / env (set in Cloudflare → Settings → Variables and secrets — NEVER commit values)
@@ -64,3 +73,58 @@ Live: frontend at **easypromptai.net**, API at **api.easypromptai.net**.
 - No committed test suite. Sanity-check the Worker with `node --check worker/src/index.js`
   and `worker/src/engine.js` before pushing. (A throwaway mocked-D1 harness has been used
   ad hoc in the session scratchpad.)
+
+---
+
+## Other projects owned by this user
+
+This user (`mfatipey-netizen`, m.f.atipey@gmail.com) has **multiple active projects**.
+Central profile is in Google Drive: **`PROFILE.md`** at
+<https://drive.google.com/file/d/1fq7wgV2lsuKDGK4xXN2Q0lqs7xVxiIoM/view>.
+Quick-reference command cheat-sheet: **`COMMANDS`** Google Sheet at
+<https://docs.google.com/spreadsheets/d/18II5XKRxCtI_whmFwFvTlQSnmIDDMDesO-W8nNhBIsE/edit>.
+
+| # | Project | Where the code lives | Status |
+|---|---|---|---|
+| 1 | **Easy Prompt AI** (this branch) | this repo, branch `project/easy-prompt-ai` | live @ easypromptai.net |
+| 2 | **Zoom Live Subtitles** | this repo, branch `project/zoom-live-subtitles` | .exe released, `$9.99/month` pricing planned (device-bound license) |
+| 3 | **BestApply.app** (formerly JobFit) | this repo, branch `project/jobfit`, folder `bestapply/` | v0.3 MVP rebranded; domain purchase + backend endpoints pending |
+| 4 | **YardPact** | `mfatipey-netizen/yardpact` (private) | landing live @ yardpact.netlify.app |
+| 5 | **Crypto Trading Bot** | `mfatipey-netizen/crypto-trading-bot` (private) | dev; Kraken key was leaked → revoked; new keys ONLY in Cloudflare secrets |
+
+## Shared accounts (used across products)
+
+- **Personal Gmail:** `m.f.atipey@gmail.com` — day-to-day account; GitHub
+  `mfatipey-netizen`; domain registrant contact at Namecheap.
+- **Business Gmail + PayPal Business:** `easypromptai2026@gmail.com` — separate
+  account created specifically to hold the **PayPal Business** used across all
+  paid products (Easy Prompt AI, BestApply.app, Zoom Live Subtitles). All
+  customer payments flow through this PayPal account. Its credentials
+  (`PAYPAL_CLIENT_ID` / `PAYPAL_SECRET`) live in this branch's Worker Secrets
+  and are the merchant identity for every checkout / webhook flow — never a
+  personal PayPal. Also billed the Namecheap purchase of `bestapply.app` so
+  the domain lives under the same business-email trail.
+
+## Sync convention (do this after every commit)
+
+After a commit lands in any of the above repos:
+
+1. **Update Drive** — upload the changed files to the matching subfolder in
+   the master Drive folder <https://drive.google.com/drive/folders/1mAz8W1I5IkVUiXvuZnV56T_0Yds4G1__>.
+   (Drive is a backup, not source of truth; my tool only has `create_file`, so each
+   update stacks a new revision alongside the old one — periodic manual cleanup.)
+2. **Bump the profile** — if the commit changed the project's status,
+   pricing, architecture, or a "decided" item, edit `PROFILE.md` and re-upload it
+   to Drive root.
+3. **Add new commands to `COMMANDS`** — if a new frequently-used command showed
+   up in the workflow, append a row to `COMMANDS.csv` and re-upload to Drive.
+
+## Golden rules
+
+- **Language for chat with this user: Persian.** Code, commit messages, PR bodies: English.
+- **Never commit secrets.** They live in Cloudflare Worker Secrets only.
+- **Never open a PR unless explicitly asked.**
+- **Never push straight to `main`.** Feature branch → PR → squash-merge.
+- **Before push, run `node --check` on any JS changed** (Worker files especially).
+- **Stay on the branch that matches the project you're working on.** Never edit files
+  that belong to another project from this branch.
