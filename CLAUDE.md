@@ -154,6 +154,18 @@ Quick-reference command cheat-sheet: **`COMMANDS`** Google Sheet at
 - Also billed the Namecheap purchase of `bestapply.app` (2026-08-07, order
   #210454195) so the domain lives under the same business email trail.
 
+## Ideas backlog (things the user liked but parked for later)
+
+- **Ontario Casino Affiliate site** — the user asked about building a full
+  online casino, which is a criminal-liability landmine in Ontario for
+  someone on a work permit (Criminal Code s.202 + IRPA s.36 inadmissibility
+  risk = potential loss of PR). The **affiliate / comparison-site** angle
+  is legal (advertising, not gambling), matches the user's PWA-and-analyzer
+  skill set, and Ontario iGO operators pay $100–$500 CPA or 30–50% rev
+  share. Compare-and-review site, no chargebacks, no license needed. User
+  said they liked the idea, asked me to remember it for later. Bring it up
+  the next time we're picking the next product to build.
+
 ## Sync convention (do this after every commit)
 
 After a commit lands in any of the above repos:
