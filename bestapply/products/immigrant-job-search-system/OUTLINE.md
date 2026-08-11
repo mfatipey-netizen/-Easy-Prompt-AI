@@ -10,7 +10,11 @@
 
 ## Positioning line (goes on the cover + landing page)
 
-> **Every rejected application costs an immigrant more than time. It costs runway on a visa, standing with a lawyer, and confidence with a family that already sacrificed. This is the AI system that stops the bleeding.**
+> **Every rejected application costs an immigrant more than time. It takes the will to send the next one — and that will is the only engine that eventually reaches an offer. This is the AI system that stops the bleeding.**
+
+Persian spine (used verbatim in every fa.md chapter):
+
+> **هر application ردشده‌ای که یه مهاجر باهاش مواجه می‌شه، غیر از زمان، انگیزهٔ ادامه دادن رو هم ازش می‌گیره.**
 
 ---
 

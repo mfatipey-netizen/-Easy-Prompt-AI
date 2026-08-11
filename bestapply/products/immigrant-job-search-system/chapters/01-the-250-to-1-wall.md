@@ -40,9 +40,9 @@ Under all of those, nine weeks is not nine weeks. It's nine weeks of runway, spe
 
 Here is the sentence I want you to carry through the entire book:
 
-> **Every rejected application costs an immigrant more than time.**
+> **Every rejected application costs an immigrant more than time. It also takes the will to send the next one.**
 
-It costs runway. It costs standing with a lawyer. It costs confidence with a family that already sacrificed for you to be here. The mathematical inefficiency of the current job market is a citizen problem when it costs Saturday afternoon; it is a survival problem when it costs your status.
+It costs runway. It costs standing with a lawyer. It costs confidence with a family that already sacrificed for you to be here. And, quietly, it costs the drive to open the next posting — which matters more than the other three combined, because that drive is the only engine that eventually gets you to an offer. The mathematical inefficiency of the current job market is a citizen problem when it costs a Saturday afternoon; it is a survival problem when it costs your status *and* the motivation to keep going.
 
 That is why "just apply to more jobs" is not neutral advice for you. It is a wealth-preserving strategy that works fine for a person whose only downside is a lost weekend. That is not you.
 
