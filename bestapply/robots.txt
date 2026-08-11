@@ -1,0 +1,12 @@
+# BestApply.app — robots.txt
+# Public content is welcome; print-only assets and internal work stay out of the index.
+
+User-agent: *
+Allow: /
+Allow: /marketing/brochure.html
+Disallow: /marketing/business-cards.html
+Disallow: /marketing/qr-cards.html
+Disallow: /marketing/launch-posts.md
+Disallow: /products/
+
+Sitemap: https://bestapply.app/sitemap.xml
