@@ -151,6 +151,40 @@ That's expected — don't pad to match.
 ## Filename convention
 
 - `NN-slug.md` — English (`01-the-250-to-1-wall.md`)
-- `NN-slug.fa.md` — Persian (`01-the-250-to-1-wall.fa.md`)
-- Both files live in `chapters/`
+- `NN-slug.fa.md` — Persian source (`01-the-250-to-1-wall.fa.md`)
+- `NN-slug.fa.docx` — Persian print-ready DOCX, generated from `.fa.md` (do not edit by hand)
+- All three live in `chapters/`
 - Slug matches between languages so a `git log --follow` shows both together
+
+## Persian footnote convention (glossary for English terms)
+
+Every English technical term used in a Persian chapter gets a footnote on
+its first appearance. Use pandoc footnote syntax:
+
+    این یه application[^application] که به کارفرما فرستادی.
+
+    [^application]: **application**: درخواست شغلی. توی جامعهٔ مهاجرین
+      آمریکای شمالی معمولاً به همین شکل انگلیسی استفاده می‌شه.
+
+Rules:
+- Footnote only on **first appearance** in a chapter, not every time
+- Bold the term (`**application**:`) so the eye finds it fast
+- Short definition + a one-sentence context note
+- Every footnote gets carried into the DOCX as a real Word footnote by
+  the build script — so the print layout has proper page-bottom notes,
+  not endnotes
+
+## Persian DOCX build
+
+Whenever `.fa.md` changes, regenerate the print-ready DOCX with the
+project's build script:
+
+    python3 build-fa-docx.py chapters/NN-slug.fa.md
+
+This runs pandoc, then post-processes the resulting DOCX so every
+paragraph (body + footnotes + table cells) has `<w:bidi/>` +
+`w:jc="right"` + `<w:rtl/>` on every run. Word / LibreOffice / Google
+Docs need all three to render Persian print-ready without hand-editing.
+
+Requirements: `pandoc` (apt: `pandoc`) and `python-docx` (pip:
+`python-docx`).
