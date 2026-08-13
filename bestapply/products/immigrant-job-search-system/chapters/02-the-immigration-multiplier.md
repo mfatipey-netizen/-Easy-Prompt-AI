@@ -27,7 +27,7 @@ Take you. Your per-application cost is the same 45 minutes plus a share of six i
 1. **Runway.** Every application you send that fails is a slice of your permit that could have gone to a better-fitted one.
 2. **Sponsor-filter risk.** Some percentage of the jobs you apply to don't sponsor visas — and you may not know which. Chapter 4 will fix this. The cost lives here.
 3. **Legal-fee accumulation.** Every six months without a stable job, your lawyer adds a new advisory line to your bill.
-4. **PR-points erosion.** Every month without Canadian professional experience is CRS points bleeding out of your Express Entry profile.
+4. **PR / Green Card erosion.** Every month without North American professional experience is CRS points bleeding out of your Express Entry profile (if Canada-bound), or your I-140 priority date sliding back (if US-bound).
 5. **Family standing.** The parents-in-law now ask, every phone call. Your spouse's Open Work Permit renewal is coming.
 6. **Recovery cost.** Rejection makes you slower on the next application. You take an extra 15 minutes just to open the browser.
 

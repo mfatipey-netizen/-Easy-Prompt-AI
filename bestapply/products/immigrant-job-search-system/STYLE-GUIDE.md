@@ -99,6 +99,32 @@ General nouns and verbs that have natural, unforced Persian equivalents:
 
 ---
 
+## Market positioning: North America first, Canada-specific only where necessary
+
+The book targets the **combined US + Canada immigrant job-seeker market**
+(~1M+ H-1B / OPT / PGWP / BOWP / EAD / TN holders). Positioning language
+must not tilt the reader toward "this is a Canada book" — that reads
+narrow to US buyers, and the US market is ~8× the Canadian one.
+
+Rules:
+
+- **Default to "North America" / "NA"** in generic market claims: "the
+  North American job market," "Fortune-500 in NA," "a large North
+  American bank"
+- **Use both examples together** when illustrating with cities: "Toronto
+  or New York," "PGWP or OPT," "PR or Green Card," "Express Entry or
+  I-140," "CRS points or priority date"
+- **Keep country-specific only for country-specific technical terms**:
+  NOC 2021 (Canada), O*NET-SOC (US), PGWP/BOWP (Canada), OPT/H-1B/EAD/TN
+  (US), CRS/Express Entry (Canada), Green Card/I-140 (US), LMIA/PNP
+  (Canada). These stay untouched — they *are* country-specific facts.
+- **Immigrant, not "Canadian immigrant"** — the reader is an immigrant.
+  Their target country is one of two options, not the anchoring identity.
+
+Where a chapter must reference a policy that is legitimately country-
+specific, present it as a labeled aside: "(Canada:)" or "(US:)". Never
+default the whole paragraph to one country's language.
+
 ## The book's spine sentence
 
 Every chapter should be able to point back to this sentence. If a chapter's

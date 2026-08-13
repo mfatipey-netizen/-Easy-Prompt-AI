@@ -2,7 +2,7 @@
 
 She sent 340 applications.
 
-Sara — name changed, story real — is an accountant from Tehran, three years CPA-track experience, arrived in Toronto on a PGWP in August. By March she had sent three hundred and forty applications. Four replies. Two "we've decided to move forward with other candidates." Two automated. Zero interviews.
+Sara — name changed, story real — is an accountant from Tehran, three years CPA-track experience, arrived in Toronto on a PGWP in August. By March she had sent three hundred and forty applications. Four replies. Two "we've decided to move forward with other candidates." Two automated. Zero interviews. Sara's story runs across the border cleanly — swap Toronto for Boston and PGWP for OPT and the math is identical.
 
 I asked her how she felt.
 
@@ -10,13 +10,13 @@ She said, "Like I did something wrong."
 
 She didn't.
 
-The Canadian job market in 2026 has one number that changes everything, and no career coach on LinkedIn is going to tell you honestly:
+The North American job market in 2026 has one number that changes everything, and no career coach on LinkedIn is going to tell you honestly:
 
-> **The average LinkedIn posting in Canada now receives 250 applications, and roughly 2% get any response at all.**
+> **The average LinkedIn posting in North America now receives 250 applications, and roughly 2% get any response at all.**
 
-Both numbers come from LinkedIn's Talent Insights reports, published across 2024–2025, and mirrored by TalentWorks and Jobscan surveys of the North American market. The pattern is worse in tech: a Toronto software-engineer role now averages 400+ applicants in the first 72 hours. Worse still for anything with "remote — Canada" in the title, where a single posting can pull 900+ applications before the recruiter opens their inbox on Monday.
+Both numbers come from LinkedIn's Talent Insights reports, published across 2024–2025, and mirrored by TalentWorks and Jobscan surveys of both the Canadian and US markets. The pattern is worse in tech: a Toronto or New York software-engineer role now averages 400+ applicants in the first 72 hours. Worse still for anything with "remote" in the title, where a single posting can pull 900+ applications before the recruiter opens their inbox on Monday.
 
-Sara's 340 applications weren't a personal failure. They were the mathematical reality: with a 2% response rate, 340 applications will produce, on average, 6.8 responses. She got 4. She was within one standard deviation of the mean, doing exactly what the career-advice industry told her to do.
+Sara's 340 applications weren't a personal failure. They were the mathematical reality: with a 2% response rate, 340 applications will produce, on average, ~7 responses. She got 4. She was within one standard deviation of the mean, doing exactly what the career-advice industry told her to do.
 
 That's the problem.
 
@@ -68,7 +68,7 @@ Two consequences apply to immigrants specifically.
 
 The ATS reads your job title, cross-references it against the standard occupational classification for the region (NOC 2021 in Canada, O*NET-SOC in the US), and uses that code as the primary key when comparing you against the posting.
 
-If your last title translated poorly out of your country of origin — "Senior Analyst, Business Development" in a Tehran conglomerate does *not* map cleanly to "Senior Business Development Analyst" in a Canadian bank — the ATS may under-classify you. You will get filtered out of postings you are, in fact, well-fitted for.
+If your last title translated poorly out of your country of origin — "Senior Analyst, Business Development" in a Tehran conglomerate does *not* map cleanly to "Senior Business Development Analyst" in a North American bank — the ATS may under-classify you. You will get filtered out of postings you are, in fact, well-fitted for.
 
 We fix this precisely in Chapter 4. For now: know that the code, not your title, is what's being scored.
 
@@ -118,7 +118,7 @@ Before you turn the page — take a screenshot of this. It is the whole reason y
 
 | The thing | The number | The consequence for you |
 |---|---|---|
-| Avg. applicants per LinkedIn posting (Canada) | 250+ | Volume strategies are lottery tickets |
+| Avg. applicants per LinkedIn posting (North America) | 250+ | Volume strategies are lottery tickets |
 | Response rate for online applications | ~2 % | Every 100 apps ≈ 2 replies |
 | Applications to reach ten responses | ~500 | ~375 unpaid hours |
 | Employers using an ATS | ~75 % | Most rejections happen before a human sees you |
