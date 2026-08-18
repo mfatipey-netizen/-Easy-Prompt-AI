@@ -103,7 +103,7 @@
 
 > H-1B active through [MMM YYYY], transferable. No cap or lottery required.
 
-برای هر چهار: این خط رو توی header resume بذار، درست زیر اسم و اطلاعات تماست. نه توی summary. نه توی skills. توی header — که ناحیه‌ایه که هر ATS اول parse می‌کنه، و چشم هر recruiter اول اون‌جا می‌افته.
+برای هر چهار حالت: این خط رو توی header resume بذار، درست زیر اسم و اطلاعات تماست. نه توی summary. نه توی skills. توی header — که ناحیه‌ایه که هر ATS اول parse می‌کنه، و چشم هر recruiter اول اون‌جا می‌افته.
 
 ---
 
