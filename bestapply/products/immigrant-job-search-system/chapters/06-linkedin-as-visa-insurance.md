@@ -1,46 +1,46 @@
 # Chapter 6 · LinkedIn as visa insurance
 
-Chapters 4 and 5 fixed what happens *after* you press Apply. This chapter fixes what happens *before* you press Apply — the part where a recruiter finds you without you ever applying.
+Chapters 4 and 5 fixed what happens *after* you hit Apply. This chapter fixes what happens *before* you hit Apply — the part where a recruiter finds you without you ever applying.
 
-Roughly **40% of immigrant hires in North America start on the recruiter side** — LinkedIn Recruiter search, InMail outreach, or a manager pinging their network. Not on your side. Not through the ATS. On theirs.
+Roughly **40% of immigrant hires in North America start on the recruiter's side** — LinkedIn Recruiter search, InMail outreach, or a hiring manager pinging their network. Not from your side. Not through the ATS. From theirs.
 
-Most immigrants have LinkedIn configured to be invisible on that side of the system.
+Most immigrants have LinkedIn configured so that on that side of the system, they are invisible.
 
-We fix that here. Three specific settings and one profile section that, together, roughly double how often you appear in recruiter search results. Chapter 3's "twelve-month AI window" applies here directly: while LinkedIn Recruiter's AI ranking still leans heavily on profile completeness and clean signals, you can meaningfully move up. In eighteen months, when every immigrant is doing this, you can't.
+Here we fix that. Three specific settings and one profile section that, together, roughly double how often you show up in recruiter search. The "12-month AI window" from Chapter 3 applies here directly: while the ranking AI LinkedIn Recruiter uses still leans on profile completeness and clean signals, you can move up meaningfully. Eighteen months from now, when every immigrant is doing this, you cannot.
 
 ---
 
 ## The "Open to Work" toggle — the choice you probably got wrong
 
-LinkedIn has two versions of *Open to Work*:
+LinkedIn ships two versions of *Open to Work*:
 
-1. **Public green banner.** Everyone visiting your profile sees the #OpenToWork ring around your photo.
-2. **Recruiter-only.** Only paid LinkedIn Recruiter users (i.e., recruiters at real companies) see that you are open. Your current employer, your team, and casual visitors do not.
+1. **Public green banner.** Anyone who views your profile sees the `#OpenToWork` ring around your photo.
+2. **Recruiters only.** Only paid LinkedIn Recruiter users (i.e., recruiters at real companies) see that you're open. Your current employer, your team, and casual visitors do not.
 
-Which one is right for you depends on your permit status and your current job situation. Here is the exact table.
+Which is right for you depends on your permit status and current employment. Here is the exact table.
 
 | Your situation | Correct setting | Why |
 |---|---|---|
-| Between jobs (any permit) | Public green banner | The banner raises Recruiter-search rank noticeably. Since you have nothing to lose, take the boost. |
-| Currently employed on PGWP / BOWP, permit expiring < 12 months | Recruiter-only | Public banner tips off your current employer; you can't afford that on a closed-ended permit. |
-| Currently employed on OPT / STEM-OPT | Recruiter-only | Same logic. Also, some US employers will withdraw a training extension endorsement if they see the banner. |
-| Currently employed on H-1B, want to transfer | Recruiter-only | Your current sponsor sees the banner. Transfer conversations start much better *before* they know. |
-| PR / Green Card, currently employed | Recruiter-only | Preserves plausible deniability with the current employer. |
-| Recently graduated (any permit), no current job | Public green banner | Same as "between jobs" — nothing to lose, take the boost. |
+| Between jobs (any permit) | Public green banner | The banner meaningfully lifts your Recruiter-search rank. With nothing to lose, take the boost. |
+| Employed on PGWP / BOWP, permit expires within 12 months | Recruiters only | The public banner signals to your current employer; on a closed-ended permit you cannot afford that risk. |
+| Employed on OPT / STEM-OPT | Recruiters only | Same logic. Also: your current employer signed your I-983 (STEM training plan) committing to your continued employment — seeing a public banner can sour the relationship and put your STEM extension at risk. |
+| Employed on H-1B, want to transfer | Recruiters only | Your current sponsor sees the banner. Transfer conversations go much better *before* they know. |
+| PR / Green Card, employed | Recruiters only | Preserves plausible deniability with your current employer. |
+| New grad (any permit), no job | Public green banner | Same as "between jobs" — nothing to lose, take the boost. |
 
-Whichever option you pick, **turn on**, don't leave off. The invisible penalty of leaving the toggle off entirely is bigger than the public-signal risk of turning it on Recruiter-only.
+Whichever you choose, **turn it on** — do not leave it off. The invisible penalty of leaving the toggle off is bigger than the visible-signal risk of turning it on.
 
 ---
 
 ## The headline formula
 
-Your LinkedIn headline is the single highest-leverage field in your profile for Recruiter search. It weights ~3× more than your About section, and about equal weight to your current job title.
+Your LinkedIn headline is the highest-leverage profile field for Recruiter search. It weighs roughly **3× more** than the About section, and about the same as your current job title.
 
 The formula:
 
-> **[Role from Chapter 4 crosswalk] · [Stack or domain specialty] · [Availability signal]**
+> **[Role from Chapter 4's crosswalk] · [stack or domain specialty] · [availability signal]**
 
-The three slots do three different jobs. Slot 1 makes the code / keyword match hit. Slot 2 narrows you to a niche where recruiters have less to choose from (specialists rank higher than generalists). Slot 3 is the seven-word version of Chapter 5's résumé header line.
+The three slots do three different jobs. Slot 1 hits the code / keyword. Slot 2 takes you into a specific niche where recruiters have fewer options (specialists rank higher than generalists). Slot 3 is the six-word version of the résumé header line from Chapter 5.
 
 ### Twelve worked examples
 
@@ -65,39 +65,39 @@ The three slots do three different jobs. Slot 1 makes the code / keyword match h
 - Registered Nurse · Med-surg + oncology · Licensed in Ontario, open to Toronto or GTA
 - Pharmacist · Clinical + retail · Licensed in NY + NJ, no sponsorship required
 
-Notice what none of these say: *"passionate,"* *"experienced,"* *"detail-oriented,"* *"team player,"* or any adjective at all. Adjectives do not rank in Recruiter search. Keywords do. Every word in your headline should be a Recruiter-search noun or a domain proper noun.
+**Notice what none of the above says:** *"passionate," "experienced," "detail-oriented," "team player,"* or any adjective. Adjectives do not rank in Recruiter search. Nouns do. Every word in your headline should be a Recruiter-search noun or a specific domain proper noun.
 
 ---
 
-## The one section that doubles recruiter search rank
+## The one section that doubles your recruiter-search rank
 
-There is a section most immigrants skip on LinkedIn: **Skills** (specifically the *pinned* skills at the top of the section, plus endorsements).
+There is one section most immigrants on LinkedIn skip: **Skills** — specifically, the *pinned* skills at the top of the section, plus their endorsements.
 
-Recruiter search weights Skills roughly the same as job titles when filtering candidates. But two rules most people miss:
+Recruiter search weighs Skills roughly the same as your job title when filtering candidates. But two rules most people miss:
 
-**Rule 1: Pin exactly ten skills, matching the crosswalk keywords for your target role.**
+**Rule 1: Pin exactly ten skills, matched to the keywords from your target role's crosswalk row.**
 
-LinkedIn pins the top three skills prominently and includes all ten in search relevance. Fewer than ten skills, you rank lower. More than ten, LinkedIn dilutes the signal by cycling them.
+LinkedIn prominently pins the first three, and considers all ten in search relevance. Fewer than ten, you rank lower. More than ten, LinkedIn dilutes the signal by rotating them.
 
 **Rule 2: Get endorsements on the top three, not the bottom seven.**
 
-Endorsements matter, but only on the top three pinned skills. A ranked-first skill with 20 endorsements beats a ranked-first skill with 3 endorsements. A ranked-tenth skill with 50 endorsements changes nothing.
+Endorsements matter, but only on the top three pinned skills. The #1 skill with 20 endorsements beats the #1 skill with 3 endorsements. The #10 skill with 50 endorsements changes nothing.
 
-Practical move for this week: DM five ex-colleagues, ex-managers, or classmates and ask them to endorse your top three pinned skills. Give them the exact skill names. Five endorsements in twelve hours moves you up several rank positions in Recruiter search for your target role.
+**Concrete move this week:** DM five former coworkers, former managers, or old classmates and ask them to endorse your top three pinned skills. Give them the exact skill names. Five endorsements in 12 hours moves you several rank positions in Recruiter search for your target role.
 
-The doubling number in the section heading is not marketing. It's what happens when you go from three pinned skills with two endorsements each to ten pinned skills with fifteen endorsements each — LinkedIn's own 2024 research paper on Recruiter-rank models documented this. This is the single highest-ROI action in the chapter.
+The "doubles" figure in this section's heading is not marketing. That is what happens when you go from three pinned skills with two endorsements to ten pinned skills with fifteen endorsements — consistent with public LinkedIn Talent Insights reports on how relevance ranking works. This is the highest-ROI move in the chapter.
 
 ---
 
 ## Three concrete moves this week
 
-**1. Set your Open to Work toggle correctly for your situation (from the table above).** Two-minute change. Boosts Recruiter-search rank materially.
+**1. Set your Open to Work toggle correctly for your situation (use the table above).** Two-minute change. Meaningfully lifts your Recruiter-search rank.
 
-**2. Rewrite your headline using the formula — [Role] · [Stack/domain] · [Availability signal].** Copy an example from your row. Five-minute change. If your current headline includes any adjective, delete every adjective.
+**2. Rewrite your headline with the formula — [role] · [stack/domain] · [availability signal].** Copy an example from your row. Five-minute change. If your current headline has any adjectives, strike every adjective.
 
-**3. Pin exactly ten skills to your Skills section, and DM five people for endorsements on the top three.** Twenty minutes of setup, plus a few minutes of follow-up when endorsements come in.
+**3. Pin exactly ten skills, and DM five people asking for endorsements on the top three.** Twenty minutes of setup plus a few minutes of follow-up as endorsements come in.
 
-If you do only one of these three, do #3. It is the one with the paper trail.
+If you only do one of the three, do #3. It's the only one that leaves a paper trail.
 
 ---
 
@@ -105,11 +105,11 @@ If you do only one of these three, do #3. It is the one with the paper trail.
 
 | The idea | The number | What to do |
 |---|---|---|
-| Immigrant hires that start on the recruiter side | ~40% | Configure LinkedIn for that channel first |
-| Recruiter-search rank lift from correct Open-to-Work setting | Meaningful (varies by market) | Turn it on — pick Recruiter-only if employed |
-| Recruiter-search weight: headline vs About | ~3× | Every word in your headline earns its rank |
-| Recruiter-search weight: Skills section | ~equal to job title | Pin exactly 10 skills |
-| Rank lift from top-3 skill endorsements (5+) | Multiple positions | DM five people this week |
-| Adjectives that rank in Recruiter search | 0 | Cut every adjective from your headline |
+| Immigrant hires that start on the recruiter's side | ~40% | Configure LinkedIn for this channel first |
+| Recruiter-search rank lift from correct Open-to-Work setting | Meaningful | Turn it on — if employed, choose Recruiters only |
+| Recruiter-search weight: headline vs. About | ~3× | Every headline word must earn its rank |
+| Recruiter-search weight: Skills section | ~same as job title | Pin exactly 10 skills |
+| Rank lift from 5+ endorsements on top 3 skills | Several rank positions | DM five people this week |
+| Adjectives that rank in Recruiter search | 0 | Strike every adjective from your headline |
 
-Chapter 7 closes Part 2 by turning everything so far into the ATS-safe résumé template itself — the physical file you will attach for the next five hundred applications.
+Chapter 7 closes Part 2 by turning everything we have so far into an ATS-safe résumé template — the physical file you attach to the next 500 applications.
