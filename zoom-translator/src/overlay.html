@@ -17,6 +17,7 @@
   #bar button { background: rgba(255,255,255,0.18); border: 0; color: #fff; padding: 7px 14px;
     border-radius: 7px; cursor: pointer; font-size: 13px; font-family: inherit; font-weight: 500; }
   #bar button:hover { background: rgba(255,255,255,0.32); }
+  #bar button:disabled { opacity: 0.4; cursor: default; }
   #status { color: #ffd76a; font-size: 12px; min-width: 120px; }
   #captions { display: flex; flex-direction: column; align-items: center;
     padding: 0 16px; direction: rtl; text-align: center; gap: 6px; }
@@ -25,12 +26,27 @@
     text-shadow: 0 1px 3px rgba(0,0,0,0.9); word-wrap: break-word; pointer-events: auto; }
   .interim { opacity: 0.6; }
   .original { font-size: 0.55em; direction: ltr; color: #cfe8ff; }
+  /* File-mode playback bar — visible only when a local file is loaded. */
+  #playbar { -webkit-app-region: no-drag; display: none; align-items: center; gap: 10px;
+    margin: 0 16px 8px; padding: 6px 12px; background: rgba(0,0,0,0.65); color: #fff;
+    border-radius: 10px; font-size: 12px; direction: ltr; }
+  #playbar.on { display: flex; }
+  #playbar button { background: rgba(255,255,255,0.18); border: 0; color: #fff;
+    padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; font-family: inherit; }
+  #playbar button:hover { background: rgba(255,255,255,0.32); }
+  #seek { flex: 1; height: 4px; cursor: pointer; }
+  #rate { background: rgba(255,255,255,0.18); color: #fff; border: 0; border-radius: 6px;
+    padding: 4px 6px; font-family: inherit; font-size: 12px; }
+  #ftitle { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    opacity: 0.75; direction: ltr; }
 </style>
 <div id="root">
   <div id="bar" class="hit">
     <div id="status">در حال آماده‌سازی…</div>
     <div class="btns">
       <button id="mic">شروع</button>
+      <button id="file" title="بازکردن فایل ویدیویی/صوتی و ترجمهٔ صدایش">📁 فایل</button>
+      <button id="srt" disabled title="ذخیرهٔ زیرنویس‌ها به‌صورت SRT">💾 SRT</button>
       <button id="less">A−</button>
       <button id="more">A+</button>
       <button id="through">قفل</button>
@@ -39,8 +55,26 @@
       <button id="quit" style="background:rgba(255,80,80,0.35);">بستن</button>
     </div>
   </div>
+  <div id="playbar" class="hit">
+    <button id="playpause">⏸</button>
+    <span id="curtime">0:00</span>
+    <input type="range" id="seek" min="0" max="1000" value="0" step="1">
+    <span id="durtime">0:00</span>
+    <select id="rate" title="سرعت پخش">
+      <option value="0.75">0.75×</option>
+      <option value="1" selected>1×</option>
+      <option value="1.25">1.25×</option>
+      <option value="1.5">1.5×</option>
+      <option value="2">2×</option>
+    </select>
+    <span id="ftitle"></span>
+    <button id="closefile" title="بستن فایل">✕</button>
+  </div>
   <div id="captions">
     <div class="line" id="line">برای شروع، کلید API را در تنظیمات وارد کن.</div>
   </div>
 </div>
+<!-- Hidden media element used in file mode. Audio is routed through
+     MediaElementSource → same Deepgram/Claude pipeline as live mode. -->
+<video id="player" style="display:none;" preload="auto"></video>
 <script src="overlay.js"></script>

@@ -1,5 +1,9 @@
 // Zoom Persian Subtitles — overlay renderer
-// Loopback audio → Deepgram (STT) → Claude Haiku (translate) → RTL captions
+// Two modes share the same STT+translation pipeline:
+//   • live: Windows loopback (getDisplayMedia) → Deepgram → Claude → captions
+//   • file: local video/audio → MediaElementSource → same pipeline, and the
+//           user hears the audio while captions appear. Timestamps are tracked
+//           so the session can be exported as .srt.
 
 const $ = (id) => document.getElementById(id);
 const statusEl = $('status');
@@ -8,16 +12,26 @@ const captionsEl = $('captions');
 
 let cfg = null;
 let running = false;
+let mode = 'live';           // 'live' | 'file'
 let ws = null;
 let audioCtx = null;
 let sourceNode = null;
 let processorNode = null;
-let mediaStream = null;
+let mediaStream = null;      // live mode only
+let videoEl = null;          // file mode only
 let clickThroughOn = false;
 
 const HISTORY_MAX = 3;
-const history = [];  // {text, id}
+const history = [];  // {text, original}
 let interimLine = null;
+
+// Time-tracking for SRT. `sessionCaptions` accumulates finalized lines with
+// their {startSec, endSec} on the source timeline (video time in file mode,
+// wall-clock seconds since Start in live mode). It's the ONLY source of truth
+// for the SRT export — the on-screen history is trimmed to HISTORY_MAX.
+const sessionCaptions = [];
+let sessionStartWall = 0;    // performance.now() at Start (live mode)
+let utteranceStartSec = null; // when the current utterance began, in source time
 
 const RTL_LANGS = new Set(['fa', 'ar', 'he', 'ur']);
 function applyStyle() {
@@ -63,15 +77,21 @@ function renderCaptions() {
   if (!history.length && !interimLine) {
     const el = document.createElement('div');
     el.className = 'line';
-    el.textContent = running ? 'در حال گوش دادن…' : 'برای شروع کلید «شروع» را بزن.';
+    el.textContent = running
+      ? 'در حال گوش دادن…'
+      : (mode === 'file' ? 'فایل انتخاب شد — پخش شروع شد.' : 'برای شروع کلید «شروع» را بزن.');
     captionsEl.appendChild(el);
   }
 }
 
-function pushFinal(text, original) {
+function pushFinal(text, original, startSec, endSec) {
   history.push({ text, original });
   while (history.length > HISTORY_MAX) history.shift();
   interimLine = null;
+  if (typeof startSec === 'number' && typeof endSec === 'number' && endSec > startSec) {
+    sessionCaptions.push({ startSec, endSec, text, original });
+    $('srt').disabled = false;
+  }
   renderCaptions();
 }
 
@@ -80,13 +100,20 @@ function setInterim(text) {
   renderCaptions();
 }
 
-// ─── Audio capture (Windows loopback via getDisplayMedia) ──────────────────
+// Returns the source-timeline second for "right now".
+function nowSec() {
+  if (mode === 'file' && videoEl) return videoEl.currentTime;
+  return (performance.now() / 1000) - sessionStartWall;
+}
+
+// ─── Live mode: Windows loopback via getDisplayMedia ───────────────────────
 async function startCapture() {
   if (running) return;
   if (!cfg?.deepgramKey) { setStatus('کلید Deepgram در تنظیمات وارد نشده', '#ff8080'); return; }
   if (!cfg?.anthropicKey) { setStatus('کلید Anthropic در تنظیمات وارد نشده', '#ff8080'); return; }
   try {
     setStatus('در حال گرفتن صدای سیستم…');
+    mode = 'live';
     mediaStream = await navigator.mediaDevices.getDisplayMedia({
       video: { width: 1, height: 1, frameRate: 1 },
       audio: true,
@@ -111,6 +138,10 @@ async function startCapture() {
       if (pcm16.byteLength) ws.send(pcm16);
     };
 
+    sessionStartWall = performance.now() / 1000;
+    sessionCaptions.length = 0;
+    utteranceStartSec = null;
+    $('srt').disabled = true;
     running = true;
     $('mic').textContent = 'توقف';
     setStatus('در حال گوش دادن ✓', '#7dff9a');
@@ -122,6 +153,84 @@ async function startCapture() {
   }
 }
 
+// ─── File mode: local video/audio file ──────────────────────────────────────
+async function startFile() {
+  if (!cfg?.deepgramKey || !cfg?.anthropicKey) {
+    setStatus('کلیدهای API را اول در تنظیمات وارد کن', '#ff8080');
+    return;
+  }
+  const filePath = await window.api.pickMediaFile();
+  if (!filePath) return;
+  if (running) stopCapture();
+
+  mode = 'file';
+  videoEl = $('player');
+  // Build a file:// URL that Chromium can load. Works for same-origin file
+  // access from the overlay page (also loaded via file://).
+  const norm = filePath.replace(/\\/g, '/');
+  videoEl.src = 'file:///' + norm.replace(/^\/+/, '');
+  videoEl.playbackRate = parseFloat($('rate').value) || 1;
+
+  try {
+    await videoEl.play();
+  } catch (e) {
+    setStatus('پخش فایل شکست خورد: ' + e.message, '#ff8080');
+    return;
+  }
+
+  audioCtx = new AudioContext({ sampleRate: 48000 });
+  sourceNode = audioCtx.createMediaElementSource(videoEl);
+  // Keep the user hearing the file. Also fork samples into the processor.
+  sourceNode.connect(audioCtx.destination);
+  processorNode = audioCtx.createScriptProcessor(4096, 1, 1);
+  sourceNode.connect(processorNode);
+  processorNode.connect(audioCtx.destination);
+
+  await openDeepgram();
+
+  processorNode.onaudioprocess = (e) => {
+    if (!ws || ws.readyState !== 1) return;
+    if (videoEl.paused) return; // don't stream silence while paused
+    const input = e.inputBuffer.getChannelData(0);
+    const pcm16 = downsampleTo16kInt16(input, audioCtx.sampleRate);
+    if (pcm16.byteLength) ws.send(pcm16);
+  };
+
+  sessionCaptions.length = 0;
+  history.length = 0;
+  interimLine = null;
+  utteranceStartSec = null;
+  $('srt').disabled = true;
+  running = true;
+  $('mic').textContent = 'توقف';
+  $('playbar').classList.add('on');
+  $('ftitle').textContent = filePath.split(/[\\/]/).pop();
+  setStatus('پخش فایل — در حال ترجمه', '#7dff9a');
+  updatePlayBtn();
+  updateTimeUI();
+  renderCaptions();
+
+  videoEl.addEventListener('play', updatePlayBtn);
+  videoEl.addEventListener('pause', updatePlayBtn);
+  videoEl.addEventListener('timeupdate', updateTimeUI);
+  videoEl.addEventListener('durationchange', updateTimeUI);
+  videoEl.addEventListener('ended', () => {
+    setStatus('پخش تمام شد. می‌توانی SRT را ذخیره کنی.', '#7dff9a');
+    updatePlayBtn();
+  });
+}
+
+function closeFile() {
+  const wasFile = (mode === 'file');
+  stopCapture();
+  if (wasFile) {
+    try { videoEl && (videoEl.src = ''); } catch {}
+    $('playbar').classList.remove('on');
+    $('ftitle').textContent = '';
+    mode = 'live';
+  }
+}
+
 function stopCapture() {
   running = false;
   $('mic').textContent = 'شروع';
@@ -130,6 +239,7 @@ function stopCapture() {
   try { audioCtx && audioCtx.close(); } catch {}
   try { mediaStream && mediaStream.getTracks().forEach(t => t.stop()); } catch {}
   try { ws && ws.close(); } catch {}
+  try { videoEl && !videoEl.paused && videoEl.pause(); } catch {}
   audioCtx = sourceNode = processorNode = mediaStream = ws = null;
   setStatus('متوقف شد');
   renderCaptions();
@@ -141,7 +251,6 @@ function downsampleTo16kInt16(float32, srcRate) {
   const ratio = srcRate / targetRate;
   const outLen = Math.floor(float32.length / ratio);
   const out = new Float32Array(outLen);
-  let idx = 0;
   for (let i = 0; i < outLen; i++) {
     const start = Math.floor(i * ratio);
     const end = Math.floor((i + 1) * ratio);
@@ -201,11 +310,14 @@ function onDeepgramMsg(ev) {
     if (!alt) return;
     const text = alt.transcript || '';
     if (!text.trim()) return;
+    // First evidence of speech in a new utterance — remember start time.
+    if (utteranceStartSec === null) utteranceStartSec = nowSec();
     if (msg.is_final) {
       currentUtterance = (currentUtterance + ' ' + text).trim();
       if (msg.speech_final) {
-        translateAndPush(currentUtterance);
+        translateAndPush(currentUtterance, utteranceStartSec, nowSec());
         currentUtterance = '';
+        utteranceStartSec = null;
       } else {
         setInterim(currentUtterance);
       }
@@ -214,27 +326,30 @@ function onDeepgramMsg(ev) {
     }
   } else if (msg.type === 'UtteranceEnd') {
     if (currentUtterance.trim()) {
-      translateAndPush(currentUtterance);
+      translateAndPush(currentUtterance, utteranceStartSec, nowSec());
       currentUtterance = '';
+      utteranceStartSec = null;
     }
   }
 }
 
 // ─── Claude Haiku translation ───────────────────────────────────────────────
+// Queue holds {text, startSec, endSec} so timestamps stay attached even if
+// translation takes longer than the next utterance to arrive.
 const translateQueue = [];
 let translating = false;
-async function translateAndPush(english) {
-  translateQueue.push(english);
+async function translateAndPush(text, startSec, endSec) {
+  translateQueue.push({ text, startSec, endSec });
   if (translating) return;
   translating = true;
   while (translateQueue.length) {
-    const txt = translateQueue.shift();
+    const item = translateQueue.shift();
     try {
-      const persian = await callClaude(txt);
-      pushFinal(persian, txt);
+      const translated = await callClaude(item.text);
+      pushFinal(translated, item.text, item.startSec, item.endSec);
     } catch (e) {
       console.error(e);
-      pushFinal('[خطای ترجمه] ' + txt, txt);
+      pushFinal('[خطای ترجمه] ' + item.text, item.text, item.startSec, item.endSec);
     }
   }
   translating = false;
@@ -273,8 +388,76 @@ async function callClaude(text) {
   return (data.content?.[0]?.text || '').trim();
 }
 
-// ─── UI ─────────────────────────────────────────────────────────────────────
+// ─── SRT export ─────────────────────────────────────────────────────────────
+function fmtSrtTime(sec) {
+  if (!isFinite(sec) || sec < 0) sec = 0;
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = Math.floor(sec % 60);
+  const ms = Math.floor((sec - Math.floor(sec)) * 1000);
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')},${String(ms).padStart(3,'0')}`;
+}
+function buildSrt(caps, { withOriginal } = {}) {
+  return caps.map((c, i) => {
+    const body = withOriginal && c.original ? `${c.text}\n${c.original}` : c.text;
+    return `${i + 1}\n${fmtSrtTime(c.startSec)} --> ${fmtSrtTime(c.endSec)}\n${body}\n`;
+  }).join('\n');
+}
+async function exportSrt() {
+  if (!sessionCaptions.length) { setStatus('هنوز زیرنویسی برای ذخیره وجود ندارد', '#ff8080'); return; }
+  const withOriginal = !!cfg.showOriginal;
+  const content = buildSrt(sessionCaptions, { withOriginal });
+  const base = ($('ftitle').textContent || 'subtitles').replace(/\.[^.]+$/, '');
+  const defaultName = `${base}.${cfg.targetLang || 'fa'}.srt`;
+  const saved = await window.api.saveSrt(defaultName, content);
+  if (saved) setStatus('SRT ذخیره شد: ' + saved.split(/[\\/]/).pop(), '#7dff9a');
+}
+
+// ─── Playback controls (file mode) ──────────────────────────────────────────
+function fmtTime(sec) {
+  if (!isFinite(sec)) return '0:00';
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  return `${m}:${String(s).padStart(2,'0')}`;
+}
+function updatePlayBtn() {
+  if (!videoEl) return;
+  $('playpause').textContent = videoEl.paused ? '▶' : '⏸';
+}
+function updateTimeUI() {
+  if (!videoEl) return;
+  const dur = videoEl.duration || 0;
+  const cur = videoEl.currentTime || 0;
+  $('curtime').textContent = fmtTime(cur);
+  $('durtime').textContent = fmtTime(dur);
+  const seek = $('seek');
+  if (!seek.dragging) seek.value = dur ? Math.round((cur / dur) * 1000) : 0;
+}
+
+// ─── UI wiring ──────────────────────────────────────────────────────────────
 $('mic').onclick = () => running ? stopCapture() : startCapture();
+$('file').onclick = () => startFile();
+$('srt').onclick = () => exportSrt();
+$('closefile').onclick = () => closeFile();
+$('playpause').onclick = () => {
+  if (!videoEl) return;
+  if (videoEl.paused) videoEl.play(); else videoEl.pause();
+};
+$('rate').onchange = () => { if (videoEl) videoEl.playbackRate = parseFloat($('rate').value) || 1; };
+{
+  const seek = $('seek');
+  seek.addEventListener('mousedown', () => { seek.dragging = true; });
+  seek.addEventListener('mouseup', () => { seek.dragging = false; });
+  seek.addEventListener('input', () => {
+    if (!videoEl || !videoEl.duration) return;
+    videoEl.currentTime = (parseInt(seek.value, 10) / 1000) * videoEl.duration;
+    // Drop the in-flight utterance — its samples no longer represent this time.
+    currentUtterance = '';
+    utteranceStartSec = null;
+    interimLine = null;
+    renderCaptions();
+  });
+}
 $('less').onclick = () => { cfg.fontSize = Math.max(14, (cfg.fontSize || 28) - 2); applyStyle(); window.api.setConfig(cfg); };
 $('more').onclick = () => { cfg.fontSize = Math.min(72, (cfg.fontSize || 28) + 2); applyStyle(); window.api.setConfig(cfg); };
 // "قفل" now toggles autopilot off/on. Off = the on-bar is always interactive
@@ -301,7 +484,7 @@ async function boot() {
   window.api.onConfigUpdated((newCfg) => { cfg = newCfg; applyStyle(); renderCaptions(); });
   renderCaptions();
   if (cfg.deepgramKey && cfg.anthropicKey) {
-    setStatus('آماده — «شروع» را بزن');
+    setStatus('آماده — «شروع» را بزن یا فایلی باز کن');
   } else {
     setStatus('کلیدهای API را در تنظیمات وارد کن', '#ff8080');
   }

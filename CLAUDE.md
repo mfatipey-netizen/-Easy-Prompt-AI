@@ -52,6 +52,18 @@ Windows loopback (getDisplayMedia + system audio)
 
 Both live in `electron-store` on the user's machine only.
 
+## Two input modes (same STT + translation pipeline)
+- **Live mode** — `getDisplayMedia({audio:true})` captures the Windows loopback,
+  so any app playing sound (Zoom, YouTube, VLC, browser tabs, …) is transcribed.
+- **File mode** — 📁 button opens a native picker; the chosen video/audio is
+  played through a hidden `<video>` element inside the overlay, its
+  `MediaElementSource` is forked into the same Deepgram/Claude path, and the
+  user hears the file while captions appear. Playback bar shows play/pause,
+  seek, and 0.75×–2× speed. Each finalized utterance is stamped with the
+  video's `currentTime` (start = time of first interim, end = time of
+  `speech_final`). The 💾 SRT button exports the whole session as `.srt`
+  (with `showOriginal` on, source language is placed under the translation).
+
 ## Supported languages (14 source × 14 target)
 English · فارسی · 中文 · Русский · العربية · Türkçe · Français · Italiano · Deutsch ·
 Español · 日本語 · 한국어 · Português · हिन्दी · Nederlands

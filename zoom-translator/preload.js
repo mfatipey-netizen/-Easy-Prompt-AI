@@ -13,4 +13,6 @@ contextBridge.exposeInMainWorld('api', {
   showOverlay: () => ipcRenderer.invoke('overlay:show'),
   openSettings: () => ipcRenderer.invoke('settings:open'),
   quit: () => ipcRenderer.invoke('app:quit'),
+  pickMediaFile: () => ipcRenderer.invoke('file:pick'),
+  saveSrt: (defaultName, content) => ipcRenderer.invoke('file:saveSrt', defaultName, content),
 });

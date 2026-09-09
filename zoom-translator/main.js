@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, desktopCapturer, session, safeStorage, screen, Menu, Tray, nativeImage } = require('electron');
+const { app, BrowserWindow, ipcMain, desktopCapturer, session, safeStorage, screen, Menu, Tray, nativeImage, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -152,3 +152,30 @@ ipcMain.handle('overlay:hide', () => overlayWin && overlayWin.hide());
 ipcMain.handle('overlay:show', () => overlayWin && overlayWin.show());
 ipcMain.handle('settings:open', () => createSettings());
 ipcMain.handle('app:quit', () => app.exit(0));
+
+// File mode: pick a local video/audio file to transcribe & translate.
+// Returns the absolute path (renderer converts it to a file:// URL for <video>).
+ipcMain.handle('file:pick', async () => {
+  const res = await dialog.showOpenDialog(overlayWin, {
+    title: 'انتخاب فایل ویدیویی یا صوتی',
+    properties: ['openFile'],
+    filters: [
+      { name: 'Media', extensions: ['mp4', 'm4v', 'mov', 'webm', 'mkv', 'avi', 'mp3', 'wav', 'm4a', 'aac', 'ogg', 'flac'] },
+      { name: 'All files', extensions: ['*'] },
+    ],
+  });
+  if (res.canceled || !res.filePaths[0]) return null;
+  return res.filePaths[0];
+});
+
+// Save the collected captions as an .srt file next to the source, or wherever.
+ipcMain.handle('file:saveSrt', async (_e, defaultName, content) => {
+  const res = await dialog.showSaveDialog(overlayWin, {
+    title: 'ذخیرهٔ زیرنویس SRT',
+    defaultPath: defaultName || 'subtitles.srt',
+    filters: [{ name: 'SubRip subtitle', extensions: ['srt'] }],
+  });
+  if (res.canceled || !res.filePath) return null;
+  fs.writeFileSync(res.filePath, content, 'utf8');
+  return res.filePath;
+});
