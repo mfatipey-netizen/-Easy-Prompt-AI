@@ -11,6 +11,7 @@ contextBridge.exposeInMainWorld('api', {
   resizeOverlay: (dw, dh) => ipcRenderer.invoke('overlay:resize', dw, dh),
   hideOverlay: () => ipcRenderer.invoke('overlay:hide'),
   showOverlay: () => ipcRenderer.invoke('overlay:show'),
+  minimizeOverlay: () => ipcRenderer.invoke('overlay:minimize'),
   openSettings: () => ipcRenderer.invoke('settings:open'),
   quit: () => ipcRenderer.invoke('app:quit'),
 });

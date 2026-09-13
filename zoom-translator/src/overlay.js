@@ -60,12 +60,10 @@ function renderCaptions() {
     el.textContent = interimLine;
     captionsEl.appendChild(el);
   }
-  if (!history.length && !interimLine) {
-    const el = document.createElement('div');
-    el.className = 'line';
-    el.textContent = running ? 'در حال گوش دادن…' : 'برای شروع کلید «شروع» را بزن.';
-    captionsEl.appendChild(el);
-  }
+  // No placeholder pill when the caption area is empty — leave the overlay
+  // fully transparent below the toolbar so nothing covers the Zoom window
+  // while the user is idle. The status text on the toolbar tells them what
+  // to do next; the caption box only appears once there is real text to show.
 }
 
 function pushFinal(text, original) {
@@ -292,6 +290,10 @@ $('through').onclick = () => {
     : 'نوار همیشه کلیک می‌گیرد (Zoom زیر آن غیرفعال است)';
 };
 $('settings').onclick = () => window.api.openSettings();
+// Minimize collapses the overlay into the Windows taskbar; the user restores
+// it by clicking the taskbar button or the tray icon. Different from "hide",
+// which leaves no visible affordance and only comes back through the tray.
+$('min').onclick = () => window.api.minimizeOverlay();
 $('hide').onclick = () => window.api.hideOverlay();
 $('quit').onclick = () => window.api.quit();
 

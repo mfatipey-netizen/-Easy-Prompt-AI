@@ -54,7 +54,13 @@ function createOverlay() {
     transparent: true,
     alwaysOnTop: true,
     resizable: true,
-    skipTaskbar: true,
+    minimizable: true,
+    // Show a Windows taskbar button so the user can minimize the overlay and
+    // restore it from the taskbar like a normal app. Kept as a taskbar entry
+    // (not skipTaskbar) so the minimize/restore round-trip works reliably on
+    // Windows 10/11; the tray icon remains a second way to bring it back.
+    skipTaskbar: false,
+    title: 'Zoom Live Subtitles',
     hasShadow: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -98,12 +104,24 @@ function createSettings() {
   settingsWin.loadFile(path.join(__dirname, 'src', 'settings.html'));
 }
 
+function showOverlay() {
+  if (!overlayWin) return;
+  if (overlayWin.isMinimized()) overlayWin.restore();
+  overlayWin.show();
+  // Restore keeps the "always on top" flag intact on Windows, but pinning it
+  // to the screen-saver level again after a taskbar restore avoids the rare
+  // case where the overlay comes back at a normal z-order.
+  overlayWin.setAlwaysOnTop(true, 'screen-saver');
+}
+
 function buildTray() {
   const icon = nativeImage.createEmpty();
   tray = new Tray(icon);
   const rebuild = () => {
     tray.setContextMenu(Menu.buildFromTemplate([
+      { label: 'Show / restore overlay', click: showOverlay },
       { label: 'Settings…', click: createSettings },
+      { type: 'separator' },
       { label: autopilot ? '✓ Auto click-through (recommended)' : 'Auto click-through (recommended)',
         click: () => { autopilot = true; applyIgnore(true); rebuild(); }
       },
@@ -120,7 +138,9 @@ function buildTray() {
   };
   tray.setToolTip('Zoom Persian Subtitles');
   rebuild();
-  tray.on('click', createSettings);
+  // Left-click on the tray icon restores the overlay from a minimize/hide,
+  // which is what a Windows user expects. Settings still open from the menu.
+  tray.on('click', showOverlay);
 }
 
 app.whenReady().then(() => {
@@ -149,6 +169,7 @@ ipcMain.handle('overlay:setAutopilot', (_e, on) => { autopilot = !!on; if (autop
 ipcMain.handle('overlay:move', (_e, dx, dy) => { if (!overlayWin) return; const [x, y] = overlayWin.getPosition(); overlayWin.setPosition(x + dx, y + dy); });
 ipcMain.handle('overlay:resize', (_e, dw, dh) => { if (!overlayWin) return; const [w, h] = overlayWin.getSize(); overlayWin.setSize(Math.max(400, w + dw), Math.max(80, h + dh)); });
 ipcMain.handle('overlay:hide', () => overlayWin && overlayWin.hide());
-ipcMain.handle('overlay:show', () => overlayWin && overlayWin.show());
+ipcMain.handle('overlay:show', () => showOverlay());
+ipcMain.handle('overlay:minimize', () => overlayWin && overlayWin.minimize());
 ipcMain.handle('settings:open', () => createSettings());
 ipcMain.handle('app:quit', () => app.exit(0));
