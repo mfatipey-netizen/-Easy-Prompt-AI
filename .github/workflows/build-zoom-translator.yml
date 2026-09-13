@@ -2,7 +2,7 @@ name: Build Zoom Live Subtitles (Windows)
 
 on:
   push:
-    branches: [main, "claude/zoom-persian-translation-subtitles-4x3l7g", "claude/zoom-persian-subtitles-translation-k08eqj"]
+    branches: [main, "project/zoom-live-subtitles", "claude/zoom-**"]
     paths:
       - "zoom-translator/**"
       - ".github/workflows/build-zoom-translator.yml"
