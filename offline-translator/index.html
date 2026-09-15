@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="مترجم آفلاین" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="format-detection" content="telephone=no" />
+
+  <title>مترجم آفلاین انگلیسی → فارسی</title>
+
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="preconnect" href="https://huggingface.co" crossorigin />
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <h1>مترجم آفلاین</h1>
+    </div>
+    <div id="status" class="status" data-state="idle">
+      <span class="status-dot"></span>
+      <span class="status-text">در حال بارگذاری…</span>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <section class="io-block" aria-label="ورودی انگلیسی">
+      <div class="io-header">
+        <span class="io-label">English</span>
+        <div class="io-actions">
+          <button id="paste-btn"  class="icon-btn" title="چسباندن از کلیپ‌بورد" aria-label="Paste">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M9 4H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2"/></svg>
+          </button>
+          <button id="camera-btn" class="icon-btn" title="عکس گرفتن (OCR)" aria-label="Camera">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          </button>
+          <button id="mic-btn" class="icon-btn" title="گفتار به متن" aria-label="Microphone">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8"  y1="23" x2="16" y2="23"/></svg>
+          </button>
+          <button id="clear-btn" class="icon-btn" title="پاک کردن" aria-label="Clear">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+      <textarea id="src" dir="ltr" lang="en" placeholder="Paste or type English text here…" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea>
+    </section>
+
+    <div class="translate-row">
+      <button id="translate-btn" class="translate-btn" disabled>
+        <span class="tb-text">ترجمه</span>
+        <span class="tb-spinner" aria-hidden="true"></span>
+      </button>
+    </div>
+
+    <section class="io-block" aria-label="خروجی فارسی">
+      <div class="io-header">
+        <span class="io-label">فارسی</span>
+        <div class="io-actions">
+          <button id="copy-btn"  class="icon-btn" title="کپی" aria-label="Copy">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+          <button id="share-btn" class="icon-btn" title="اشتراک" aria-label="Share">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg>
+          </button>
+        </div>
+      </div>
+      <div id="dst" class="output" dir="rtl" lang="fa" contenteditable="false" aria-live="polite"></div>
+    </section>
+
+    <div id="progress" class="progress hidden">
+      <div class="progress-header">
+        <span id="progress-title">در حال دانلود مدل ترجمه…</span>
+        <span id="progress-percent">0%</span>
+      </div>
+      <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+      <p class="progress-hint">این کار فقط یک بار انجام می‌شود. حدود ۷۵ مگابایت. بعد از این، کاملاً آفلاین کار می‌کند.</p>
+    </div>
+
+    <div id="toast" class="toast" role="status"></div>
+  </main>
+
+  <!-- Hidden file input for camera capture -->
+  <input id="camera-input" type="file" accept="image/*" capture="environment" hidden />
+
+  <footer class="app-footer">
+    <button id="download-btn" class="text-btn">دانلود مدل برای استفادهٔ آفلاین</button>
+    <span class="footer-sep">•</span>
+    <button id="about-btn" class="text-btn">دربارهٔ اپ</button>
+  </footer>
+
+  <dialog id="about-dialog" class="about-dialog">
+    <h2>مترجم آفلاین</h2>
+    <p>یک PWA کوچک که متن انگلیسی را روی خود گوشی به فارسی ترجمه می‌کند — بدون ارسال به سرور.</p>
+    <ul>
+      <li><b>موتور ترجمه:</b> transformers.js + مدل Helsinki opus‑mt (~۷۵ مگابایت، فقط یک بار دانلود).</li>
+      <li><b>OCR:</b> Tesseract.js — تشخیص انگلیسی از عکس.</li>
+      <li><b>صدا:</b> Web Speech API مرورگر (روی iOS معمولاً آنلاین است).</li>
+      <li><b>حریم خصوصی:</b> بعد از دانلود مدل، هیچ متنی از گوشی خارج نمی‌شود.</li>
+    </ul>
+    <p class="dialog-hint">برای نصب روی صفحهٔ خانه: در Safari دکمهٔ Share → «Add to Home Screen».</p>
+    <button id="about-close" class="text-btn">بستن</button>
+  </dialog>
+
+  <script src="app.js" type="module"></script>
+</body>
+</html>
