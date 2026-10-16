@@ -13,6 +13,7 @@ A phone web app (PWA, no server) for logging sub-contract tow calls. It uses the
 - **Pricing:** $50 base on every call + km to vehicle (5 km free for every account; extra km at the same per-km rate as towing) + km towed
   (free km: Basic 10, Plus 200, Premium 300, Cash 0). Extra km: Plus/Premium $2.50, Basic/Cash $4.50. HST 13%. All of these can be changed in Settings.
 - **Bi-weekly report:** a table with totals, Excel (CSV) export and Print/PDF. When a period ends, a reminder appears.
+- **Guide tab** (Persian/English) and a **feedback form** that emails the developer (via FormSubmit; mail-app fallback).
 - **Backup:** export/import JSON (photos included).
 
 Run it: open `towlog/index.html` from any HTTPS host (GitHub Pages, Netlify, Cloudflare Pages), then "Add to Home Screen".

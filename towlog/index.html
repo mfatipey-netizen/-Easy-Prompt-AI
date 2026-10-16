@@ -18,7 +18,7 @@ header .gps{font-size:13px;color:var(--mut)}
 #langBtn{background:#1f2937;color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-weight:700}
 main{padding:12px 16px;max-width:900px;margin:auto}
 nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#111827;border-top:1px solid var(--line);z-index:6;padding-bottom:env(safe-area-inset-bottom)}
-nav button{flex:1;background:none;border:0;color:var(--mut);padding:10px 0;font-size:13px}
+nav button{flex:1;background:none;border:0;color:var(--mut);padding:10px 0;font-size:12px;font-family:inherit;min-width:0}
 nav button b{display:block;font-size:22px}
 nav button.on{color:var(--acc)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
@@ -84,6 +84,9 @@ textarea{min-height:60px;resize:vertical}
 .voicebar{position:fixed;inset-inline-end:16px;bottom:96px;z-index:7;width:66px;height:66px;border-radius:50%;border:0;background:var(--blue);color:#fff;font-size:30px;box-shadow:0 6px 20px rgba(0,0,0,.5)}
 .voicebar.rec{background:var(--bad);animation:p 1s infinite}
 .hint{font-size:12px;color:var(--mut)}
+.guide h3{font-size:15px;margin:16px 0 6px;color:var(--tx)}.guide ol,.guide ul{margin:0;padding-inline-start:22px}.guide li{margin:4px 0}
+.guide .tip{background:#0b1220;border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:10px;font-size:14px}
+.stars{display:flex;gap:4px}.stars button{background:none;border:0;font-size:28px;padding:0 2px;color:#475569}.stars button.on{color:var(--acc)}
 .hide{display:none!important}
 @media print{
  header,nav,.voicebar,.noprint,#v-call,#v-log,#v-set{display:none!important}
@@ -195,6 +198,24 @@ textarea{min-height:60px;resize:vertical}
   </div>
 </section>
 
+<!-- ================= HELP + FEEDBACK ================= -->
+<section id="v-help" class="hide">
+  <div class="card guide" id="guide"></div>
+  <div class="card">
+    <h2 data-i="fbT"></h2>
+    <p class="hint" data-i="fbHint"></p>
+    <form id="fbForm" class="grid">
+      <div><label data-i="fbName"></label><input id="fb_name" dir="auto" autocomplete="name"></div>
+      <div><label data-i="fbEmail"></label><input id="fb_email" type="email" class="ltr" autocomplete="email"></div>
+      <div><label data-i="fbType"></label><select id="fb_type"></select></div>
+      <div><label data-i="fbRate"></label><div class="stars" id="fb_stars"></div></div>
+      <div class="full"><label data-i="fbMsg"></label><textarea id="fb_msg" dir="auto" required style="min-height:120px"></textarea></div>
+      <div class="full row"><button class="btn acc big" type="submit" id="fbSend" data-i="fbSend"></button></div>
+      <p class="hint full" id="fbStatus"></p>
+    </form>
+  </div>
+</section>
+
 <!-- ================= SETTINGS ================= -->
 <section id="v-set" class="hide">
   <div class="card">
@@ -231,6 +252,7 @@ textarea{min-height:60px;resize:vertical}
   <button data-v="log"><b>📋</b><span data-i="navLog"></span></button>
   <button data-v="rep"><b>📊</b><span data-i="navRep"></span></button>
   <button data-v="set"><b>⚙️</b><span data-i="navSet"></span></button>
+  <button data-v="help"><b>❓</b><span data-i="navHelp"></span></button>
 </nav>
 
 <div class="alarm" id="alarm">
@@ -288,7 +310,15 @@ const L={en:{
  tDelCall:'Delete this call?',tDelPhoto:'Delete photo?',tImported:'Imported ✓',tBadBackup:'Bad backup file',tImportQ:'Import calls? (merged with existing)',tLocNo:'Location unavailable',tStorage:'Storage full! Export a backup.',
  tNoBarcode:'No barcode found',tScanNo:'Barcode scan not supported here — use 🔎 Read plate/VIN',tScanFail:'Scan failed',tDispNone:'Nothing recognised — check the screenshot or paste the text.',tDispOk:'From dispatch:',
  repReady:'Your 2-week report is ready',open:'Open',
- sStart:'Call started. Drive safe.',sArrive:'Arrived. {0} kilometers to vehicle.',sTow:'Towing. Measuring distance.',sDrop:'Dropped. {0} kilometers towed. Total {1} dollars before tax.',sCashW:'Warning. {0} account. Collect cash before towing the vehicle.',sColl:'Cash collected.',sSaved:'Call saved.',sRep:'Your two week report is ready.'
+ sStart:'Call started. Drive safe.',sArrive:'Arrived. {0} kilometers to vehicle.',sTow:'Towing. Measuring distance.',sDrop:'Dropped. {0} kilometers towed. Total {1} dollars before tax.',sCashW:'Warning. {0} account. Collect cash before towing the vehicle.',sColl:'Cash collected.',sSaved:'Call saved.',sRep:'Your two week report is ready.',navHelp:'Guide',fbT:'💬 Suggestions & feedback',fbHint:'Your message goes straight to the app developer by email.',fbName:'Your name (optional)',fbEmail:'Your email (optional, for a reply)',fbType:'Type',fbRate:'Rate the app',fbMsg:'Your message',fbSend:'📨 Send',fbTypes:['Suggestion','Problem / bug','Criticism','Other'],fbSending:'Sending…',fbOk:'✅ Sent. Thank you!',fbFail:'Could not send (no internet?). Your mail app will open instead; if it does not, email:',fbEmpty:'Please write a message.',
+ guide:`<h2>📖 How to use TowLog</h2>
+<h3>1. First time</h3><ol><li>Open the link in Chrome (Android) or Safari (iPhone) → menu → <b>Add to Home Screen</b>.</li><li>Allow <b>microphone, camera and location</b> when asked.</li><li><b>Settings</b>: enter your name, driver/truck numbers and the start date of your 2-week pay period. Check the rates.</li></ol>
+<h3>2. When a call comes in</h3><ol><li><b>📸 Screenshot</b> of the call in the dispatch app (or <b>📋 Paste</b> its text, or on Android <b>Share → TowLog</b>) — pickup, destination and km fill in.</li><li>Pick the <b>account type</b>. For <b>Cash</b> and <b>Basic</b> a red alarm reminds you to <b>collect cash before towing</b>; “Towing” stays locked until you tap <b>Collected</b>.</li><li>Tap the steps as you go: <b>En route → At vehicle → Towing → Dropped</b>. Times are recorded and GPS measures km (keep the app open).</li></ol>
+<h3>3. Filling details hands-free</h3><ul><li>Big blue <b>🎤</b>: say several fields at once, e.g. “make Honda, model Civic, colour red, reason flat tire”.</li><li>Small 🎤 next to a field fills just that field. Plate/VIN: spell it (“C X R T 4 5 2”).</li><li><b>📷 Take photo</b> of the vehicle; <b>🔎 Read plate/VIN</b> reads the last photo; <b>▥ Scan VIN</b> reads the door-jamb barcode.</li></ul>
+<h3>4. Pay calculation</h3><ul><li>$50 base for every call.</li><li>Km to vehicle: first 5 km free (all accounts).</li><li>Km towed free: Basic 10, Plus 200, Premium 300, Cash 0.</li><li>Extra km (to vehicle and towed): Plus/Premium $2.50, Basic/Cash $4.50. HST 13% shown separately. All editable in Settings.</li></ul>
+<h3>5. Save & report</h3><ul><li><b>💾 Save call</b> at the end, then <b>＋ New call</b>.</li><li><b>Report</b> tab: every 2 weeks a table with totals → <b>Excel (CSV)</b> or <b>Print/PDF</b>.</li></ul>
+<div class="tip">🔒 Your data stays only on <b>your</b> phone — nobody else sees it. Use <b>Settings → Export backup</b> regularly (and before changing phones).</div>
+<div class="tip">⚠️ Don’t type while driving — use voice, or fill details when parked.</div>`
 },fa:{
  dispT:'📲 از اپ دیسپچ (اپ کال)',dispShot:'📸 اسکرین‌شات',dispPaste:'📋 چسباندن متن کال',dispHint:'از صفحهٔ کال در اپ دیسپچ اسکرین‌شات بگیر (یا متنش را کپی کن)؛ مبدأ، مقصد و کیلومترها خودکار پر می‌شوند. در اندروید می‌توانی از همان اپ «Share ← TowLog» هم بزنی.',dispPh:'متن کال را اینجا بچسبان…',dispApply:'پر کردن فرم',
  acctType:'نوع اکانت',cashCollected:'وجه نقد دریافت شد',collectedPh:'مبلغ دریافتی $',progress:'مراحل کار',
@@ -315,7 +345,15 @@ const L={en:{
  tDelCall:'این کال حذف شود؟',tDelPhoto:'عکس حذف شود؟',tImported:'بازگردانی شد ✓',tBadBackup:'فایل پشتیبان معتبر نیست',tImportQ:'کال‌ها اضافه شوند؟ (با فعلی‌ها ادغام می‌شوند)',tLocNo:'موقعیت در دسترس نیست',tStorage:'حافظه پر است! پشتیبان بگیر.',
  tNoBarcode:'بارکدی پیدا نشد',tScanNo:'اسکن بارکد اینجا پشتیبانی نمی‌شود — از «خواندن پلاک/VIN» استفاده کن',tScanFail:'اسکن ناموفق بود',tDispNone:'چیزی شناسایی نشد — اسکرین‌شات را چک کن یا متن را بچسبان.',tDispOk:'از دیسپچ:',
  repReady:'گزارش دوهفته‌ای‌ات آماده است',open:'باز کن',
- sStart:'کال شروع شد. با احتیاط برانید.',sArrive:'رسیدید. {0} کیلومتر تا خودرو.',sTow:'حمل شروع شد. مسافت اندازه‌گیری می‌شود.',sDrop:'تحویل شد. {0} کیلومتر حمل. جمع {1} دلار بدون مالیات.',sCashW:'هشدار. اکانت {0}. قبل از حمل خودرو اول پول نقد را بگیرید.',sColl:'نقد دریافت شد.',sSaved:'کال ذخیره شد.',sRep:'گزارش دوهفته‌ای آماده است.'
+ sStart:'کال شروع شد. با احتیاط برانید.',sArrive:'رسیدید. {0} کیلومتر تا خودرو.',sTow:'حمل شروع شد. مسافت اندازه‌گیری می‌شود.',sDrop:'تحویل شد. {0} کیلومتر حمل. جمع {1} دلار بدون مالیات.',sCashW:'هشدار. اکانت {0}. قبل از حمل خودرو اول پول نقد را بگیرید.',sColl:'نقد دریافت شد.',sSaved:'کال ذخیره شد.',sRep:'گزارش دوهفته‌ای آماده است.',navHelp:'راهنما',fbT:'💬 پیشنهاد و انتقاد',fbHint:'پیامت مستقیم به ایمیل سازندهٔ برنامه فرستاده می‌شود.',fbName:'نام شما (اختیاری)',fbEmail:'ایمیل شما (اختیاری، برای جواب)',fbType:'نوع پیام',fbRate:'امتیاز به برنامه',fbMsg:'متن پیام',fbSend:'📨 ارسال',fbTypes:['پیشنهاد','مشکل / خطا','انتقاد','سایر'],fbSending:'در حال ارسال…',fbOk:'✅ ارسال شد. ممنون!',fbFail:'ارسال نشد (اینترنت؟). برنامهٔ ایمیل باز می‌شود؛ اگر باز نشد به این آدرس بفرست:',fbEmpty:'لطفاً متن پیام را بنویس.',
+ guide:`<h2>📖 راهنمای استفاده</h2>
+<h3>۱. بار اول</h3><ol><li>لینک را در Chrome (اندروید) یا Safari (آیفون) باز کن ← منو ← <b>Add to Home Screen</b> تا مثل اپ نصب شود.</li><li>وقتی پرسید، اجازهٔ <b>میکروفون، دوربین و موقعیت (GPS)</b> را بده.</li><li>در <b>تنظیمات</b>: نام، شماره راننده و کامیون، و تاریخ شروع دورهٔ دوهفته‌ای را وارد کن و نرخ‌ها را چک کن.</li></ol>
+<h3>۲. وقتی کال می‌آید</h3><ol><li>از صفحهٔ کال در اپ دیسپچ <b>📸 اسکرین‌شات</b> بده (یا متنش را <b>📋 بچسبان</b>، یا در اندروید <b>Share ← TowLog</b>)؛ مبدأ، مقصد و کیلومترها خودکار پر می‌شوند.</li><li><b>نوع اکانت</b> را انتخاب کن. برای <b>Cash</b> و <b>Basic</b> هشدار قرمز می‌آید که <b>قبل از حمل، پول نقد را بگیری</b>؛ تا «دریافت شد» را نزنی، دکمهٔ «شروع حمل» قفل است.</li><li>مراحل را همان‌طور که پیش می‌روی بزن: <b>در راه ← رسیدم ← شروع حمل ← تحویل شد</b>. ساعت‌ها ثبت می‌شود و GPS کیلومتر را می‌شمارد (برنامه باز بماند).</li></ol>
+<h3>۳. پر کردن بدون دست</h3><ul><li><b>🎤 آبی بزرگ</b>: چند فیلد را یک‌جا بگو، مثلاً «سازنده تویوتا، مدل کرولا، رنگ سفید، علت پنچری».</li><li>🎤 کوچک کنار هر فیلد فقط همان فیلد را پر می‌کند. پلاک و VIN را حرف‌به‌حرف انگلیسی بگو («C X R T 4 5 2»).</li><li><b>📷 گرفتن عکس</b> از خودرو؛ <b>🔎 خواندن پلاک/VIN</b> آخرین عکس را می‌خواند؛ <b>▥ اسکن VIN</b> بارکد کنار در را می‌خواند.</li></ul>
+<h3>۴. محاسبهٔ مبلغ</h3><ul><li>۵۰ دلار ثابت برای هر کال.</li><li>مسافت تا خودرو: ۵ کیلومتر اول برای همه رایگان.</li><li>مسافت حمل رایگان: بیسیک ۱۰، پلاس ۲۰۰، پریمیوم ۳۰۰، کش ۰ کیلومتر.</li><li>کیلومتر مازاد (هم تا خودرو هم حمل): پلاس و پریمیوم ۲٫۵ دلار، بیسیک و کش ۴٫۵ دلار. HST ‏۱۳٪ جدا نشان داده می‌شود. همه در تنظیمات قابل تغییرند.</li></ul>
+<h3>۵. ذخیره و گزارش</h3><ul><li>آخر کار <b>💾 ذخیرهٔ کال</b>، بعد <b>＋ کال جدید</b>.</li><li>زبانهٔ <b>گزارش</b>: هر دو هفته یک جدول با جمع‌ها ← <b>اکسل (CSV)</b> یا <b>چاپ/PDF</b>.</li></ul>
+<div class="tip">🔒 اطلاعاتت فقط روی گوشی <b>خودت</b> می‌ماند و کس دیگری نمی‌بیند. از <b>تنظیمات ← گرفتن پشتیبان</b> مرتب (و قبل از عوض کردن گوشی) استفاده کن.</div>
+<div class="tip">⚠️ موقع رانندگی تایپ نکن؛ از صدا استفاده کن یا وقتی پارک کردی پر کن.</div>`
 }};
 const t=(k,...a)=>String(L[S.ui]?.[k]??L.en[k]??k).replace(/\{(\d)\}/g,(_,i)=>a[i]);
 const ACCTS={cash:['Cash call','نقدی (کش)'],basic:['Basic','بیسیک'],plus:['Plus','پلاس'],premium:['Premium','پریمیوم']};
@@ -381,6 +419,8 @@ function buildUI(){
   $('#rateGrid').innerHTML=RATES.map(r=>`<div><label>${lb(r)}</label><input id="s_${r[0]}" class="ltr" inputmode="decimal"></div>`).join('');
   [...SET,...RATES,['ui'],['lang'],['speak']].forEach(([k])=>$('#s_'+k).onchange=e=>{S[k]=e.target.value;saveSet();if(k==='ui'){buildUI();fillSet()}else renderPrice()});
   FIELDS.forEach(k=>{const el=$('#f_'+k);if(!el)return;el.oninput=el.onchange=()=>{cur[k]=el.value;if(k==='plate'||k==='vin')cur[k]=el.value=el.value.toUpperCase();saveCur();renderPrice()}});
+  $('#guide').innerHTML=L[S.ui].guide;
+  $('#fb_type').innerHTML=L[S.ui].fbTypes.map((x,i)=>`<option value="${L.en.fbTypes[i]}">${x}</option>`).join('');renderStars();
   if(!watch)$('#gpsStat').textContent=t('gpsOff');
   fillForm();
 }
@@ -673,6 +713,26 @@ $('#impBtn').onclick=()=>$('#impIn').click();
 $('#impIn').onchange=async e=>{try{const j=JSON.parse(await e.target.files[0].text());if(!confirm(`${t('tImportQ')} (${j.calls.length})`))return;
   for(const [id,d] of Object.entries(j.photos||{}))await putPhoto(id,await (await fetch(d)).blob());
   const ids=new Set(calls.map(c=>c.id));j.calls.forEach(c=>{if(!ids.has(c.id))calls.push(c)});Object.assign(S,j.settings||{});saveCalls();saveSet();buildUI();fillSet();toast(t('tImported'))}catch(err){toast(t('tBadBackup'))}e.target.value=''};
+
+// ---------- feedback (FormSubmit relays the form to the owner's inbox; mail app as fallback) ----------
+const FEEDBACK_TO='m.f.atipey@gmail.com';
+let fbRate=0;
+function renderStars(){$('#fb_stars').innerHTML=[1,2,3,4,5].map(n=>`<button type="button" data-s="${n}" class="${n<=fbRate?'on':''}">★</button>`).join('')}
+$('#fb_stars').onclick=e=>{const n=+e.target.dataset.s;if(n){fbRate=n;renderStars()}};
+$('#fbForm').onsubmit=async e=>{
+  e.preventDefault();const msg=$('#fb_msg').value.trim();if(!msg){$('#fbStatus').textContent=t('fbEmpty');return}
+  const d={name:$('#fb_name').value.trim(),email:$('#fb_email').value.trim(),type:$('#fb_type').value,rating:fbRate?fbRate+'/5':'',message:msg,
+    app:'TowLog '+(navigator.userAgent.match(/Android|iPhone|iPad|Windows|Mac/)||[''])[0],_subject:'TowLog feedback: '+$('#fb_type').value,_template:'table',_captcha:'false'};
+  if(!d.email)delete d.email;
+  $('#fbSend').disabled=true;$('#fbStatus').textContent=t('fbSending');
+  try{const r=await fetch('https://formsubmit.co/ajax/'+FEEDBACK_TO,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(d)});
+    const j=await r.json().catch(()=>({}));if(!r.ok||String(j.success)==='false')throw 0;
+    $('#fbStatus').textContent=t('fbOk');$('#fb_msg').value='';fbRate=0;renderStars();
+  }catch(err){
+    $('#fbStatus').textContent=t('fbFail')+' '+FEEDBACK_TO;
+    location.href=`mailto:${FEEDBACK_TO}?subject=${encodeURIComponent(d._subject)}&body=${encodeURIComponent(`${d.type} ${d.rating}\n${d.name||''} ${d.email||''}\n\n${msg}`)}`;
+  }finally{$('#fbSend').disabled=false}
+};
 
 // ---------- nav ----------
 function show(v){$$('main>section').forEach(s=>s.classList.toggle('hide',s.id!=='v-'+v));$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));$('#voiceAll').classList.toggle('hide',v!=='call');if(v==='log')renderLog();if(v==='rep')renderReport();if(v==='set')fillSet();scrollTo(0,0)}
