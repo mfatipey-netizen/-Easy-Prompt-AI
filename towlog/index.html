@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -7,13 +7,15 @@
 <title>TowLog Runsheet</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
 :root{--bg:#0f172a;--card:#1e293b;--line:#334155;--tx:#f1f5f9;--mut:#94a3b8;--acc:#f59e0b;--ok:#22c55e;--bad:#ef4444;--blue:#3b82f6;color-scheme:dark}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;padding-bottom:170px}
-header{position:sticky;top:0;z-index:5;background:#111827;padding:10px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line)}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;padding-bottom:170px}
+header{position:sticky;top:0;z-index:5;background:#111827;padding:10px 16px;padding-top:max(10px,env(safe-area-inset-top));display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line)}
 header h1{font-size:18px;margin:0;flex:1}
 header .gps{font-size:13px;color:var(--mut)}
+#langBtn{background:#1f2937;color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-weight:700}
 main{padding:12px 16px;max-width:900px;margin:auto}
 nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#111827;border-top:1px solid var(--line);z-index:6;padding-bottom:env(safe-area-inset-bottom)}
 nav button{flex:1;background:none;border:0;color:var(--mut);padding:10px 0;font-size:13px}
@@ -22,58 +24,67 @@ nav button.on{color:var(--acc)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
 .card h2{font-size:15px;margin:0 0 10px;color:var(--acc)}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid>*{min-width:0}
 .full{grid-column:1/-1}
 label{display:block;font-size:12px;color:var(--mut);margin-bottom:3px}
-label i{font-style:normal;opacity:.75}
 .f{position:relative}
-input,select,textarea{width:100%;min-width:0;max-width:100%;background:#0b1220;color:var(--tx);border:1px solid var(--line);border-radius:10px;padding:11px 10px;font-size:16px}
-.f input,.f textarea{padding-right:42px}
+input,select,textarea{width:100%;min-width:0;max-width:100%;background:#0b1220;color:var(--tx);border:1px solid var(--line);border-radius:10px;padding:11px 10px;font-size:16px;font-family:inherit}
+/* mic buttons sit on the page's end side; pad that physical side whatever the text direction is */
+[dir=ltr] .f input,[dir=ltr] .f textarea{padding-right:42px;padding-left:10px}
+[dir=rtl] .f input,[dir=rtl] .f textarea{padding-left:42px;padding-right:10px}
+[dir=ltr] .f.loc input{padding-right:86px}[dir=rtl] .f.loc input{padding-left:86px}
+.ltr{direction:ltr;text-align:left}
+[dir=rtl] .ltr{text-align:right}
 textarea{min-height:60px;resize:vertical}
-.mic{position:absolute;right:4px;bottom:4px;width:36px;height:36px;border:0;border-radius:8px;background:#1f2937;color:var(--tx);font-size:17px}
+.mic{position:absolute;inset-inline-end:4px;bottom:4px;width:36px;height:36px;border:0;border-radius:8px;background:#1f2937;color:var(--tx);font-size:17px}
+.mic.gps2{inset-inline-end:44px}
 .mic.rec{background:var(--bad);animation:p 1s infinite}
 @keyframes p{50%{opacity:.5}}
-.btn{border:0;border-radius:12px;padding:13px 14px;font-size:16px;font-weight:600;background:#334155;color:var(--tx)}
+.btn{border:0;border-radius:12px;padding:13px 14px;font-size:16px;font-weight:600;background:#334155;color:var(--tx);font-family:inherit}
 .btn.acc{background:var(--acc);color:#111}.btn.ok{background:var(--ok);color:#052e12}.btn.bad{background:var(--bad)}.btn.blue{background:var(--blue)}
-.btn:disabled{opacity:.4}
 .row{display:flex;gap:8px;flex-wrap:wrap}.row .btn{flex:1}
 .big{font-size:19px;padding:18px}
 .acct{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-.acct button{padding:12px 4px;border-radius:10px;border:2px solid var(--line);background:#0b1220;color:var(--tx);font-weight:700;font-size:14px}
+.acct button{padding:10px 4px;border-radius:10px;border:2px solid var(--line);background:#0b1220;color:var(--tx);font-weight:700;font-size:14px;font-family:inherit}
+.acct button small{display:block;font-weight:400;font-size:11px;color:var(--mut)}
 .acct button.on{border-color:var(--acc);background:#3b2a07}
 .stages{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 .stages .btn{padding:14px 4px;font-size:14px}
 .stages .done{background:#14532d}
 .price{font-size:14px}
 .price table{width:100%;border-collapse:collapse}
-.price td{padding:4px 0;border-bottom:1px dashed var(--line)}.price td:last-child{text-align:right}
+.price td{padding:4px 0;border-bottom:1px dashed var(--line)}.price td:last-child{text-align:end;direction:ltr;white-space:nowrap}
 .price tr.t td{font-weight:800;font-size:18px;color:var(--acc);border:0}
 .thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .thumbs div{position:relative}
 .thumbs img{width:96px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
-.thumbs button{position:absolute;top:-6px;right:-6px;width:24px;height:24px;border-radius:50%;border:0;background:var(--bad);color:#fff}
+.thumbs button{position:absolute;top:-6px;inset-inline-end:-6px;width:24px;height:24px;border-radius:50%;border:0;background:var(--bad);color:#fff}
 .chip{display:inline-block;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700}
 .c-cash{background:#7f1d1d}.c-basic{background:#78350f}.c-plus{background:#1e3a8a}.c-premium{background:#4c1d95}
-.list .it{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
-.list .it div{flex:1}.list small{color:var(--mut)}
+.list .it{display:flex;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.list .it div{flex:1;min-width:0}.list small{color:var(--mut)}
+.list .it .btn{padding:10px 12px}
 .alarm{position:fixed;inset:0;background:rgba(127,29,29,.97);z-index:50;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px}
 .alarm.show{display:flex;animation:fl .6s 4}
 @keyframes fl{50%{background:rgba(220,38,38,.97)}}
-.alarm h2{font-size:30px;margin:10px 0}.alarm p{font-size:20px;margin:6px 0}.alarm .fa{direction:rtl;font-size:22px}
-.alarm .amt{font-size:42px;font-weight:900;margin:12px 0}
+.alarm h2{font-size:30px;margin:10px 0}.alarm p{font-size:20px;margin:6px 0}
+.alarm .amt{font-size:42px;font-weight:900;margin:12px 0;direction:ltr}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:55;display:none;align-items:center;justify-content:center;padding:16px}
+.modal.show{display:flex}.modal .card{width:100%;max-width:520px}
 .toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:#111827;border:1px solid var(--acc);padding:10px 16px;border-radius:10px;z-index:60;display:none;max-width:90%}
 .banner{background:#3b2a07;border:1px solid var(--acc);border-radius:12px;padding:12px;margin-bottom:12px}
+.disp{border-color:var(--blue)}.disp h2{color:#93c5fd}
 .tbl{overflow-x:auto;border-radius:10px;border:1px solid var(--line)}
 .tbl table{border-collapse:collapse;font-size:12px;white-space:nowrap;min-width:100%}
-.tbl th,.tbl td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left}
+.tbl th,.tbl td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:start}
 .tbl th{background:#111827;color:var(--acc);position:sticky;top:0}
 .tbl tfoot td{font-weight:800;background:#111827}
 .sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:10px 0}
-.sum div{background:#0b1220;border:1px solid var(--line);border-radius:10px;padding:10px}.sum b{display:block;font-size:20px;color:var(--acc)}
-.voicebar{position:fixed;right:16px;bottom:96px;z-index:7;width:66px;height:66px;border-radius:50%;border:0;background:var(--blue);color:#fff;font-size:30px;box-shadow:0 6px 20px rgba(0,0,0,.5)}
+.sum div{background:#0b1220;border:1px solid var(--line);border-radius:10px;padding:10px}.sum b{display:block;font-size:20px;color:var(--acc);direction:ltr;text-align:start}
+.voicebar{position:fixed;inset-inline-end:16px;bottom:96px;z-index:7;width:66px;height:66px;border-radius:50%;border:0;background:var(--blue);color:#fff;font-size:30px;box-shadow:0 6px 20px rgba(0,0,0,.5)}
 .voicebar.rec{background:var(--bad);animation:p 1s infinite}
 .hint{font-size:12px;color:var(--mut)}
 .hide{display:none!important}
-@media (max-width:520px){.grid{grid-template-columns:1fr 1fr}.stages{grid-template-columns:1fr 1fr}}
 @media print{
  header,nav,.voicebar,.noprint,#v-call,#v-log,#v-set{display:none!important}
  body{background:#fff;color:#000;padding:0}.card{border:0;background:#fff;padding:0}
@@ -85,8 +96,9 @@ textarea{min-height:60px;resize:vertical}
 </head>
 <body>
 <header>
-  <h1>🚛 TowLog <span class="hint">Runsheet</span></h1>
-  <span class="gps" id="gpsStat">GPS off</span>
+  <h1>🚛 TowLog</h1>
+  <span class="gps" id="gpsStat"></span>
+  <button id="langBtn">EN</button>
 </header>
 
 <main>
@@ -94,49 +106,54 @@ textarea{min-height:60px;resize:vertical}
 <section id="v-call">
   <div id="reportBanner" class="banner hide"></div>
 
-  <div class="card">
-    <h2>Account type · نوع اکانت</h2>
-    <div class="acct" id="acct">
-      <button data-a="cash">CASH</button><button data-a="basic">BASIC</button>
-      <button data-a="plus">PLUS</button><button data-a="premium">PREMIUM</button>
+  <div class="card disp">
+    <h2 data-i="dispT"></h2>
+    <div class="row">
+      <button class="btn blue" id="dispShotBtn" data-i="dispShot"></button>
+      <button class="btn" id="dispPasteBtn" data-i="dispPaste"></button>
     </div>
+    <input type="file" id="dispShotIn" accept="image/*" class="hide">
+    <p class="hint" id="dispMsg" data-i="dispHint"></p>
+  </div>
+
+  <div class="card">
+    <h2 data-i="acctType"></h2>
+    <div class="acct" id="acct"></div>
     <div id="cashBox" class="hide" style="margin-top:10px">
       <div class="row" style="align-items:center">
-        <label style="flex:1;margin:0;font-size:15px;color:var(--tx)"><input type="checkbox" id="cashOk" style="width:auto;transform:scale(1.5);margin-right:10px">Cash collected · نقد دریافت شد</label>
-        <div style="width:130px"><input id="f_collected" inputmode="decimal" placeholder="$ collected"></div>
+        <label style="flex:1;margin:0;font-size:15px;color:var(--tx)"><input type="checkbox" id="cashOk" style="width:auto;transform:scale(1.5);margin-inline-end:10px"><span data-i="cashCollected"></span></label>
+        <div style="width:130px"><input id="f_collected" class="ltr" inputmode="decimal" data-ip="collectedPh"></div>
       </div>
     </div>
   </div>
 
   <div class="card">
-    <h2>Job progress · مراحل</h2>
+    <h2 data-i="progress"></h2>
     <div class="stages">
-      <button class="btn" id="st0">🚚 En route<br><small>Time start</small></button>
-      <button class="btn" id="st1">📍 At vehicle</button>
-      <button class="btn" id="st2">🔗 Towing</button>
-      <button class="btn" id="st3">🏁 Dropped<br><small>Time ended</small></button>
+      <button class="btn" id="st0"></button><button class="btn" id="st1"></button>
+      <button class="btn" id="st2"></button><button class="btn" id="st3"></button>
     </div>
-    <p class="hint" id="stageHint">GPS measures km automatically between steps (keep the app open). You can always edit the km below.</p>
+    <p class="hint" data-i="stageHint"></p>
     <div class="grid">
-      <div class="f"><label>Time start</label><input type="time" id="f_timeStart"></div>
-      <div class="f"><label>Time ended</label><input type="time" id="f_timeEnd"></div>
-      <div class="f"><label>Km to vehicle <i>· تا خودرو</i></label><input id="f_kmTo" inputmode="decimal"></div>
-      <div class="f"><label>Km towed <i>· حمل تا مقصد</i></label><input id="f_kmTow" inputmode="decimal"></div>
+      <div class="f"><label data-i="timeStart"></label><input type="time" id="f_timeStart" class="ltr"></div>
+      <div class="f"><label data-i="timeEnd"></label><input type="time" id="f_timeEnd" class="ltr"></div>
+      <div class="f"><label data-i="kmTo"></label><input id="f_kmTo" class="ltr" inputmode="decimal"></div>
+      <div class="f"><label data-i="kmTow"></label><input id="f_kmTow" class="ltr" inputmode="decimal"></div>
     </div>
   </div>
 
   <div class="card">
-    <h2>Reason for tow · علت</h2>
+    <h2 data-i="reasonT"></h2>
     <select id="f_reason"></select>
-    <div class="f" style="margin-top:8px"><label>Notes · توضیح</label><textarea id="f_notes"></textarea></div>
+    <div class="f" style="margin-top:8px"><label data-i="notes"></label><textarea id="f_notes" dir="auto"></textarea><button class="mic" data-k="notes" type="button">🎤</button></div>
   </div>
 
   <div class="card">
-    <h2>Vehicle photo · عکس خودرو</h2>
+    <h2 data-i="photoT"></h2>
     <div class="row">
-      <button class="btn acc" id="photoBtn">📷 Take photo</button>
-      <button class="btn" id="ocrBtn">🔎 Read plate/VIN</button>
-      <button class="btn" id="vinScanBtn">▥ Scan VIN barcode</button>
+      <button class="btn acc" id="photoBtn" data-i="takePhoto"></button>
+      <button class="btn" id="ocrBtn" data-i="readPV"></button>
+      <button class="btn" id="vinScanBtn" data-i="scanVin"></button>
     </div>
     <input type="file" id="photoIn" accept="image/*" capture="environment" class="hide">
     <input type="file" id="vinIn" accept="image/*" capture="environment" class="hide">
@@ -144,29 +161,21 @@ textarea{min-height:60px;resize:vertical}
     <p class="hint" id="ocrMsg"></p>
   </div>
 
-  <div class="card">
-    <h2>Vehicle · خودرو</h2>
-    <div class="grid" id="vehGrid"></div>
-  </div>
-
-  <div class="card">
-    <h2>Job details · جزئیات کار</h2>
-    <div class="grid" id="jobGrid"></div>
-  </div>
-
+  <div class="card"><h2 data-i="vehT"></h2><div class="grid" id="vehGrid"></div></div>
+  <div class="card"><h2 data-i="jobT"></h2><div class="grid" id="jobGrid"></div></div>
   <div class="card price" id="priceBox"></div>
 
   <div class="row noprint">
-    <button class="btn" id="newBtn">＋ New call</button>
-    <button class="btn ok big" id="saveBtn">💾 Save call</button>
+    <button class="btn" id="newBtn" data-i="newCall"></button>
+    <button class="btn ok big" id="saveBtn" data-i="saveCall"></button>
   </div>
 </section>
 
 <!-- ================= LOG ================= -->
 <section id="v-log" class="hide">
   <div class="card">
-    <h2>Saved calls · تماس‌های ثبت‌شده</h2>
-    <input id="search" placeholder="Search plate, make, invoice…">
+    <h2 data-i="logT"></h2>
+    <input id="search" dir="auto" data-ip="searchPh">
     <div class="list" id="list"></div>
   </div>
 </section>
@@ -174,11 +183,11 @@ textarea{min-height:60px;resize:vertical}
 <!-- ================= REPORT ================= -->
 <section id="v-rep" class="hide">
   <div class="card">
-    <h2>Bi-weekly report · گزارش دوهفته‌ای</h2>
+    <h2 data-i="repT"></h2>
     <div class="row noprint">
-      <select id="period" style="flex:2"></select>
-      <button class="btn" id="csvBtn">⬇ Excel (CSV)</button>
-      <button class="btn" id="printBtn">🖨 Print / PDF</button>
+      <select id="period" style="flex:2;direction:ltr"></select>
+      <button class="btn" id="csvBtn" data-i="csv"></button>
+      <button class="btn" id="printBtn" data-i="print"></button>
     </div>
     <div id="repHead"></div>
     <div class="sum" id="repSum"></div>
@@ -189,53 +198,61 @@ textarea{min-height:60px;resize:vertical}
 <!-- ================= SETTINGS ================= -->
 <section id="v-set" class="hide">
   <div class="card">
-    <h2>Driver / sheet header · مشخصات راننده</h2>
-    <div class="grid" id="setGrid"></div>
-  </div>
-  <div class="card">
-    <h2>Rates · نرخ‌ها</h2>
-    <div class="grid" id="rateGrid"></div>
-    <p class="hint">Km to vehicle: first N km free for every account; extra km at the account's per-km rate. Km towed: free km depend on the account; extra at the account's per-km rate. Every call adds the base fee.</p>
-  </div>
-  <div class="card">
-    <h2>Voice · صدا</h2>
+    <h2 data-i="langT"></h2>
     <div class="grid">
-      <div><label>Dictation language</label><select id="s_lang"><option value="en-CA">English (Canada)</option><option value="en-US">English (US)</option><option value="fa-IR">فارسی</option></select></div>
-      <div><label>Speak alerts aloud</label><select id="s_speak"><option value="1">On</option><option value="0">Off</option></select></div>
+      <div><label data-i="uiLang"></label><select id="s_ui"><option value="fa">فارسی</option><option value="en">English</option></select></div>
+      <div><label data-i="dictLang"></label><select id="s_lang"><option value="fa-IR">فارسی</option><option value="en-CA">English (Canada)</option><option value="en-US">English (US)</option></select></div>
+      <div><label data-i="speakAlerts"></label><select id="s_speak"><option value="1">On / روشن</option><option value="0">Off / خاموش</option></select></div>
     </div>
-    <p class="hint">Big blue 🎤 button = say several fields at once, e.g. <b>“account cash, make Honda, model Civic, colour red, plate C X R T 4 5 2, reason flat tire, location 100 Queen Street, destination Midas Etobicoke”</b>.</p>
+    <p class="hint" data-i="voiceHint"></p>
+  </div>
+  <div class="card"><h2 data-i="setT"></h2><div class="grid" id="setGrid"></div></div>
+  <div class="card">
+    <h2 data-i="ratesT"></h2>
+    <div class="grid" id="rateGrid"></div>
+    <p class="hint" data-i="ratesHint"></p>
   </div>
   <div class="card">
-    <h2>Backup · پشتیبان</h2>
-    <p class="hint">Data is stored only on this phone. Export a backup regularly.</p>
+    <h2 data-i="backupT"></h2>
+    <p class="hint" data-i="backupHint"></p>
     <div class="row">
-      <button class="btn" id="expBtn">⬇ Export backup</button>
-      <button class="btn" id="impBtn">⬆ Import backup</button>
+      <button class="btn" id="expBtn" data-i="exp"></button>
+      <button class="btn" id="impBtn" data-i="imp"></button>
       <input type="file" id="impIn" accept="application/json" class="hide">
     </div>
   </div>
 </section>
 </main>
 
-<button class="voicebar" id="voiceAll" title="Voice fill">🎤</button>
+<button class="voicebar" id="voiceAll">🎤</button>
 
 <nav>
-  <button data-v="call" class="on"><b>📝</b>Call</button>
-  <button data-v="log"><b>📋</b>Log</button>
-  <button data-v="rep"><b>📊</b>Report</button>
-  <button data-v="set"><b>⚙️</b>Settings</button>
+  <button data-v="call" class="on"><b>📝</b><span data-i="navCall"></span></button>
+  <button data-v="log"><b>📋</b><span data-i="navLog"></span></button>
+  <button data-v="rep"><b>📊</b><span data-i="navRep"></span></button>
+  <button data-v="set"><b>⚙️</b><span data-i="navSet"></span></button>
 </nav>
 
 <div class="alarm" id="alarm">
   <div style="font-size:70px">💵⚠️</div>
-  <h2>COLLECT CASH FIRST</h2>
-  <p>Collect payment <b>before</b> hooking / towing the vehicle.</p>
-  <p class="fa">قبل از حمل خودرو، اول وجه نقد را دریافت کن!</p>
+  <h2 data-i="alarmH"></h2>
+  <p data-i="alarmP"></p>
   <div class="amt" id="alarmAmt"></div>
   <p class="hint" style="color:#fecaca" id="alarmSub"></p>
   <div class="row" style="width:100%;max-width:420px;margin-top:16px">
-    <button class="btn ok big" id="alarmPaid">✅ Collected</button>
-    <button class="btn big" id="alarmLater">Later</button>
+    <button class="btn ok big" id="alarmPaid" data-i="collectedBtn"></button>
+    <button class="btn big" id="alarmLater" data-i="later"></button>
+  </div>
+</div>
+
+<div class="modal" id="pasteModal">
+  <div class="card">
+    <h2 data-i="dispPaste"></h2>
+    <textarea id="pasteTxt" class="ltr" style="min-height:180px" data-ip="dispPh"></textarea>
+    <div class="row" style="margin-top:10px">
+      <button class="btn blue" id="pasteGo" data-i="dispApply"></button>
+      <button class="btn" id="pasteClose" data-i="later"></button>
+    </div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -243,58 +260,130 @@ textarea{min-height:60px;resize:vertical}
 <script>
 'use strict';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const ACCTS={cash:'Cash call',basic:'Basic',plus:'Plus',premium:'Premium'};
-const REASONS=['','Accident / collision','Flat tire (no spare)','Multiple flat tires','Dead battery / no start','Engine failure','Overheating','Transmission failure','Brake failure','Electrical failure','Fuel issue / out of fuel','Wrong fuel','Steering / suspension damage','Broken axle / wheel','Timing belt / chain','Clutch failure','Coolant / oil leak','Lockout – keys locked in','Lost / broken key','Stuck – ditch / snow / mud (winch)','Vehicle fire damage','Flood / water damage','Stolen / recovered','Impound / illegal parking','Private property tow','Dealer / repair shop transfer','Mechanical – unknown','Other'];
-const VEH=[['make','Make','سازنده'],['model','Model','مدل'],['colour','Colour','رنگ'],['plate','Plate','پلاک'],['vin','VIN','شماره شاسی',1]];
-const JOB=[['location','Location','مبدأ',1],['destination','Destination','مقصد',1],['hirer','Name of hirer','سفارش‌دهنده'],['consentee','Name of consentee','رضایت‌دهنده'],['receiver','Veh receiver: business & person','تحویل‌گیرنده',1],['rem','REM'],['rpm','RPM'],['invoice','Invoice #','فاکتور'],['towImpound','Tow or impound','',0,['','Tow','Impound']],['whoAuth','Who auth. impound?','مجوز توقیف'],['passenger','Passenger (legal full name)','مسافر'],['passReason','Reason for passenger','']];
-const SET=[['driverName','Driver name'],['driverNo','Driver No.'],['truckNo','Truck No.'],['licenseNo','License No.'],['tssea','TSSEA certificate No. (TD-)'],['company','Tow driver company name'],['periodStart','Pay period start (any start date)','date']];
-const RATES=[['base','Base fee per call ($)',50],['freeTo','Free km to vehicle (all)',5],['freeBasic','Basic: free tow km',10],['freePlus','Plus: free tow km',200],['freePremium','Premium: free tow km',300],['freeCash','Cash: free tow km',0],['rateLow','Plus/Premium $ per extra km',2.5],['rateHigh','Basic/Cash $ per extra km',4.5],['hst','HST %',13]];
+
+// ---------- i18n ----------
+const L={en:{
+ dispT:'📲 From dispatch app',dispShot:'📸 Screenshot',dispPaste:'📋 Paste call text',dispHint:'Take a screenshot of the call in the dispatch app (or copy its text) — pickup, destination and km fill in automatically. On Android you can also Share → TowLog.',dispPh:'Paste the call details here…',dispApply:'Fill the form',
+ acctType:'Account type',cashCollected:'Cash collected',collectedPh:'$ collected',progress:'Job progress',
+ st0:'🚚 En route',st0s:'Time start',st1:'📍 At vehicle',st2:'🔗 Towing',st3:'🏁 Dropped',st3s:'Time ended',
+ stageHint:'GPS measures km between steps (keep the app open). Km from the dispatch app or typed by hand always win.',
+ timeStart:'Time start',timeEnd:'Time ended',kmTo:'Km to vehicle',kmTow:'Km towed (to destination)',
+ reasonT:'Reason for tow',selReason:'— select reason —',notes:'Notes',
+ photoT:'Vehicle photo',takePhoto:'📷 Take photo',readPV:'🔎 Read plate/VIN',scanVin:'▥ Scan VIN barcode',
+ vehT:'Vehicle',jobT:'Job details',newCall:'＋ New call',saveCall:'💾 Save call',
+ logT:'Saved calls',searchPh:'Search plate, make, invoice…',noCalls:'No calls yet.',
+ repT:'Bi-weekly report',csv:'⬇ Excel (CSV)',print:'🖨 Print / PDF',noCallsPeriod:'No calls in this period',
+ sCalls:'Calls',sNet:'Total net (excl. HST)',sHst:'HST',sInv:'Total invoice',sCash:'Cash collected',sKm:'Km (to / towed)',total:'TOTAL',
+ langT:'Language & voice',uiLang:'App language',dictLang:'Voice-fill language (big 🎤)',speakAlerts:'Speak alerts aloud',
+ voiceHint:'Big blue 🎤 = say several fields at once, e.g. “account cash, make Honda, model Civic, colour red, plate C X R T 4 5 2, reason flat tire”. The 🎤 on plate, VIN and address fields always listens in English.',
+ setT:'Driver / sheet header',ratesT:'Rates',ratesHint:'Km to vehicle: first km free for every account, extra km at the account rate. Km towed: free km depend on the account, extra km at the account rate. Every call adds the base fee.',
+ backupT:'Backup',backupHint:'Data is stored only on this phone. Export a backup regularly.',exp:'⬇ Export backup',imp:'⬆ Import backup',
+ navCall:'Call',navLog:'Log',navRep:'Report',navSet:'Settings',
+ alarmH:'COLLECT CASH FIRST',alarmP:'Collect payment BEFORE hooking / towing the vehicle.',collectedBtn:'✅ Collected',later:'Close',acctEst:'account · estimate updates with km',extraKm:'Extra km',
+ base:'Base fee (call accepted)',toVeh:'To vehicle',towed:'Towed',free:'free',tNet:'Total net (excl. HST)',tTot:'Total',payT:'Pay estimate',pickAcct:'Select the account type to calculate.',
+ gpsOff:'GPS off',noGps:'No GPS',
+ tChooseAcct:'Choose account type first',tSaved:'Saved ✓',tPhoto:'Photo saved',tPhotoFirst:'Take a photo of the plate / VIN first',tReading:'Reading text… (first time downloads the reader, ~10 s)',
+ tFound:'Found',tCheck:'please check.',tNotFound:'Could not find a plate / VIN. Text:',tOcrNet:'The text reader needs internet the first time.',tNoVoice:'Voice input not supported in this browser (use Chrome / Safari).',
+ tFilled:'Filled',tFields:'field(s)',tHeard:'Heard',tTry:'say e.g. “make Honda model Civic”',tCashQ:'Cash not marked as collected. Save anyway?',tUnsaved:'Current call is not saved. Start a new one?',
+ tDelCall:'Delete this call?',tDelPhoto:'Delete photo?',tImported:'Imported ✓',tBadBackup:'Bad backup file',tImportQ:'Import calls? (merged with existing)',tLocNo:'Location unavailable',tStorage:'Storage full! Export a backup.',
+ tNoBarcode:'No barcode found',tScanNo:'Barcode scan not supported here — use 🔎 Read plate/VIN',tScanFail:'Scan failed',tDispNone:'Nothing recognised — check the screenshot or paste the text.',tDispOk:'From dispatch:',
+ repReady:'Your 2-week report is ready',open:'Open',
+ sStart:'Call started. Drive safe.',sArrive:'Arrived. {0} kilometers to vehicle.',sTow:'Towing. Measuring distance.',sDrop:'Dropped. {0} kilometers towed. Total {1} dollars before tax.',sCashW:'Warning. {0} account. Collect cash before towing the vehicle.',sColl:'Cash collected.',sSaved:'Call saved.',sRep:'Your two week report is ready.'
+},fa:{
+ dispT:'📲 از اپ دیسپچ (اپ کال)',dispShot:'📸 اسکرین‌شات',dispPaste:'📋 چسباندن متن کال',dispHint:'از صفحهٔ کال در اپ دیسپچ اسکرین‌شات بگیر (یا متنش را کپی کن)؛ مبدأ، مقصد و کیلومترها خودکار پر می‌شوند. در اندروید می‌توانی از همان اپ «Share ← TowLog» هم بزنی.',dispPh:'متن کال را اینجا بچسبان…',dispApply:'پر کردن فرم',
+ acctType:'نوع اکانت',cashCollected:'وجه نقد دریافت شد',collectedPh:'مبلغ دریافتی $',progress:'مراحل کار',
+ st0:'🚚 در راه',st0s:'ساعت شروع',st1:'📍 رسیدم به خودرو',st2:'🔗 شروع حمل',st3:'🏁 تحویل شد',st3s:'ساعت پایان',
+ stageHint:'GPS کیلومتر بین مراحل را می‌شمارد (اپ باز بماند). کیلومتری که از اپ دیسپچ آمده یا دستی وارد شده، اولویت دارد.',
+ timeStart:'ساعت شروع',timeEnd:'ساعت پایان',kmTo:'کیلومتر تا خودرو',kmTow:'کیلومتر حمل (تا مقصد)',
+ reasonT:'علت حمل',selReason:'— علت را انتخاب کن —',notes:'توضیحات',
+ photoT:'عکس خودرو',takePhoto:'📷 گرفتن عکس',readPV:'🔎 خواندن پلاک/VIN',scanVin:'▥ اسکن بارکد VIN',
+ vehT:'مشخصات خودرو',jobT:'جزئیات کار',newCall:'＋ کال جدید',saveCall:'💾 ذخیرهٔ کال',
+ logT:'کال‌های ثبت‌شده',searchPh:'جستجوی پلاک، مدل، فاکتور…',noCalls:'هنوز کالی ثبت نشده.',
+ repT:'گزارش دوهفته‌ای',csv:'⬇ اکسل (CSV)',print:'🖨 چاپ / PDF',noCallsPeriod:'در این دوره کالی نیست',
+ sCalls:'تعداد کال',sNet:'جمع خالص (بدون HST)',sHst:'مالیات HST',sInv:'جمع کل فاکتور',sCash:'نقد دریافتی',sKm:'کیلومتر (تا خودرو / حمل)',total:'جمع کل',
+ langT:'زبان و صدا',uiLang:'زبان برنامه',dictLang:'زبان ورودی صوتی (🎤 بزرگ)',speakAlerts:'خواندن هشدارها با صدا',
+ voiceHint:'🎤 آبی بزرگ = چند فیلد را یک‌جا بگو، مثلاً «اکانت کش، سازنده تویوتا، مدل کرولا، رنگ سفید، علت پنچری، مبدأ … مقصد …». میکروفونِ کنار پلاک، VIN و آدرس‌ها همیشه انگلیسی گوش می‌دهد.',
+ setT:'مشخصات راننده / سربرگ',ratesT:'نرخ‌ها',ratesHint:'مسافت تا خودرو: چند کیلومتر اول برای همه رایگان، مازاد با نرخ همان اکانت. مسافت حمل: کیلومتر رایگان بسته به اکانت، مازاد با نرخ همان اکانت. هزینهٔ ثابت قبول کال به همه اضافه می‌شود.',
+ backupT:'پشتیبان',backupHint:'اطلاعات فقط روی همین گوشی ذخیره می‌شود. مرتب پشتیبان بگیر.',exp:'⬇ گرفتن پشتیبان',imp:'⬆ بازگردانی پشتیبان',
+ navCall:'کال',navLog:'لیست',navRep:'گزارش',navSet:'تنظیمات',
+ alarmH:'اول پول نقد را بگیر!',alarmP:'قبل از بستن و حمل خودرو، اول وجه نقد را دریافت کن.',collectedBtn:'✅ دریافت شد',later:'بستن',acctEst:' · مبلغ تخمینی با کیلومتر به‌روز می‌شود',extraKm:'کیلومتر مازاد',
+ base:'هزینهٔ ثابت قبول کال',toVeh:'تا خودرو',towed:'حمل',free:'رایگان',tNet:'جمع خالص (بدون HST)',tTot:'جمع کل',payT:'محاسبهٔ مبلغ',pickAcct:'برای محاسبه نوع اکانت را انتخاب کن.',
+ gpsOff:'GPS خاموش',noGps:'GPS ندارد',
+ tChooseAcct:'اول نوع اکانت را انتخاب کن',tSaved:'ذخیره شد ✓',tPhoto:'عکس ذخیره شد',tPhotoFirst:'اول از پلاک یا VIN عکس بگیر',tReading:'در حال خواندن متن… (بار اول حدود ۱۰ ثانیه)',
+ tFound:'پیدا شد',tCheck:'لطفاً چک کن.',tNotFound:'پلاک یا VIN پیدا نشد. متن:',tOcrNet:'خواندن متن بار اول به اینترنت نیاز دارد.',tNoVoice:'این مرورگر ورودی صوتی ندارد (Chrome یا Safari).',
+ tFilled:'پر شد:',tFields:'فیلد',tHeard:'شنیدم',tTry:'مثلاً بگو «سازنده هوندا مدل سیویک»',tCashQ:'دریافت نقد تأیید نشده. با این حال ذخیره شود؟',tUnsaved:'کال فعلی ذخیره نشده. کال جدید شروع شود؟',
+ tDelCall:'این کال حذف شود؟',tDelPhoto:'عکس حذف شود؟',tImported:'بازگردانی شد ✓',tBadBackup:'فایل پشتیبان معتبر نیست',tImportQ:'کال‌ها اضافه شوند؟ (با فعلی‌ها ادغام می‌شوند)',tLocNo:'موقعیت در دسترس نیست',tStorage:'حافظه پر است! پشتیبان بگیر.',
+ tNoBarcode:'بارکدی پیدا نشد',tScanNo:'اسکن بارکد اینجا پشتیبانی نمی‌شود — از «خواندن پلاک/VIN» استفاده کن',tScanFail:'اسکن ناموفق بود',tDispNone:'چیزی شناسایی نشد — اسکرین‌شات را چک کن یا متن را بچسبان.',tDispOk:'از دیسپچ:',
+ repReady:'گزارش دوهفته‌ای‌ات آماده است',open:'باز کن',
+ sStart:'کال شروع شد. با احتیاط برانید.',sArrive:'رسیدید. {0} کیلومتر تا خودرو.',sTow:'حمل شروع شد. مسافت اندازه‌گیری می‌شود.',sDrop:'تحویل شد. {0} کیلومتر حمل. جمع {1} دلار بدون مالیات.',sCashW:'هشدار. اکانت {0}. قبل از حمل خودرو اول پول نقد را بگیرید.',sColl:'نقد دریافت شد.',sSaved:'کال ذخیره شد.',sRep:'گزارش دوهفته‌ای آماده است.'
+}};
+const t=(k,...a)=>String(L[S.ui]?.[k]??L.en[k]??k).replace(/\{(\d)\}/g,(_,i)=>a[i]);
+const ACCTS={cash:['Cash call','نقدی (کش)'],basic:['Basic','بیسیک'],plus:['Plus','پلاس'],premium:['Premium','پریمیوم']};
+const an=(a,en)=>ACCTS[a]?ACCTS[a][en||S.ui!=='fa'?0:1]:'';
+const REASONS=[['Accident / collision','تصادف'],['Flat tire (no spare)','پنچری (بدون زاپاس)'],['Multiple flat tires','چند لاستیک پنچر'],['Dead battery / no start','باتری خالی / روشن نمی‌شود'],['Engine failure','خرابی موتور'],['Overheating','جوش آوردن موتور'],['Transmission failure','خرابی گیربکس'],['Brake failure','خرابی ترمز'],['Electrical failure','خرابی برق'],['Fuel issue / out of fuel','مشکل سوخت / تمام شدن بنزین'],['Wrong fuel','سوخت اشتباه'],['Steering / suspension damage','آسیب فرمان / جلوبندی'],['Broken axle / wheel','شکستن اکسل / چرخ'],['Timing belt / chain','تسمه / زنجیر تایم'],['Clutch failure','خرابی کلاچ'],['Coolant / oil leak','نشتی آب / روغن'],['Lockout – keys locked in','سوئیچ داخل ماشین مانده'],['Lost / broken key','گم شدن / شکستن سوئیچ'],['Stuck – ditch / snow / mud (winch)','گیر کردن در گودال / برف / گل (وینچ)'],['Vehicle fire damage','آتش‌سوزی'],['Flood / water damage','آب‌گرفتگی'],['Stolen / recovered','سرقتی / پیدا شده'],['Impound / illegal parking','توقیف / پارک غیرمجاز'],['Private property tow','حمل از ملک خصوصی'],['Dealer / repair shop transfer','انتقال به نمایندگی / تعمیرگاه'],['Mechanical – unknown','مکانیکی – نامشخص'],['Other','سایر']];
+// [key, English, Persian, fullWidth, options, ltr]
+const VEH=[['make','Make','سازنده'],['model','Model','مدل'],['colour','Colour','رنگ'],['plate','Plate','پلاک',0,0,1],['vin','VIN','شماره شاسی (VIN)',1,0,1]];
+const JOB=[['location','Location','مبدأ (محل خودرو)',1],['destination','Destination','مقصد',1],['hirer','Name of hirer','سفارش‌دهنده'],['consentee','Name of consentee','رضایت‌دهنده'],['receiver','Veh receiver: business & person','تحویل‌گیرنده (شرکت و شخص)',1],['rem','REM','REM',0,0,1],['rpm','RPM','RPM',0,0,1],['invoice','Invoice #','شماره فاکتور',0,0,1],['towImpound','Tow or impound','حمل یا توقیف',0,[['','—','—'],['Tow','Tow','حمل'],['Impound','Impound','توقیف']]],['whoAuth','Who auth. impound?','مجوز توقیف از طرف'],['passenger','Passenger (legal full name)','مسافر (نام کامل)'],['passReason','Reason for passenger','علت سوار کردن مسافر']];
+const EN_MIC=new Set(['make','model','plate','vin','location','destination','receiver','hirer','consentee','rem','rpm','invoice','whoAuth','passenger']);
+const SET=[['driverName','Driver name','نام راننده'],['driverNo','Driver No.','شماره راننده'],['truckNo','Truck No.','شماره کامیون'],['licenseNo','License No.','شماره گواهینامه'],['tssea','TSSEA certificate No. (TD-)','شماره گواهی TSSEA (TD-)'],['company','Tow driver company name','نام شرکت'],['periodStart','Pay period start date','تاریخ شروع دورهٔ دوهفته‌ای','date']];
+const RATES=[['base','Base fee per call ($)','هزینهٔ ثابت هر کال ($)',50],['freeTo','Free km to vehicle (all)','کیلومتر رایگان تا خودرو (همه)',5],['freeBasic','Basic: free tow km','بیسیک: کیلومتر رایگان حمل',10],['freePlus','Plus: free tow km','پلاس: کیلومتر رایگان حمل',200],['freePremium','Premium: free tow km','پریمیوم: کیلومتر رایگان حمل',300],['freeCash','Cash: free tow km','کش: کیلومتر رایگان حمل',0],['rateLow','Plus/Premium $ per extra km','پلاس/پریمیوم: $ هر کیلومتر مازاد',2.5],['rateHigh','Basic/Cash $ per extra km','بیسیک/کش: $ هر کیلومتر مازاد',4.5],['hst','HST %','HST %',13]];
+const lb=a=>S.ui==='fa'?a[2]:a[1];
 
 // ---------- storage ----------
-const LS={get:(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){toast('Storage full! Export a backup.')}}};
-let calls=LS.get('tl_calls',[]), S=Object.assign({lang:'en-CA',speak:'1',periodStart:mondayOf(new Date())},LS.get('tl_set',{}));
-RATES.forEach(([k,,d])=>{if(S[k]===undefined)S[k]=d});
+const LS={get:(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){toast(t('tStorage'))}}};
+let calls=LS.get('tl_calls',[]), S=Object.assign({ui:'fa',lang:'fa-IR',speak:'1',periodStart:mondayOf(new Date())},LS.get('tl_set',{}));
+RATES.forEach(r=>{if(S[r[0]]===undefined)S[r[0]]=r[3]});
 let cur=LS.get('tl_cur',null)||blank();
 function blank(){return{id:'c'+Date.now(),date:today(),account:'',reason:'',photos:[],stage:-1,kmTo:'',kmTow:'',cashOk:false}}
-function today(){const d=new Date();return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())}
+function today(){return iso(new Date())}
 function p2(n){return String(n).padStart(2,'0')}
+function iso(d){return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())}
 function nowT(){const d=new Date();return p2(d.getHours())+':'+p2(d.getMinutes())}
-function mondayOf(d){d=new Date(d);const k=(d.getDay()+6)%7;d.setDate(d.getDate()-k);return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())}
+function mondayOf(d){d=new Date(d);d.setDate(d.getDate()-(d.getDay()+6)%7);return iso(d)}
 const saveCur=()=>LS.set('tl_cur',cur), saveCalls=()=>LS.set('tl_calls',calls), saveSet=()=>LS.set('tl_set',S);
+const normDigits=s=>String(s).replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/٫/g,'.');
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
 
-// photos in IndexedDB
 let dbp;
 function db(){return dbp||(dbp=new Promise((res,rej)=>{const r=indexedDB.open('towlog',1);r.onupgradeneeded=()=>r.result.createObjectStore('photos');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}))}
-async function idb(mode,fn){const d=await db();return new Promise((res,rej)=>{const tx=d.transaction('photos',mode),st=tx.objectStore('photos'),r=fn(st);tx.oncomplete=()=>res(r&&r.result);tx.onerror=()=>rej(tx.error)})}
+async function idb(mode,fn){const d=await db();return new Promise((res,rej)=>{const tx=d.transaction('photos',mode),r=fn(tx.objectStore('photos'));tx.oncomplete=()=>res(r&&r.result);tx.onerror=()=>rej(tx.error)})}
 const putPhoto=(id,blob)=>idb('readwrite',s=>s.put(blob,id)), getPhoto=id=>idb('readonly',s=>s.get(id)), delPhoto=id=>idb('readwrite',s=>s.delete(id));
 
 // ---------- pricing ----------
 function price(c){
-  const a=c.account||'cash', kmTo=+c.kmTo||0, kmTow=+c.kmTow||0;
+  const a=c.account||'cash', kmTo=+normDigits(c.kmTo||0)||0, kmTow=+normDigits(c.kmTow||0)||0;
   const rate=(a==='plus'||a==='premium')?+S.rateLow:+S.rateHigh;
   const freeTow=+S['free'+a[0].toUpperCase()+a.slice(1)]||0;
   const exTo=Math.max(0,kmTo-(+S.freeTo)), exTow=Math.max(0,kmTow-freeTow);
   const base=+S.base, toAmt=exTo*rate, towAmt=exTow*rate, net=base+toAmt+towAmt, hst=net*(+S.hst)/100;
-  return{a,rate,freeTow,exTo,exTow,base,toAmt,towAmt,net:r2(net),hst:r2(hst),total:r2(net+hst)};
+  return{a,kmTo,kmTow,rate,freeTow,exTo,exTow,base,toAmt,towAmt,net:r2(net),hst:r2(hst),total:r2(net+hst)};
 }
 const r2=n=>Math.round(n*100)/100, $f=n=>'$'+(+n||0).toFixed(2);
 
-// ---------- build forms ----------
-function field(k,l,fa,full,opts,src='f_'){
-  const lab=`<label>${l}${fa?` <i>· ${fa}</i>`:''}</label>`;
-  if(opts)return `<div class="f${full?' full':''}">${lab}<select id="${src}${k}">${opts.map(o=>`<option>${o}</option>`).join('')}</select></div>`;
-  return `<div class="f${full?' full':''}">${lab}<input id="${src}${k}" autocomplete="off"><button class="mic" data-k="${k}" type="button">🎤</button></div>`;
+// ---------- build UI ----------
+function field([k,en,fa,full,opts,ltr]){
+  const lab=`<label>${S.ui==='fa'?fa:en}</label>`, cls=`f${full?' full':''}${k==='location'||k==='destination'?' loc':''}`;
+  if(opts)return `<div class="${cls}">${lab}<select id="f_${k}">${opts.map(o=>`<option value="${o[0]}">${S.ui==='fa'?o[2]:o[1]}</option>`).join('')}</select></div>`;
+  const gps=(k==='location'||k==='destination')?`<button class="mic gps2" data-g="${k}" type="button">📍</button>`:'';
+  return `<div class="${cls}">${lab}<input id="f_${k}" autocomplete="off"${ltr?' class="ltr"':' dir="auto"'}>${gps}<button class="mic" data-k="${k}" type="button">🎤</button></div>`;
 }
-$('#vehGrid').innerHTML=VEH.map(f=>field(...f)).join('');
-$('#jobGrid').innerHTML=JOB.map(f=>field(...f)).join('');
-$('#f_reason').innerHTML=REASONS.map(r=>`<option value="${r}">${r||'— select reason —'}</option>`).join('');
-$('#setGrid').innerHTML=SET.map(([k,l,t])=>`<div><label>${l}</label><input id="s_${k}" type="${t||'text'}"></div>`).join('');
-$('#rateGrid').innerHTML=RATES.map(([k,l])=>`<div><label>${l}</label><input id="s_${k}" inputmode="decimal"></div>`).join('');
-// location fields get a GPS button
-['location','destination'].forEach(k=>{const b=document.createElement('button');b.className='mic';b.type='button';b.style.right='44px';b.textContent='📍';b.onclick=()=>fillAddr(k);$('#f_'+k).parentNode.appendChild(b);$('#f_'+k).style.paddingRight='86px'});
-
 const FIELDS=['timeStart','timeEnd','kmTo','kmTow','reason','notes','collected',...VEH.map(f=>f[0]),...JOB.map(f=>f[0])];
+function buildUI(){
+  const fa=S.ui==='fa';document.documentElement.lang=fa?'fa':'en';document.documentElement.dir=fa?'rtl':'ltr';
+  $('#langBtn').textContent=fa?'EN':'فا';
+  $$('[data-i]').forEach(e=>e.textContent=t(e.dataset.i));$$('[data-ip]').forEach(e=>e.placeholder=t(e.dataset.ip));
+  $('#acct').innerHTML=Object.keys(ACCTS).map(a=>`<button data-a="${a}">${a.toUpperCase()}${fa?`<small>${an(a)}</small>`:''}</button>`).join('');
+  $$('#acct button').forEach(b=>b.onclick=()=>setAccount(b.dataset.a));
+  $('#st0').innerHTML=`${t('st0')}<br><small>${t('st0s')}</small>`;$('#st1').textContent=t('st1');$('#st2').textContent=t('st2');$('#st3').innerHTML=`${t('st3')}<br><small>${t('st3s')}</small>`;
+  $('#vehGrid').innerHTML=VEH.map(field).join('');$('#jobGrid').innerHTML=JOB.map(field).join('');
+  $('#f_reason').innerHTML=`<option value="">${t('selReason')}</option>`+REASONS.map(r=>`<option value="${r[0]}">${fa?r[1]+' — '+r[0]:r[0]}</option>`).join('');
+  $('#setGrid').innerHTML=SET.map(s=>`<div><label>${lb(s)}</label><input id="s_${s[0]}" type="${s[3]||'text'}"></div>`).join('');
+  $('#rateGrid').innerHTML=RATES.map(r=>`<div><label>${lb(r)}</label><input id="s_${r[0]}" class="ltr" inputmode="decimal"></div>`).join('');
+  [...SET,...RATES,['ui'],['lang'],['speak']].forEach(([k])=>$('#s_'+k).onchange=e=>{S[k]=e.target.value;saveSet();if(k==='ui'){buildUI();fillSet()}else renderPrice()});
+  FIELDS.forEach(k=>{const el=$('#f_'+k);if(!el)return;el.oninput=el.onchange=()=>{cur[k]=el.value;if(k==='plate'||k==='vin')cur[k]=el.value=el.value.toUpperCase();saveCur();renderPrice()}});
+  if(!watch)$('#gpsStat').textContent=t('gpsOff');
+  fillForm();
+}
 function fillForm(){
   FIELDS.forEach(k=>{const el=$('#f_'+k);if(el)el.value=cur[k]??''});
   $('#cashOk').checked=!!cur.cashOk;
@@ -302,42 +391,39 @@ function fillForm(){
   $('#cashBox').classList.toggle('hide',!needCash());
   renderStages();renderPrice();renderThumbs();
 }
-FIELDS.forEach(k=>{const el=$('#f_'+k);if(!el)return;el.addEventListener('input',()=>{cur[k]=el.value;if(k==='plate'||k==='vin')cur[k]=el.value=el.value.toUpperCase();saveCur();renderPrice()});el.addEventListener('change',()=>{cur[k]=el.value;saveCur();renderPrice()})});
 $('#cashOk').onchange=e=>{cur.cashOk=e.target.checked;saveCur()};
+$('#langBtn').onclick=()=>{S.ui=S.ui==='fa'?'en':'fa';saveSet();buildUI();if(!$('#v-set').classList.contains('hide'))fillSet();if(!$('#v-log').classList.contains('hide'))renderLog();if(!$('#v-rep').classList.contains('hide'))renderReport()};
 function needCash(){return cur.account==='cash'||cur.account==='basic'}
-
-$$('#acct button').forEach(b=>b.onclick=()=>setAccount(b.dataset.a));
 function setAccount(a){cur.account=a;saveCur();fillForm();if(needCash()&&!cur.cashOk)alarm()}
 
 function renderPrice(){
   const p=price(cur);
-  $('#priceBox').innerHTML=`<h2>Pay estimate · محاسبه مبلغ ${cur.account?`<span class="chip c-${cur.account}">${ACCTS[cur.account]}</span>`:''}</h2>
-  <table><tr><td>Base fee (call accepted)</td><td>${$f(p.base)}</td></tr>
-  <tr><td>To vehicle: ${+cur.kmTo||0} km − ${S.freeTo} free = ${r2(p.exTo)} km × ${$f(p.rate)}</td><td>${$f(p.toAmt)}</td></tr>
-  <tr><td>Towed: ${+cur.kmTow||0} km − ${p.freeTow} free = ${r2(p.exTow)} km × ${$f(p.rate)}</td><td>${$f(p.towAmt)}</td></tr>
-  <tr><td>Total net (excl. HST)</td><td>${$f(p.net)}</td></tr>
+  $('#priceBox').innerHTML=`<h2>${t('payT')} ${cur.account?`<span class="chip c-${cur.account}">${an(cur.account)}</span>`:''}</h2>
+  <table><tr><td>${t('base')}</td><td>${$f(p.base)}</td></tr>
+  <tr><td>${t('toVeh')}: <bdi dir="ltr">${p.kmTo} km − ${S.freeTo} ${t('free')} = ${r2(p.exTo)} km × ${$f(p.rate)}</bdi></td><td>${$f(p.toAmt)}</td></tr>
+  <tr><td>${t('towed')}: <bdi dir="ltr">${p.kmTow} km − ${p.freeTow} ${t('free')} = ${r2(p.exTow)} km × ${$f(p.rate)}</bdi></td><td>${$f(p.towAmt)}</td></tr>
+  <tr><td>${t('tNet')}</td><td>${$f(p.net)}</td></tr>
   <tr><td>HST ${S.hst}%</td><td>${$f(p.hst)}</td></tr>
-  <tr class="t"><td>Total</td><td>${$f(p.total)}</td></tr></table>
-  ${cur.account?'':'<p class="hint">Select the account type to calculate.</p>'}`;
+  <tr class="t"><td>${t('tTot')}</td><td>${$f(p.total)}</td></tr></table>
+  ${cur.account?'':`<p class="hint">${t('pickAcct')}</p>`}`;
 }
 
 // ---------- stages + GPS ----------
-const STG=['timeStart','','',''];
 let watch=null,lastPos=null,legKm=0,wakeLock=null;
 function renderStages(){for(let i=0;i<4;i++){const b=$('#st'+i);b.classList.toggle('done',cur.stage>=i);b.classList.toggle('acc',cur.stage===i-1)}}
 $$('.stages .btn').forEach((b,i)=>b.onclick=()=>stage(i));
 function stage(i){
   if(i===2&&needCash()&&!cur.cashOk){alarm();return}
   const km=r2(legKm);
-  if(i===0){cur.timeStart=cur.timeStart||nowT();startGPS();say('Call started. Drive safe.')}
-  if(i===1){if(cur.stage===0&&km>0)cur.kmTo=km;stopGPS();say(`Arrived. ${cur.kmTo||0} kilometers to vehicle.`);if(!cur.location)fillAddr('location')}
-  if(i===2){startGPS();say('Towing. Measuring distance.')}
-  if(i===3){if(cur.stage===2&&km>0)cur.kmTow=km;stopGPS();cur.timeEnd=nowT();say(`Dropped. ${cur.kmTow||0} kilometers towed. Total ${price(cur).net.toFixed(0)} dollars before tax.`);if(!cur.destination)fillAddr('destination')}
+  if(i===0){cur.timeStart=cur.timeStart||nowT();startGPS();say('sStart')}
+  if(i===1){if(cur.stage===0&&km>0&&!cur.kmToLocked)cur.kmTo=km;stopGPS();say('sArrive',cur.kmTo||0);if(!cur.location)fillAddr('location')}
+  if(i===2){startGPS();say('sTow')}
+  if(i===3){if(cur.stage===2&&km>0&&!cur.kmTowLocked)cur.kmTow=km;stopGPS();cur.timeEnd=nowT();say('sDrop',cur.kmTow||0,price(cur).net.toFixed(0));if(!cur.destination)fillAddr('destination')}
   cur.stage=i;saveCur();fillForm();
 }
 function startGPS(){
   stopGPS();legKm=0;lastPos=null;
-  if(!navigator.geolocation){$('#gpsStat').textContent='No GPS';return}
+  if(!navigator.geolocation){$('#gpsStat').textContent=t('noGps');return}
   watch=navigator.geolocation.watchPosition(p=>{
     const c=p.coords;$('#gpsStat').textContent=`GPS ±${c.accuracy|0}m · ${legKm.toFixed(1)} km`;
     if(c.accuracy>60)return;
@@ -345,172 +431,255 @@ function startGPS(){
   },e=>$('#gpsStat').textContent='GPS: '+e.message,{enableHighAccuracy:true,maximumAge:3000,timeout:20000});
   try{navigator.wakeLock&&navigator.wakeLock.request('screen').then(w=>wakeLock=w).catch(()=>{})}catch(e){}
 }
-function stopGPS(){if(watch!==null)navigator.geolocation.clearWatch(watch);watch=null;$('#gpsStat').textContent='GPS off';try{wakeLock&&wakeLock.release()}catch(e){}wakeLock=null}
+function stopGPS(){if(watch!==null)navigator.geolocation.clearWatch(watch);watch=null;$('#gpsStat').textContent=t('gpsOff');try{wakeLock&&wakeLock.release()}catch(e){}wakeLock=null}
 function hav(a,b){const R=6371,r=x=>x*Math.PI/180,dl=r(b.latitude-a.latitude),dn=r(b.longitude-a.longitude),h=Math.sin(dl/2)**2+Math.cos(r(a.latitude))*Math.cos(r(b.latitude))*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(h))}
 function fillAddr(k){
   if(!navigator.geolocation)return;
   navigator.geolocation.getCurrentPosition(async p=>{
     const {latitude:la,longitude:lo}=p.coords;let txt=la.toFixed(5)+','+lo.toFixed(5);
-    try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&zoom=18&lat=${la}&lon=${lo}`);const j=await r.json();const a=j.address||{};txt=[[a.house_number,a.road].filter(Boolean).join(' '),a.city||a.town||a.suburb].filter(Boolean).join(', ')||j.display_name||txt}catch(e){}
-    cur[k]=txt;saveCur();fillForm();toast(k+': '+txt);
-  },()=>toast('Location unavailable'),{enableHighAccuracy:true,timeout:15000});
+    try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&zoom=18&accept-language=en&lat=${la}&lon=${lo}`);const j=await r.json();const a=j.address||{};txt=[[a.house_number,a.road].filter(Boolean).join(' '),a.city||a.town||a.suburb].filter(Boolean).join(', ')||j.display_name||txt}catch(e){}
+    cur[k]=txt;saveCur();fillForm();toast(txt);
+  },()=>toast(t('tLocNo')),{enableHighAccuracy:true,timeout:15000});
 }
+document.addEventListener('click',e=>{const g=e.target.closest('[data-g]');if(g)fillAddr(g.dataset.g)});
 
 // ---------- alarm ----------
-let beepT;
 function alarm(){
   const p=price(cur);
-  $('#alarmAmt').textContent=cur.account==='cash'?`≈ ${$f(p.total)}`:(p.toAmt+p.towAmt>0?`Extra km ≈ ${$f(r2((p.toAmt+p.towAmt)*(1+S.hst/100)))}`:'');
-  $('#alarmSub').textContent=`${ACCTS[cur.account]} account · estimate updates with km`;
+  $('#alarmAmt').textContent=cur.account==='cash'?`≈ ${$f(p.total)}`:(p.toAmt+p.towAmt>0?`${t('extraKm')} ≈ ${$f(r2((p.toAmt+p.towAmt)*(1+S.hst/100)))}`:'');
+  $('#alarmSub').textContent=`${an(cur.account)} ${t('acctEst')}`;
   $('#alarm').classList.add('show');
   try{navigator.vibrate&&navigator.vibrate([400,200,400,200,800])}catch(e){}
-  beep();say('Warning. '+ACCTS[cur.account]+' account. Collect cash before towing the vehicle.');
+  beep();say('sCashW',an(cur.account));
 }
-function beep(){try{const A=new(window.AudioContext||window.webkitAudioContext)();let t=A.currentTime;for(let i=0;i<4;i++){const o=A.createOscillator(),g=A.createGain();o.frequency.value=i%2?660:880;o.connect(g);g.connect(A.destination);g.gain.setValueAtTime(.3,t);o.start(t);o.stop(t+.25);t+=.35}}catch(e){}}
-$('#alarmPaid').onclick=()=>{cur.cashOk=true;if(!cur.collected&&cur.account==='cash')cur.collected=price(cur).total.toFixed(2);saveCur();$('#alarm').classList.remove('show');fillForm();say('Cash collected.')};
+function beep(){try{const A=new(window.AudioContext||window.webkitAudioContext)();let tm=A.currentTime;for(let i=0;i<4;i++){const o=A.createOscillator(),g=A.createGain();o.frequency.value=i%2?660:880;o.connect(g);g.connect(A.destination);g.gain.setValueAtTime(.3,tm);o.start(tm);o.stop(tm+.25);tm+=.35}}catch(e){}}
+$('#alarmPaid').onclick=()=>{cur.cashOk=true;if(!cur.collected&&cur.account==='cash')cur.collected=price(cur).total.toFixed(2);saveCur();$('#alarm').classList.remove('show');fillForm();say('sColl')};
 $('#alarmLater').onclick=()=>$('#alarm').classList.remove('show');
-function say(t){if(S.speak!=='1'||!window.speechSynthesis)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-CA';speechSynthesis.speak(u)}catch(e){}}
+// speak in Persian when a Persian voice exists on the phone, otherwise English
+function say(k,...a){
+  if(S.speak!=='1'||!window.speechSynthesis)return;
+  try{speechSynthesis.cancel();const vs=speechSynthesis.getVoices(),fv=S.ui==='fa'&&vs.find(v=>/^fa/i.test(v.lang));
+    const u=new SpeechSynthesisUtterance(fv?t(k,...a):String(L.en[k]).replace(/\{(\d)\}/g,(_,i)=>a[i]));
+    if(fv){u.voice=fv;u.lang=fv.lang}else u.lang='en-CA';speechSynthesis.speak(u)}catch(e){}
+}
 
 // ---------- voice ----------
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-function listen(onText,btn){
-  if(!SR){toast('Voice input not supported in this browser (use Chrome / Safari).');return}
-  const r=new SR();r.lang=S.lang;r.interimResults=false;r.maxAlternatives=1;
+function listen(lang,onText,btn){
+  if(!SR){toast(t('tNoVoice'));return}
+  const r=new SR();r.lang=lang;r.interimResults=false;r.maxAlternatives=1;
   btn&&btn.classList.add('rec');
-  r.onresult=e=>onText(e.results[0][0].transcript);
-  r.onerror=e=>toast('Voice: '+e.error);r.onend=()=>btn&&btn.classList.remove('rec');
+  r.onresult=e=>onText(normDigits(e.results[0][0].transcript));
+  r.onerror=e=>toast('🎤 '+e.error);r.onend=()=>btn&&btn.classList.remove('rec');
   r.start();
 }
 document.addEventListener('click',e=>{const b=e.target.closest('.mic[data-k]');if(!b)return;const k=b.dataset.k;
-  listen(t=>{if(k==='plate'||k==='vin')t=spell(t);cur[k]=t;saveCur();fillForm()},b)});
-$('#voiceAll').onclick=e=>listen(t=>{const n=parseVoice(t);toast(n?`Filled ${n} field(s): “${t}”`:`Heard: “${t}” — say e.g. “make Honda model Civic”`)},e.currentTarget);
+  listen(EN_MIC.has(k)?'en-CA':S.lang,v=>{if(k==='plate'||k==='vin')v=spell(v);cur[k]=v;saveCur();fillForm()},b)});
+$('#voiceAll').onclick=e=>listen(S.lang,v=>{const n=parseVoice(v);toast(n?`${t('tFilled')} ${n} ${t('tFields')}: “${v}”`:`${t('tHeard')}: “${v}” — ${t('tTry')}`)},e.currentTarget);
 
 const NUMW={zero:0,oh:0,one:1,two:2,to:2,too:2,three:3,four:4,for:4,five:5,six:6,seven:7,eight:8,ate:8,nine:9};
-function spell(t){return t.split(/\s+/).map(w=>{const l=w.toLowerCase().replace(/[^a-z0-9]/g,'');return l in NUMW?NUMW[l]:l.length&&/^[a-z]+$/.test(l)&&l.length>1?(/^(dash|space|hyphen)$/.test(l)?'':l[0]):l}).join('').toUpperCase()}
-const KEYS=[['account','account|acct|اکانت'],['make','make|brand|سازنده'],['model','model|مدل'],['colour','colou?r|رنگ'],['plate','plate|license plate|پلاک'],['vin','vin|v i n|شاسی'],['reason','reason|problem|issue|علت'],['location','location|pick ?up|from|مبدا'],['destination','destination|drop ?off|to address|مقصد'],['hirer','hirer|hired by|سفارش'],['consentee','consentee'],['receiver','receiver|received by|تحویل'],['invoice','invoice|فاکتور'],['kmTo','km to vehicle|distance to vehicle|kilometers to vehicle'],['kmTow','km towed|tow distance|towed|kilometers towed'],['rem','rem'],['rpm','rpm'],['notes','note|notes|توضیح'],['collected','collected|cash collected']];
-function parseVoice(t){
-  const re=new RegExp('\\b('+KEYS.map(k=>k[1]).join('|')+')\\b','gi');const hits=[];let m;
-  while((m=re.exec(t)))hits.push({i:m.index,end:re.lastIndex,w:m[1].toLowerCase()});
+function spell(s){return s.split(/\s+/).map(w=>{const l=w.toLowerCase().replace(/[^a-z0-9]/g,'');return l in NUMW?NUMW[l]:/^[a-z]{2,}$/.test(l)?(/^(dash|space|hyphen)$/.test(l)?'':l[0]):l}).join('').toUpperCase()}
+const FA_WORDS={'سفید':'White','مشکی':'Black','سیاه':'Black','نقره‌ای':'Silver','نقره ای':'Silver','طوسی':'Grey','خاکستری':'Grey','قرمز':'Red','آبی':'Blue','سرمه‌ای':'Navy','سرمه ای':'Navy','سبز':'Green','زرد':'Yellow','قهوه‌ای':'Brown','قهوه ای':'Brown','طلایی':'Gold','نارنجی':'Orange','بنفش':'Purple','بژ':'Beige',
+ 'تویوتا':'Toyota','هوندا':'Honda','فورد':'Ford','شورلت':'Chevrolet','شورولت':'Chevrolet','نیسان':'Nissan','هیوندای':'Hyundai','هیوندا':'Hyundai','کیا':'Kia','مزدا':'Mazda','بی ام و':'BMW','بنز':'Mercedes-Benz','مرسدس':'Mercedes-Benz','فولکس':'Volkswagen','دوج':'Dodge','جیپ':'Jeep','تسلا':'Tesla','لکسوس':'Lexus','آئودی':'Audi','آودی':'Audi','سوبارو':'Subaru','جی ام سی':'GMC','رم':'RAM','کرایسلر':'Chrysler','میتسوبیشی':'Mitsubishi','آکورا':'Acura','ولوو':'Volvo','مینی':'Mini','پورشه':'Porsche','لندرور':'Land Rover','کادیلاک':'Cadillac','لینکلن':'Lincoln','بیوک':'Buick','اینفینیتی':'Infiniti',
+ 'کرولا':'Corolla','کمری':'Camry','سیویک':'Civic','آکورد':'Accord','راو فور':'RAV4','سی آر وی':'CR-V','الانترا':'Elantra','سوناتا':'Sonata','توسان':'Tucson','سانتافه':'Santa Fe','اف ۱۵۰':'F-150','اف 150':'F-150','اسکیپ':'Escape','ماستنگ':'Mustang','سیلورادو':'Silverado','اکوینوکس':'Equinox','روگ':'Rogue','سنترا':'Sentra','آلتیما':'Altima','اپتیما':'Optima','سورنتو':'Sorento','فورته':'Forte','جتا':'Jetta','گلف':'Golf','مدل ۳':'Model 3','مدل 3':'Model 3','گرند کاروان':'Grand Caravan','سیهنا':'Sienna','اودیسه':'Odyssey'};
+const faTr=v=>{const k=v.trim().replace(/\s+/g,' ');return FA_WORDS[k]||v.replace(/\b\w/g,c=>c.toUpperCase())};
+const KEYS=[['account','account|acct|اکانت|حساب|نوع حساب|نوع اکانت'],['make','make|brand|سازنده|برند|مارک|ماشین'],['model','model|مدل'],['colour','colou?r|رنگ'],['plate','plate|license plate|پلاک'],['vin','vin|v i n|شاسی|شماره شاسی|وین'],['reason','reason|problem|issue|علت|دلیل|مشکل|خرابی'],['location','location|pick ?up|from|مبدا|مبدأ|محل'],['destination','destination|drop ?off|to address|مقصد'],['hirer','hirer|hired by|سفارش دهنده|سفارش‌دهنده'],['consentee','consentee|رضایت دهنده|رضایت‌دهنده'],['receiver','receiver|received by|تحویل گیرنده|تحویل‌گیرنده'],['invoice','invoice|فاکتور'],['kmTo','km to vehicle|distance to vehicle|kilometers to vehicle|کیلومتر تا ماشین|کیلومتر تا خودرو|فاصله تا ماشین'],['kmTow','km towed|tow distance|towed|kilometers towed|کیلومتر حمل|مسافت حمل|کیلومتر بکسل'],['rem','rem'],['rpm','rpm'],['notes','note|notes|توضیح|توضیحات|یادداشت'],['collected','cash collected|collected|دریافتی|مبلغ دریافتی']];
+const ACCT_WORDS={cash:/cash|کش|نقد/i,basic:/basic|بیسیک|بیسیک/i,plus:/plus|پلاس/i,premium:/premi(um|er)|پریمیوم|پرمیوم|پریمیر/i};
+const B='(?<![\\p{L}\\p{N}])',E='(?![\\p{L}\\p{N}])';
+function parseVoice(s){
+  s=normDigits(s);
+  const re=new RegExp(B+'('+KEYS.map(k=>k[1]).join('|')+')'+E,'giu');const hits=[];let m;
+  while((m=re.exec(s)))hits.push({i:m.index,end:re.lastIndex,w:m[1]});
   let n=0;
   hits.forEach((h,j)=>{
-    const key=KEYS.find(k=>new RegExp('^('+k[1]+')$','i').test(h.w));if(!key)return;
-    let v=t.slice(h.end,j+1<hits.length?hits[j+1].i:undefined).replace(/^[\s:,.-]+|[\s,.]+$/g,'');if(!v)return;
+    const key=KEYS.find(k=>new RegExp('^('+k[1]+')$','iu').test(h.w));if(!key)return;
+    let v=s.slice(h.end,j+1<hits.length?hits[j+1].i:undefined).replace(/^[\s:,.،-]+|[\s,.،]+$/g,'');if(!v)return;
     const k=key[0];
-    if(k==='account'){const a=Object.keys(ACCTS).find(a=>v.toLowerCase().includes(a));if(a){cur.account=a;n++}return}
+    if(k==='account'){const a=Object.keys(ACCT_WORDS).find(a=>ACCT_WORDS[a].test(v));if(a){cur.account=a;n++}return}
     if(k==='reason'){const best=matchReason(v);cur.reason=best||'Other';if(!best)cur.notes=(cur.notes?cur.notes+'; ':'')+v;n++;return}
     if(k==='plate'||k==='vin')v=spell(v);
-    if(['kmTo','kmTow','collected'].includes(k))v=(v.match(/[\d.]+/)||[''])[0];
-    if(k==='colour'||k==='make'||k==='model')v=v.replace(/\b\w/g,c=>c.toUpperCase());
+    if(['kmTo','kmTow','collected'].includes(k)){v=(v.match(/[\d.]+/)||[''])[0];if(k!=='collected')cur[k+'Locked']=true}
+    if(k==='colour'||k==='make'||k==='model')v=faTr(v);
     cur[k]=v;n++;
   });
-  saveCur();fillForm();if(needCash()&&!cur.cashOk&&/account/i.test(t))alarm();return n;
+  saveCur();fillForm();if(needCash()&&!cur.cashOk&&hits.some(h=>/account|acct|اکانت|حساب/i.test(h.w)))alarm();return n;
 }
-function matchReason(v){v=v.toLowerCase();let best='',sc=0;REASONS.forEach(r=>{const w=r.toLowerCase().split(/[^a-z]+/).filter(x=>x.length>2);const s=w.filter(x=>v.includes(x.replace(/s$/,''))).length;if(s>sc){sc=s;best=r}});return best}
+const FA_REASON={'پنچر':1,'باتری':3,'روشن نمی':3,'موتور':4,'جوش':5,'گیربکس':6,'ترمز':7,'برق':8,'بنزین':9,'سوخت':9,'فرمان':11,'جلوبندی':11,'اکسل':12,'تایم':13,'کلاچ':14,'نشتی':15,'سوئیچ':16,'سوییچ':16,'گیر':18,'برف':18,'گل':18,'وینچ':18,'آتش':19,'آب':20,'سرقت':21,'دزدی':21,'توقیف':22,'پارک':22,'تعمیرگاه':24,'نمایندگی':24,'تصادف':0};
+function matchReason(v){
+  const lv=v.toLowerCase();
+  for(const [w,i] of Object.entries(FA_REASON))if(lv.includes(w))return REASONS[i][0];
+  let best='',sc=0;REASONS.forEach(([r])=>{const w=r.toLowerCase().split(/[^a-z]+/).filter(x=>x.length>2);const s=w.filter(x=>lv.includes(x.replace(/s$/,''))).length;if(s>sc){sc=s;best=r}});return best;
+}
 
-// ---------- photos / OCR / barcode ----------
+// ---------- OCR helpers ----------
+let tess;
+async function ocr(blob){
+  if(!tess)tess=await new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';s.onload=()=>res(window.Tesseract);s.onerror=rej;document.head.appendChild(s)});
+  return (await tess.recognize(blob,'eng')).data.text;
+}
+
+// ---------- dispatch app import (screenshot / pasted text / Android share) ----------
+// which leg a distance belongs to: driving to the vehicle, or towing it to the destination
+function kmKind(x){x=x.toLowerCase();
+  if(/(to|from) (the )?(vehicle|customer|breakdown|pick ?up|scene|member|job|location)|en ?route|deadhead|approach|away|eta/.test(x))return 'to';
+  if(/tow|loaded|destination|drop|deliver|trip|haul/.test(x))return 'tow';return ''}
+function parseDispatch(raw){
+  const lines=normDigits(raw).replace(/\r/g,'').split('\n').map(x=>x.replace(/\s+/g,' ').trim()).filter(Boolean),out={};
+  const val=re=>{for(let i=0;i<lines.length;i++){const m=lines[i].match(re);if(m){let v=lines[i].slice(m[0].length).replace(/^[\s:#\-–|>]+/,'').trim();if(!v&&lines[i+1])v=lines[i+1];if(v)return v}}return ''};
+  const loc=val(/^(pick[\s-]?up|breakdown|vehicle location|service (address|location)|incident (address|location)|disablement|location|from|origin|start)\b[^:]*?(:|$)|^(pick[\s-]?up|breakdown|location|from)\b/i);
+  const dst=val(/^(destination|drop[\s-]?off|tow[\s-]?to|deliver(y)? to|to address|dest)\b[^:]*?(:|$)|^(destination|drop[\s-]?off|to)\b/i);
+  if(loc)out.location=loc;if(dst)out.destination=dst;
+  // distances: classify by the words on the same line (or the line before)
+  const re=/(\d+(?:[.,]\d+)?)\s*(km|kms|kilomet(?:er|re)s?|mi|miles?)\b/gi,unk=[];
+  lines.forEach((ln,i)=>{let m;re.lastIndex=0;while((m=re.exec(ln))){let km=parseFloat(m[1].replace(',','.'));if(/^mi/i.test(m[2]))km*=1.609;km=r2(km);
+    const kind=kmKind(ln.slice(0,m.index))||kmKind(lines[i-1]||'');
+    if(kind==='to'&&out.kmTo===undefined)out.kmTo=km;else if(kind==='tow'&&out.kmTow===undefined)out.kmTow=km;else unk.push(km)}});
+  unk.forEach(km=>{if(out.kmTo===undefined)out.kmTo=km;else if(out.kmTow===undefined)out.kmTow=km});
+  const up=lines.join(' ').toUpperCase(),vin=(up.match(/\b[A-HJ-NPR-Z0-9]{17}\b/)||[])[0];if(vin)out.vin=vin;
+  const pl=val(/^(licen[cs]e plate|plate( ?#| no\.?)?|lic(ense)?( ?#| no\.?)?|tag)\b/i);if(pl)out.plate=pl.split(/\s+(?=[A-Za-z]{3,})/)[0].replace(/[^A-Za-z0-9]/g,'').toUpperCase().slice(0,8);
+  const mk=val(/^make\b/i),md=val(/^model\b/i),co=val(/^colou?r\b/i);
+  if(mk)out.make=mk.split(/\s{2,}| model/i)[0];if(md)out.model=md.split(/\s{2,}| colou?r/i)[0];if(co)out.colour=co.split(/\s/)[0];
+  const veh=val(/^(vehicle|year\/make\/model|ymm|car)\b/i);
+  if(veh&&!mk){const w=veh.replace(/^(19|20)\d\d\s+/,'').split(' ');out.make=w[0];if(w[1]&&!md)out.model=w.slice(1).join(' ')}
+  const acct=val(/^(member(ship)?( level| type| tier)?|coverage|plan|account( type)?|program|service level|payment( type)?)\b/i)||'';
+  const at=acct+' '+lines.join(' ');
+  if(/\bpremi(er|um)\b/i.test(at))out.account='premium';else if(/\bplus\b/i.test(at))out.account='plus';else if(/\b(basic|classic)\b/i.test(at))out.account='basic';else if(/\b(cash|credit card|c\.?o\.?d)\b/i.test(at))out.account='cash';
+  const rs=val(/^(problem|reason|service( type)?|issue|complaint|tow reason|call type)\b/i);if(rs){const r=matchReason(rs);if(r)out.reason=r;out.notes=rs}
+  const cn=val(/^(call|job|po|dispatch|reference|ref|case|work order)\s*(#|no\.?|number|id)/i);if(cn)out.callNo=cn.split(' ')[0];
+  const cu=val(/^(member name|customer( name)?|caller( name)?|client( name)?|contact name|name)\b/i);if(cu)out.consentee=cu.split(/\s{2,}|\(|\d{3}/)[0].trim();
+  return out;
+}
+function applyDispatch(txt){
+  const o=parseDispatch(txt),got=[];
+  ['location','destination','make','model','colour','plate','vin','reason','consentee'].forEach(k=>{if(o[k]){cur[k]=o[k];got.push(k)}});
+  if(o.kmTo!==undefined){cur.kmTo=o.kmTo;cur.kmToLocked=true;got.push('kmTo '+o.kmTo)}
+  if(o.kmTow!==undefined){cur.kmTow=o.kmTow;cur.kmTowLocked=true;got.push('kmTow '+o.kmTow)}
+  if(o.callNo){cur.notes=((cur.notes||'')+' Call# '+o.callNo).trim();got.push('call#')}
+  if(o.notes&&!cur.notes?.includes(o.notes))cur.notes=((cur.notes||'')+' '+o.notes).trim();
+  cur.dispatchText=txt.slice(0,4000);
+  if(o.account){cur.account=o.account;got.push(o.account.toUpperCase())}
+  if(!cur.timeStart)cur.timeStart=nowT();
+  saveCur();fillForm();
+  $('#dispMsg').textContent=got.length?`${t('tDispOk')} ${got.join(' · ')} — ${t('tCheck')}`:t('tDispNone');
+  if(got.length&&needCash()&&!cur.cashOk)alarm();
+  return got.length;
+}
+$('#dispShotBtn').onclick=()=>$('#dispShotIn').click();
+$('#dispShotIn').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(f)await dispFromImage(f)};
+async function dispFromImage(blob){$('#dispMsg').textContent=t('tReading');try{applyDispatch(await ocr(blob))}catch(err){$('#dispMsg').textContent=t('tOcrNet')}}
+$('#dispPasteBtn').onclick=()=>{$('#pasteTxt').value='';$('#pasteModal').classList.add('show');$('#pasteTxt').focus()};
+$('#pasteClose').onclick=()=>$('#pasteModal').classList.remove('show');
+$('#pasteGo').onclick=()=>{$('#pasteModal').classList.remove('show');applyDispatch($('#pasteTxt').value)};
+// Android "Share → TowLog": the service worker stashes what was shared, we pick it up here
+async function takeShared(){
+  if(!/[?&]share/.test(location.search)||!window.caches)return;
+  history.replaceState(null,'',location.pathname);
+  const c=await caches.open('towlog-share'),tx=await c.match('text'),im=await c.match('image');
+  await c.delete('text');await c.delete('image');
+  if(tx){const s=await tx.text();if(s.trim())applyDispatch(s)}
+  if(im)await dispFromImage(await im.blob());
+}
+
+// ---------- vehicle photos / OCR / barcode ----------
 $('#photoBtn').onclick=()=>$('#photoIn').click();
-$('#photoIn').onchange=async e=>{const f=e.target.files[0];if(!f)return;const blob=await shrink(f,1280);const id='p'+Date.now();await putPhoto(id,blob);cur.photos=[...(cur.photos||[]),id];saveCur();renderThumbs();toast('Photo saved');e.target.value=''};
+$('#photoIn').onchange=async e=>{const f=e.target.files[0];if(!f)return;const blob=await shrink(f,1280);const id='p'+Date.now();await putPhoto(id,blob);cur.photos=[...(cur.photos||[]),id];saveCur();renderThumbs();toast(t('tPhoto'));e.target.value=''};
 function shrink(file,max){return new Promise(res=>{const img=new Image();img.onload=()=>{const s=Math.min(1,max/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=img.width*s;c.height=img.height*s;c.getContext('2d').drawImage(img,0,0,c.width,c.height);c.toBlob(b=>{URL.revokeObjectURL(img.src);res(b)},'image/jpeg',.75)};img.src=URL.createObjectURL(file)})}
 async function renderThumbs(){
   const box=$('#thumbs');box.innerHTML='';
   for(const id of cur.photos||[]){const b=await getPhoto(id).catch(()=>null);if(!b)continue;const d=document.createElement('div');d.innerHTML=`<img src="${URL.createObjectURL(b)}"><button>×</button>`;
-    d.querySelector('button').onclick=async()=>{if(!confirm('Delete photo?'))return;await delPhoto(id);cur.photos=cur.photos.filter(x=>x!==id);saveCur();renderThumbs()};
+    d.querySelector('button').onclick=async()=>{if(!confirm(t('tDelPhoto')))return;await delPhoto(id);cur.photos=cur.photos.filter(x=>x!==id);saveCur();renderThumbs()};
     d.querySelector('img').onclick=()=>window.open(d.querySelector('img').src);box.appendChild(d)}
 }
-let tess;
 $('#ocrBtn').onclick=async()=>{
-  const id=(cur.photos||[]).slice(-1)[0];if(!id){toast('Take a photo of the plate / VIN first');return}
-  $('#ocrMsg').textContent='Reading text… (first time downloads the reader, ~10 s)';
+  const id=(cur.photos||[]).slice(-1)[0];if(!id){toast(t('tPhotoFirst'));return}
+  $('#ocrMsg').textContent=t('tReading');
   try{
-    if(!tess)tess=await new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';s.onload=()=>res(window.Tesseract);s.onerror=rej;document.head.appendChild(s)});
-    const {data}=await tess.recognize(await getPhoto(id),'eng');
-    const txt=data.text.toUpperCase().replace(/[^A-Z0-9\s]/g,' ');
+    const txt=(await ocr(await getPhoto(id))).toUpperCase().replace(/[^A-Z0-9\s]/g,' ');
     const vin=(txt.replace(/\s+/g,'').match(/[A-HJ-NPR-Z0-9]{17}/)||[])[0];
     const plate=(txt.match(/\b[A-Z]{4}\s?\d{3}\b|\b[A-Z]{3}\s?\d{3,4}\b|\b\d{3}\s?[A-Z]{3}\b|\b[A-Z0-9]{2,4}\s?[A-Z0-9]{3,4}\b/)||[])[0];
     const got=[];if(vin){cur.vin=vin;got.push('VIN '+vin)}if(plate&&!vin){cur.plate=plate.replace(/\s/g,'');got.push('Plate '+cur.plate)}
-    saveCur();fillForm();$('#ocrMsg').textContent=got.length?'Found: '+got.join(' · ')+' — please check.':'Could not find a plate / VIN. Text: '+txt.trim().slice(0,80);
-  }catch(e){$('#ocrMsg').textContent='Reader needs internet the first time. '+e}
+    saveCur();fillForm();$('#ocrMsg').textContent=got.length?`${t('tFound')}: ${got.join(' · ')} — ${t('tCheck')}`:`${t('tNotFound')} ${txt.trim().slice(0,80)}`;
+  }catch(e){$('#ocrMsg').textContent=t('tOcrNet')}
 };
-$('#vinScanBtn').onclick=()=>{if(!('BarcodeDetector' in window)){toast('Barcode scan not supported here — use 🔎 Read plate/VIN');return}$('#vinIn').click()};
-$('#vinIn').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const bd=new BarcodeDetector();const r=await bd.detect(await createImageBitmap(f));const v=r.map(x=>x.rawValue.replace(/^I/,'').toUpperCase()).find(x=>/^[A-HJ-NPR-Z0-9]{17}$/.test(x))||(r[0]&&r[0].rawValue);if(v){cur.vin=v;saveCur();fillForm();toast('VIN: '+v)}else toast('No barcode found')}catch(err){toast('Scan failed')}e.target.value=''};
+$('#vinScanBtn').onclick=()=>{if(!('BarcodeDetector' in window)){toast(t('tScanNo'));return}$('#vinIn').click()};
+$('#vinIn').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const r=await new BarcodeDetector().detect(await createImageBitmap(f));const v=r.map(x=>x.rawValue.replace(/^I/,'').toUpperCase()).find(x=>/^[A-HJ-NPR-Z0-9]{17}$/.test(x))||(r[0]&&r[0].rawValue);if(v){cur.vin=v;saveCur();fillForm();toast('VIN: '+v)}else toast(t('tNoBarcode'))}catch(err){toast(t('tScanFail'))}e.target.value=''};
 
 // ---------- save / new ----------
 $('#saveBtn').onclick=()=>{
-  if(!cur.account){toast('Choose account type first');return}
-  if(needCash()&&!cur.cashOk&&!confirm('Cash not marked as collected. Save anyway?'))return;
+  if(!cur.account){toast(t('tChooseAcct'));return}
+  if(needCash()&&!cur.cashOk&&!confirm(t('tCashQ')))return;
   cur.date=cur.date||today();cur.saved=Date.now();const i=calls.findIndex(c=>c.id===cur.id);
-  if(i>=0)calls[i]={...cur};else calls.push({...cur});saveCalls();toast('Saved ✓');say('Call saved.');renderLog();
+  if(i>=0)calls[i]={...cur};else calls.push({...cur});saveCalls();toast(t('tSaved'));say('sSaved');
 };
-$('#newBtn').onclick=()=>{if(!calls.find(c=>c.id===cur.id)&&(cur.make||cur.plate||cur.account)&&!confirm('Current call is not saved. Start a new one?'))return;stopGPS();cur=blank();saveCur();fillForm();scrollTo(0,0)};
+$('#newBtn').onclick=()=>{if(!calls.find(c=>c.id===cur.id)&&(cur.make||cur.plate||cur.account)&&!confirm(t('tUnsaved')))return;stopGPS();cur=blank();saveCur();fillForm();$('#dispMsg').textContent=t('dispHint');scrollTo(0,0)};
 
 // ---------- log ----------
+const reasonLabel=r=>{const x=REASONS.find(z=>z[0]===r);return x?(S.ui==='fa'?x[1]:x[0]):(r||'')};
 function renderLog(){
   const q=($('#search').value||'').toLowerCase();
   const rows=calls.slice().sort((a,b)=>(b.date+b.timeStart).localeCompare(a.date+a.timeStart)).filter(c=>!q||JSON.stringify(c).toLowerCase().includes(q));
-  $('#list').innerHTML=rows.map(c=>`<div class="it"><div><b>${c.date} ${c.timeStart||''}</b> <span class="chip c-${c.account}">${ACCTS[c.account]||''}</span><br><small>${[c.colour,c.make,c.model,c.plate].filter(Boolean).join(' ')||'—'} · ${c.reason||''}</small><br><small>${c.location||''} → ${c.destination||''}</small></div><b>${$f(price(c).net)}</b><button class="btn" data-e="${c.id}">✎</button><button class="btn bad" data-d="${c.id}">🗑</button></div>`).join('')||'<p class="hint">No calls yet.</p>';
+  $('#list').innerHTML=rows.map(c=>`<div class="it"><div><b class="ltr" style="display:inline-block">${c.date} ${c.timeStart||''}</b> <span class="chip c-${c.account}">${an(c.account)}</span><br><small>${esc([c.colour,c.make,c.model,c.plate].filter(Boolean).join(' ')||'—')} · ${esc(reasonLabel(c.reason))}</small><br><small><bdi>${esc(c.location||'')}</bdi> ⇄ <bdi>${esc(c.destination||'')}</bdi></small></div><b class="ltr">${$f(price(c).net)}</b><button class="btn" data-e="${c.id}">✎</button><button class="btn bad" data-d="${c.id}">🗑</button></div>`).join('')||`<p class="hint">${t('noCalls')}</p>`;
 }
 $('#search').oninput=renderLog;
 $('#list').onclick=e=>{const ed=e.target.dataset.e,dl=e.target.dataset.d;
   if(ed){cur={...calls.find(c=>c.id===ed)};saveCur();fillForm();show('call')}
-  if(dl&&confirm('Delete this call?')){const c=calls.find(x=>x.id===dl);(c.photos||[]).forEach(id=>delPhoto(id));calls=calls.filter(x=>x.id!==dl);saveCalls();renderLog()}};
+  if(dl&&confirm(t('tDelCall'))){const c=calls.find(x=>x.id===dl);(c.photos||[]).forEach(id=>delPhoto(id));calls=calls.filter(x=>x.id!==dl);saveCalls();renderLog()}};
 
 // ---------- bi-weekly report ----------
 function periods(){
-  const a=new Date(S.periodStart+'T00:00:00'),out=[],now=new Date();
-  const dates=calls.map(c=>new Date(c.date+'T00:00:00')).concat([now]);
-  const min=new Date(Math.min(...dates)),max=new Date(Math.max(...dates));
-  const DAY=864e5,i0=Math.floor((min-a)/(14*DAY)),i1=Math.floor((max-a)/(14*DAY));
-  for(let i=i1;i>=i0;i--){const s=new Date(+a+i*14*DAY),e=new Date(+s+13*DAY);out.push([iso(s),iso(e)])}
+  const a=new Date(S.periodStart+'T00:00:00'),out=[],DAY=864e5;
+  const dates=calls.map(c=>new Date(c.date+'T00:00:00')).concat([new Date()]);
+  const i0=Math.floor((Math.min(...dates)-a)/(14*DAY)),i1=Math.floor((Math.max(...dates)-a)/(14*DAY));
+  for(let i=i1;i>=i0;i--){const s=new Date(+a+i*14*DAY+3*36e5),e=new Date(+s+13*DAY);out.push([iso(s),iso(e)])}
   return out;
 }
-const iso=d=>d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());
-const COLS=[['date','Date'],['timeStart','Time start'],['timeEnd','Time ended'],['account','Account'],['reason','Reason'],['make','Make'],['model','Model'],['colour','Colour'],['plate','Plate'],['vin','VIN'],['location','Location'],['destination','Destination'],['hirer','Hirer'],['consentee','Consentee'],['receiver','Veh receiver'],['rem','REM'],['rpm','RPM'],['invoice','Invoice#'],['towImpound','Tow/Impound'],['whoAuth','Who auth.'],['kmTo','Km to veh'],['kmTow','Km towed'],['net','Total net'],['hst','HST'],['total','Total charged'],['collected','Total collected']];
-function repRows(s,e){return calls.filter(c=>c.date>=s&&c.date<=e).sort((a,b)=>(a.date+a.timeStart).localeCompare(b.date+b.timeStart)).map(c=>({...c,...price(c),account:ACCTS[c.account]||''}))}
+const COLS=[['date','Date','تاریخ'],['timeStart','Time start','شروع'],['timeEnd','Time ended','پایان'],['account','Account','اکانت'],['reason','Reason','علت'],['make','Make','سازنده'],['model','Model','مدل'],['colour','Colour','رنگ'],['plate','Plate','پلاک'],['vin','VIN','VIN'],['location','Location','مبدأ'],['destination','Destination','مقصد'],['hirer','Hirer','سفارش‌دهنده'],['consentee','Consentee','رضایت‌دهنده'],['receiver','Veh receiver','تحویل‌گیرنده'],['rem','REM','REM'],['rpm','RPM','RPM'],['invoice','Invoice#','فاکتور'],['towImpound','Tow/Impound','حمل/توقیف'],['whoAuth','Who auth.','مجوز'],['kmTo','Km to veh','کیلومتر تا خودرو'],['kmTow','Km towed','کیلومتر حمل'],['net','Total net','خالص'],['hst','HST','HST'],['total','Total charged','جمع'],['collected','Total collected','نقد دریافتی']];
+const MONEY=['net','hst','total'];
+function repRows(s,e,en){return calls.filter(c=>c.date>=s&&c.date<=e).sort((a,b)=>(a.date+a.timeStart).localeCompare(b.date+b.timeStart)).map(c=>{const p=price(c);return{...c,...p,kmTo:p.kmTo,kmTow:p.kmTow,acct:c.account,account:an(c.account,en),reason:en?c.reason:reasonLabel(c.reason)}})}
 function renderReport(){
   const ps=periods(),sel=$('#period'),keep=sel.value;
   sel.innerHTML=ps.map(([s,e])=>`<option value="${s}|${e}">${s} → ${e}</option>`).join('');if(keep&&ps.some(p=>p.join('|')===keep))sel.value=keep;
-  const [s,e]=sel.value.split('|'),rows=repRows(s,e),sum=k=>r2(rows.reduce((t,r)=>t+(+r[k]||0),0));
-  $('#repHead').innerHTML=`<p class="hint">${S.driverName||''} · Driver# ${S.driverNo||''} · Truck# ${S.truckNo||''} · TSSEA TD-${S.tssea||''} · ${S.company||''}</p>`;
-  $('#repSum').innerHTML=`<div>Calls<b>${rows.length}</b></div><div>Total net (excl. HST)<b>${$f(sum('net'))}</b></div><div>HST<b>${$f(sum('hst'))}</b></div><div>Total invoice<b>${$f(sum('total'))}</b></div><div>Cash collected<b>${$f(sum('collected'))}</b></div><div>Km (to / towed)<b>${sum('kmTo')} / ${sum('kmTow')}</b></div>`
-   +Object.keys(ACCTS).map(a=>{const rr=rows.filter(r=>r.a===a);return rr.length?`<div>${ACCTS[a]}<b>${rr.length} · ${$f(r2(rr.reduce((t,r)=>t+r.net,0)))}</b></div>`:''}).join('');
-  $('#repTbl').innerHTML=`<table><thead><tr>${COLS.map(c=>`<th>${c[1]}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${COLS.map(([k])=>`<td>${esc(['net','hst','total'].includes(k)?r[k].toFixed(2):r[k]??'')}</td>`).join('')}</tr>`).join('')||`<tr><td colspan="${COLS.length}">No calls in this period</td></tr>`}</tbody>
-  <tfoot><tr><td colspan="${COLS.length-6}">TOTAL (${rows.length} calls)</td><td>${sum('kmTo')}</td><td>${sum('kmTow')}</td><td>${sum('net').toFixed(2)}</td><td>${sum('hst').toFixed(2)}</td><td>${sum('total').toFixed(2)}</td><td>${sum('collected').toFixed(2)}</td></tr></tfoot></table>`;
+  const [s,e]=sel.value.split('|'),rows=repRows(s,e),sum=k=>r2(rows.reduce((a,r)=>a+(+r[k]||0),0));
+  $('#repHead').innerHTML=`<p class="hint">${esc(S.driverName||'')} · Driver# ${esc(S.driverNo||'')} · Truck# ${esc(S.truckNo||'')} · TSSEA TD-${esc(S.tssea||'')} · ${esc(S.company||'')}</p>`;
+  $('#repSum').innerHTML=`<div>${t('sCalls')}<b>${rows.length}</b></div><div>${t('sNet')}<b>${$f(sum('net'))}</b></div><div>${t('sHst')}<b>${$f(sum('hst'))}</b></div><div>${t('sInv')}<b>${$f(sum('total'))}</b></div><div>${t('sCash')}<b>${$f(sum('collected'))}</b></div><div>${t('sKm')}<b>${sum('kmTo')} / ${sum('kmTow')}</b></div>`
+   +Object.keys(ACCTS).map(a=>{const rr=rows.filter(r=>r.acct===a);return rr.length?`<div>${an(a)}<b>${rr.length} · ${$f(r2(rr.reduce((x,r)=>x+r.net,0)))}</b></div>`:''}).join('');
+  $('#repTbl').innerHTML=`<table><thead><tr>${COLS.map(c=>`<th>${lb(c)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${COLS.map(([k])=>`<td dir="auto">${esc(MONEY.includes(k)?r[k].toFixed(2):r[k]??'')}</td>`).join('')}</tr>`).join('')||`<tr><td colspan="${COLS.length}">${t('noCallsPeriod')}</td></tr>`}</tbody>
+  <tfoot><tr><td colspan="${COLS.length-6}">${t('total')} (${rows.length})</td><td>${sum('kmTo')}</td><td>${sum('kmTow')}</td><td>${sum('net').toFixed(2)}</td><td>${sum('hst').toFixed(2)}</td><td>${sum('total').toFixed(2)}</td><td>${sum('collected').toFixed(2)}</td></tr></tfoot></table>`;
 }
 const esc=v=>String(v).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 $('#period').onchange=renderReport;
 $('#printBtn').onclick=()=>print();
-$('#csvBtn').onclick=()=>{const [s,e]=$('#period').value.split('|'),rows=repRows(s,e);
+// CSV stays in English so it matches the company's paper runsheet
+$('#csvBtn').onclick=()=>{const [s,e]=$('#period').value.split('|'),rows=repRows(s,e,1);
   const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
-  const csv=[COLS.map(c=>q(c[1])).join(','),...rows.map(r=>COLS.map(([k])=>q(['net','hst','total'].includes(k)?r[k].toFixed(2):r[k])).join(','))].join('\r\n');
+  const csv=[COLS.map(c=>q(c[1])).join(','),...rows.map(r=>COLS.map(([k])=>q(MONEY.includes(k)?r[k].toFixed(2):r[k])).join(','))].join('\r\n');
   dl(new Blob(['﻿'+csv],{type:'text/csv'}),`runsheet_${s}_${e}.csv`)};
 function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),5000)}
 
-// remind when a 2-week period has closed
 function checkReport(){
-  const ps=periods(),todayS=today(),last=ps.find(([,e])=>e<todayS);if(!last)return;
+  const last=periods().find(([,e])=>e<today());if(!last)return;
   const key=last.join('|');if(LS.get('tl_seen','')===key||!calls.some(c=>c.date>=last[0]&&c.date<=last[1]))return;
   const b=$('#reportBanner');b.classList.remove('hide');
-  b.innerHTML=`📊 <b>Your 2-week report is ready</b> (${last[0]} → ${last[1]}). <button class="btn acc" id="openRep">Open</button>`;
+  b.innerHTML=`📊 <b>${t('repReady')}</b> <span class="ltr" style="display:inline-block">(${last[0]} → ${last[1]})</span> <button class="btn acc" id="openRep">${t('open')}</button>`;
   $('#openRep').onclick=()=>{LS.set('tl_seen',key);b.classList.add('hide');show('rep');$('#period').value=key;renderReport()};
-  say('Your two week report is ready.');
+  say('sRep');
 }
 
 // ---------- settings ----------
-function fillSet(){[...SET,...RATES].forEach(([k])=>$('#s_'+k).value=S[k]??'');$('#s_lang').value=S.lang;$('#s_speak').value=S.speak}
-[...SET,...RATES,['lang'],['speak']].forEach(([k])=>$('#s_'+k).addEventListener('change',e=>{S[k]=e.target.value;saveSet();renderPrice()}));
+function fillSet(){[...SET,...RATES].forEach(([k])=>$('#s_'+k).value=S[k]??'');$('#s_ui').value=S.ui;$('#s_lang').value=S.lang;$('#s_speak').value=S.speak}
 $('#expBtn').onclick=async()=>{const photos={};for(const c of calls)for(const id of c.photos||[]){const b=await getPhoto(id).catch(()=>null);if(b)photos[id]=await new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)})}
   dl(new Blob([JSON.stringify({v:1,calls,settings:S,photos})],{type:'application/json'}),`towlog_backup_${today()}.json`)};
 $('#impBtn').onclick=()=>$('#impIn').click();
-$('#impIn').onchange=async e=>{try{const j=JSON.parse(await e.target.files[0].text());if(!confirm(`Import ${j.calls.length} calls? (merges with existing)`))return;
+$('#impIn').onchange=async e=>{try{const j=JSON.parse(await e.target.files[0].text());if(!confirm(`${t('tImportQ')} (${j.calls.length})`))return;
   for(const [id,d] of Object.entries(j.photos||{}))await putPhoto(id,await (await fetch(d)).blob());
-  const ids=new Set(calls.map(c=>c.id));j.calls.forEach(c=>{if(!ids.has(c.id))calls.push(c)});Object.assign(S,j.settings||{});saveCalls();saveSet();fillSet();renderLog();toast('Imported ✓')}catch(err){toast('Bad backup file')}};
+  const ids=new Set(calls.map(c=>c.id));j.calls.forEach(c=>{if(!ids.has(c.id))calls.push(c)});Object.assign(S,j.settings||{});saveCalls();saveSet();buildUI();fillSet();toast(t('tImported'))}catch(err){toast(t('tBadBackup'))}e.target.value=''};
 
 // ---------- nav ----------
 function show(v){$$('main>section').forEach(s=>s.classList.toggle('hide',s.id!=='v-'+v));$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));$('#voiceAll').classList.toggle('hide',v!=='call');if(v==='log')renderLog();if(v==='rep')renderReport();if(v==='set')fillSet();scrollTo(0,0)}
 $$('nav button').forEach(b=>b.onclick=()=>show(b.dataset.v));
-let tt;function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(tt);tt=setTimeout(()=>t.style.display='none',3500)}
+let tt;function toast(m){const el=$('#toast');el.textContent=m;el.style.display='block';clearTimeout(tt);tt=setTimeout(()=>el.style.display='none',3500)}
 
-fillForm();checkReport();
+buildUI();checkReport();takeShared();
 if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
