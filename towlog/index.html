@@ -92,6 +92,7 @@ textarea{min-height:60px;resize:vertical}
 .ocrbox{margin-top:10px;background:#0b1220;border:2px solid var(--acc);border-radius:12px;padding:12px}
 .ocrbox label{display:flex;align-items:center;gap:10px;font-size:16px;color:var(--tx);margin:6px 0}.ocrbox input[type=checkbox]{width:auto;transform:scale(1.4)}
 .ocrbox input.v{flex:1}
+.shift{border-color:var(--ok)}
 .stars{display:flex;gap:4px}.stars button{background:none;border:0;font-size:28px;padding:0 2px;color:#475569}.stars button.on{color:var(--acc)}
 .hide{display:none!important}
 @media print{
@@ -114,6 +115,14 @@ textarea{min-height:60px;resize:vertical}
 <!-- ================= CALL ================= -->
 <section id="v-call">
   <div id="reportBanner" class="banner hide"></div>
+
+  <div class="card shift">
+    <div class="row">
+      <button class="btn ok big" id="shiftStart" data-i="shiftStart"></button>
+      <button class="btn bad big" id="shiftEnd" data-i="shiftEnd"></button>
+    </div>
+    <p class="hint" id="shiftStat"></p>
+  </div>
 
   <div class="card disp">
     <h2 data-i="dispT"></h2>
@@ -241,12 +250,24 @@ textarea{min-height:60px;resize:vertical}
     <p class="hint" data-i="ratesHint"></p>
   </div>
   <div class="card">
+    <h2 data-i="mailT"></h2>
+    <div class="grid">
+      <div class="full"><label data-i="mailAddr"></label><input id="s_email" type="email" class="ltr" autocomplete="email" placeholder="you@gmail.com"></div>
+      <div><label data-i="mailCall"></label><select id="s_mailCall"><option value="1">On</option><option value="0">Off</option></select></div>
+      <div><label data-i="mailWeek"></label><select id="s_mailWeek"><option value="1">On</option><option value="0">Off</option></select></div>
+      <div><label data-i="mailBk"></label><select id="s_mailBk"><option value="1">On</option><option value="0">Off</option></select></div>
+      <div style="align-self:end"><button class="btn" id="mailTest" type="button" data-i="mailTest" style="width:100%"></button></div>
+    </div>
+    <p class="hint" data-i="mailHint"></p>
+    <p class="hint" id="mailStat"></p>
+  </div>
+  <div class="card">
     <h2 data-i="backupT"></h2>
     <p class="hint" data-i="backupHint"></p>
     <div class="row">
       <button class="btn" id="expBtn" data-i="exp"></button>
       <button class="btn" id="impBtn" data-i="imp"></button>
-      <input type="file" id="impIn" accept="application/json" class="hide">
+      <input type="file" id="impIn" accept="application/json,.json" class="hide">
     </div>
   </div>
 </section>
@@ -295,6 +316,17 @@ textarea{min-height:60px;resize:vertical}
     </div>
   </div>
 </div>
+<div class="modal" id="startModal">
+  <div class="card">
+    <h2 data-i="smT"></h2>
+    <p data-i="smHint"></p>
+    <div class="row" style="margin-top:10px;flex-direction:column">
+      <button class="btn blue big" id="smLoad" data-i="smLoad"></button>
+      <button class="btn big" id="smGo" data-i="smGo"></button>
+    </div>
+  </div>
+</div>
+<iframe name="mailFrame" id="mailFrame" class="hide" title="mail"></iframe>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -317,7 +349,7 @@ const L={en:{
  langT:'Language & voice',uiLang:'App language',dictLang:'Voice-fill language (big 🎤)',speakAlerts:'Speak alerts aloud',
  voiceHint:'Big blue 🎤 = say several fields at once, e.g. “account cash, make Honda, model Civic, colour red, plate C X R T 4 5 2, reason flat tire”. The 🎤 on plate, VIN and address fields always listens in English.',
  setT:'Driver / sheet header',ratesT:'Rates',ratesHint:'Km to vehicle: first km free for every account, extra km at the account rate. Km towed: free km depend on the account, extra km at the account rate. Every call adds the base fee.',
- backupT:'Backup',backupHint:'Data is stored only on this phone. Export a backup regularly.',exp:'⬇ Export backup',imp:'⬆ Import backup',
+ backupT:'Database file',backupHint:'Save the whole database (with photos) to iCloud Drive / Google Drive, or load it back after reinstalling or on a new phone.',exp:'💾 Save database',imp:'📂 Load database',
  navCall:'Call',navLog:'Log',navRep:'Report',navSet:'Settings',
  alarmH:'COLLECT CASH FIRST',alarmP:'Collect payment BEFORE hooking / towing the vehicle.',collectedBtn:'✅ Collected',later:'Close',acctEst:'account · estimate updates with km',extraKm:'Extra km',
  base:'Base fee (call accepted)',toVeh:'To vehicle',towed:'Towed',free:'free',tNet:'Total net (excl. HST)',tTot:'Total',payT:'Pay estimate',pickAcct:'Select the account type to calculate.',
@@ -329,12 +361,19 @@ const L={en:{
  tNoBarcode:'No barcode found',tScanNo:'Barcode scan not supported here — use 🔎 Read plate/VIN',tScanFail:'Scan failed',tDispNone:'Nothing recognised — check the screenshot or paste the text.',tDispOk:'From dispatch:',
  repReady:'Your 2-week report is ready',open:'Open',
  sStart:'Call started. Drive safe.',sArrive:'Arrived. {0} kilometers to vehicle.',sTow:'Towing. Measuring distance.',sDrop:'Dropped. {0} kilometers towed. Total {1} dollars before tax.',sCashW:'Warning. {0} account. Collect cash before towing the vehicle.',sColl:'Cash collected.',sSaved:'Call saved.',sRep:'Your two week report is ready.',navHelp:'Guide',fbT:'💬 Suggestions & feedback',fbHint:'Your message goes straight to the app developer by email.',fbName:'Your name (optional)',fbEmail:'Your email (optional, for a reply)',fbType:'Type',fbRate:'Rate the app',fbMsg:'Your message',fbSend:'📨 Send',fbTypes:['Suggestion','Problem / bug','Criticism','Other'],fbSending:'Sending…',fbOk:'✅ Sent. Thank you!',fbFail:'Could not send (no internet?). Your mail app will open instead; if it does not, email:',fbEmpty:'Please write a message.',tKbMic:'Tap the 🎤 on your keyboard and speak.',vmT:'🎤 Say it',vmHint:'Tap the 🎤 on the keyboard and say the details, e.g. “make Honda model Civic colour red plate CXRT 452 reason flat tire”. Then tap Fill.',vmPh:'Speak with the keyboard 🎤 …',tNothing:'Could not read a plate, VIN or badge. Take the photo closer, straight on, in good light.',sFound:'Vehicle details found. Please check.',bkRemind:'It has been a week — save a backup of your calls.',
+ shiftStart:'▶ Start',shiftEnd:'⏹ Exit & back up',lastBk:'Last backup',nCalls:'Calls',pending:'emails waiting',
+ smT:'▶ Start',smHint:'New phone or reinstalled the app? Load your latest database file (from iCloud Drive / Google Drive / Files or from your email). Otherwise just continue.',smLoad:'📂 Load database',smGo:'Continue',
+ shiftOn:'Shift started.',shiftOff:'Backed up ✓ — choose “Save to Files” (iCloud Drive) or Google Drive.',sShift:'Shift started.',sShiftEnd:'Shift ended. Backup saved.',
+ mailT:'✉️ Email & automatic backup',mailAddr:'Your email (records and reports go here)',mailCall:'Email every saved call',mailWeek:'Email weekly Excel report',mailBk:'Email database at Exit',mailTest:'Send test email',
+ mailHint:'The first email asks you to click “Activate” (check Spam too). After that: each saved call is emailed to you, every Monday the last week’s report (Excel/CSV) is emailed, and “Exit” emails the database file. Emails are sent through FormSubmit.co. Unsent emails wait and go out when you are online.',
+ mailOk:'✅ Sent — check your inbox (and Spam) and click Activate the first time.',mailBad:'Enter a valid email first.',wkSent:'Weekly report emailed.',
  guide:`<h2>📖 How to use TowLog</h2>
 <h3>1. First time</h3><ol><li>Open the link in Chrome (Android) or Safari (iPhone) → menu → <b>Add to Home Screen</b>.</li><li>Allow <b>microphone, camera and location</b> when asked.</li><li><b>Settings</b>: enter your name, driver/truck numbers and the start date of your 2-week pay period. Check the rates.</li></ol>
 <h3>2. When a call comes in</h3><ol><li><b>📸 Screenshot</b> of the call in the dispatch app (or <b>📋 Paste</b> its text, or on Android <b>Share → TowLog</b>) — pickup, destination and km fill in.</li><li>Pick the <b>account type</b>. For <b>Cash</b> and <b>Basic</b> a red alarm reminds you to <b>collect cash before towing</b>; “Towing” stays locked until you tap <b>Collected</b>.</li><li>Tap the steps as you go: <b>En route → At vehicle → Towing → Dropped</b>. Times are recorded and GPS measures km (keep the app open).</li></ol>
 <h3>3. Filling details hands-free</h3><ul><li>Big blue <b>🎤</b>: say several fields at once, e.g. “make Honda, model Civic, colour red, reason flat tire”.</li><li>Small 🎤 next to a field fills just that field. Plate/VIN: spell it (“C X R T 4 5 2”).</li><li><b>iPhone:</b> Apple blocks the app’s own microphone, so the 🎤 opens the keyboard — tap the 🎤 on the keyboard and speak (turn on Settings → General → Keyboard → Enable Dictation).</li><li><b>📷 Take photo</b> of the rear of the vehicle — the app reads the plate, the make/model badges and a VIN, then asks you to confirm. Close, straight-on photos in good light work best. <b>▥ Scan VIN</b> reads the door-jamb barcode (Android).</li></ul>
 <h3>4. Pay calculation</h3><ul><li>$50 base for every call.</li><li>Km to vehicle: first 5 km free (all accounts).</li><li>Km towed free: Basic 10, Plus 200, Premium 300, Cash 0.</li><li>Extra km (to vehicle and towed): Plus/Premium $2.50, Basic/Cash $4.50. HST 13% shown separately. All editable in Settings.</li></ul>
 <h3>5. Save & report</h3><ul><li><b>💾 Save call</b> at the end, then <b>＋ New call</b>.</li><li><b>Report</b> tab: every 2 weeks a table with totals → <b>Excel (CSV)</b> or <b>Print/PDF</b>.</li></ul>
+<h3>6. Backup & email</h3><ul><li><b>Settings → Email</b>: enter your email and tap <b>Send test email</b>, then click <b>Activate</b> in the email you get (check Spam). From then on every saved call is emailed to you, and each Monday you get last week’s report as an Excel (CSV) file.</li><li><b>▶ Start</b> (top of the Call page): on a new phone or after reinstalling, tap <b>Load database</b> and pick your latest database file.</li><li><b>⏹ Exit & back up</b>: saves the whole database — choose <b>Save to Files → iCloud Drive</b> (or Google Drive) — and emails it to you too.</li></ul>
 <div class="tip">🔒 Your data stays only on <b>your</b> phone — nobody else sees it. Use <b>Settings → Export backup</b> regularly (and before changing phones).</div>
 <div class="tip">⚠️ Don’t type while driving — use voice, or fill details when parked.</div>`
 },fa:{
@@ -352,7 +391,7 @@ const L={en:{
  langT:'زبان و صدا',uiLang:'زبان برنامه',dictLang:'زبان ورودی صوتی (🎤 بزرگ)',speakAlerts:'خواندن هشدارها با صدا',
  voiceHint:'🎤 آبی بزرگ = چند فیلد را یک‌جا بگو، مثلاً «اکانت کش، سازنده تویوتا، مدل کرولا، رنگ سفید، علت پنچری، مبدأ … مقصد …». میکروفونِ کنار پلاک، VIN و آدرس‌ها همیشه انگلیسی گوش می‌دهد.',
  setT:'مشخصات راننده / سربرگ',ratesT:'نرخ‌ها',ratesHint:'مسافت تا خودرو: چند کیلومتر اول برای همه رایگان، مازاد با نرخ همان اکانت. مسافت حمل: کیلومتر رایگان بسته به اکانت، مازاد با نرخ همان اکانت. هزینهٔ ثابت قبول کال به همه اضافه می‌شود.',
- backupT:'پشتیبان',backupHint:'اطلاعات فقط روی همین گوشی ذخیره می‌شود. مرتب پشتیبان بگیر.',exp:'⬇ گرفتن پشتیبان',imp:'⬆ بازگردانی پشتیبان',
+ backupT:'فایل دیتابیس',backupHint:'کل دیتابیس (با عکس‌ها) را در iCloud Drive یا Google Drive ذخیره کن، یا بعد از نصب دوباره یا روی گوشی جدید لودش کن.',exp:'💾 ذخیرهٔ دیتابیس',imp:'📂 لود دیتابیس',
  navCall:'کال',navLog:'لیست',navRep:'گزارش',navSet:'تنظیمات',
  alarmH:'اول پول نقد را بگیر!',alarmP:'قبل از بستن و حمل خودرو، اول وجه نقد را دریافت کن.',collectedBtn:'✅ دریافت شد',later:'بستن',acctEst:' · مبلغ تخمینی با کیلومتر به‌روز می‌شود',extraKm:'کیلومتر مازاد',
  base:'هزینهٔ ثابت قبول کال',toVeh:'تا خودرو',towed:'حمل',free:'رایگان',tNet:'جمع خالص (بدون HST)',tTot:'جمع کل',payT:'محاسبهٔ مبلغ',pickAcct:'برای محاسبه نوع اکانت را انتخاب کن.',
@@ -364,12 +403,19 @@ const L={en:{
  tNoBarcode:'بارکدی پیدا نشد',tScanNo:'اسکن بارکد اینجا پشتیبانی نمی‌شود — از «خواندن پلاک/VIN» استفاده کن',tScanFail:'اسکن ناموفق بود',tDispNone:'چیزی شناسایی نشد — اسکرین‌شات را چک کن یا متن را بچسبان.',tDispOk:'از دیسپچ:',
  repReady:'گزارش دوهفته‌ای‌ات آماده است',open:'باز کن',
  sStart:'کال شروع شد. با احتیاط برانید.',sArrive:'رسیدید. {0} کیلومتر تا خودرو.',sTow:'حمل شروع شد. مسافت اندازه‌گیری می‌شود.',sDrop:'تحویل شد. {0} کیلومتر حمل. جمع {1} دلار بدون مالیات.',sCashW:'هشدار. اکانت {0}. قبل از حمل خودرو اول پول نقد را بگیرید.',sColl:'نقد دریافت شد.',sSaved:'کال ذخیره شد.',sRep:'گزارش دوهفته‌ای آماده است.',navHelp:'راهنما',fbT:'💬 پیشنهاد و انتقاد',fbHint:'پیامت مستقیم به ایمیل سازندهٔ برنامه فرستاده می‌شود.',fbName:'نام شما (اختیاری)',fbEmail:'ایمیل شما (اختیاری، برای جواب)',fbType:'نوع پیام',fbRate:'امتیاز به برنامه',fbMsg:'متن پیام',fbSend:'📨 ارسال',fbTypes:['پیشنهاد','مشکل / خطا','انتقاد','سایر'],fbSending:'در حال ارسال…',fbOk:'✅ ارسال شد. ممنون!',fbFail:'ارسال نشد (اینترنت؟). برنامهٔ ایمیل باز می‌شود؛ اگر باز نشد به این آدرس بفرست:',fbEmpty:'لطفاً متن پیام را بنویس.',tKbMic:'روی 🎤 کیبورد بزن و بگو.',vmT:'🎤 بگو',vmHint:'روی 🎤 کیبورد بزن و مشخصات را بگو، مثلاً «سازنده تویوتا مدل کرولا رنگ سفید علت پنچری». بعد «پر کردن فرم» را بزن.',vmPh:'با 🎤 کیبورد بگو…',tNothing:'پلاک، VIN یا نوشتهٔ پشت ماشین خوانده نشد. از نزدیک‌تر، روبه‌رو و در نور خوب عکس بگیر.',sFound:'مشخصات خودرو پیدا شد. لطفاً چک کنید.',bkRemind:'یک هفته گذشته — از کال‌هایت پشتیبان بگیر.',
+ shiftStart:'▶ شروع',shiftEnd:'⏹ خروج و پشتیبان',lastBk:'آخرین پشتیبان',nCalls:'تعداد کال',pending:'ایمیل در صف',
+ smT:'▶ شروع',smHint:'گوشی جدید یا برنامه را دوباره نصب کردی؟ آخرین فایل دیتابیس را لود کن (از iCloud Drive، Google Drive، Files یا ایمیلت). وگرنه ادامه بده.',smLoad:'📂 لود دیتابیس',smGo:'ادامه',
+ shiftOn:'شیفت شروع شد.',shiftOff:'پشتیبان آماده ✓ — «Save to Files» (iCloud Drive) یا Google Drive را انتخاب کن.',sShift:'شیفت شروع شد.',sShiftEnd:'شیفت تمام شد. پشتیبان ذخیره شد.',
+ mailT:'✉️ ایمیل و پشتیبان خودکار',mailAddr:'ایمیل تو (رکوردها و گزارش‌ها به اینجا می‌آید)',mailCall:'ایمیل هر کال ذخیره‌شده',mailWeek:'ایمیل گزارش هفتگی اکسل',mailBk:'ایمیل دیتابیس موقع خروج',mailTest:'ارسال ایمیل آزمایشی',
+ mailHint:'اولین ایمیل از تو می‌خواهد روی «Activate» بزنی (Spam را هم ببین). بعد از آن: هر کال ذخیره‌شده برایت ایمیل می‌شود، هر دوشنبه گزارش هفتهٔ قبل (اکسل/CSV) ایمیل می‌شود و «خروج» فایل دیتابیس را ایمیل می‌کند. ایمیل‌ها از طریق FormSubmit.co فرستاده می‌شوند. اگر اینترنت نبود، در صف می‌مانند و بعداً فرستاده می‌شوند.',
+ mailOk:'✅ فرستاده شد — ایمیلت (و Spam) را ببین و بار اول Activate را بزن.',mailBad:'اول یک ایمیل درست وارد کن.',wkSent:'گزارش هفتگی ایمیل شد.',
  guide:`<h2>📖 راهنمای استفاده</h2>
 <h3>۱. بار اول</h3><ol><li>لینک را در Chrome (اندروید) یا Safari (آیفون) باز کن ← منو ← <b>Add to Home Screen</b> تا مثل اپ نصب شود.</li><li>وقتی پرسید، اجازهٔ <b>میکروفون، دوربین و موقعیت (GPS)</b> را بده.</li><li>در <b>تنظیمات</b>: نام، شماره راننده و کامیون، و تاریخ شروع دورهٔ دوهفته‌ای را وارد کن و نرخ‌ها را چک کن.</li></ol>
 <h3>۲. وقتی کال می‌آید</h3><ol><li>از صفحهٔ کال در اپ دیسپچ <b>📸 اسکرین‌شات</b> بده (یا متنش را <b>📋 بچسبان</b>، یا در اندروید <b>Share ← TowLog</b>)؛ مبدأ، مقصد و کیلومترها خودکار پر می‌شوند.</li><li><b>نوع اکانت</b> را انتخاب کن. برای <b>Cash</b> و <b>Basic</b> هشدار قرمز می‌آید که <b>قبل از حمل، پول نقد را بگیری</b>؛ تا «دریافت شد» را نزنی، دکمهٔ «شروع حمل» قفل است.</li><li>مراحل را همان‌طور که پیش می‌روی بزن: <b>در راه ← رسیدم ← شروع حمل ← تحویل شد</b>. ساعت‌ها ثبت می‌شود و GPS کیلومتر را می‌شمارد (برنامه باز بماند).</li></ol>
 <h3>۳. پر کردن بدون دست</h3><ul><li><b>🎤 آبی بزرگ</b>: چند فیلد را یک‌جا بگو، مثلاً «سازنده تویوتا، مدل کرولا، رنگ سفید، علت پنچری».</li><li>🎤 کوچک کنار هر فیلد فقط همان فیلد را پر می‌کند. پلاک و VIN را حرف‌به‌حرف انگلیسی بگو («C X R T 4 5 2»).</li><li><b>آیفون:</b> اپل میکروفونِ خودِ برنامه را می‌بندد، پس 🎤 کیبورد را باز می‌کند — روی 🎤 کیبورد بزن و بگو (Settings ← General ← Keyboard ← Enable Dictation روشن باشد).</li><li><b>📷 گرفتن عکس</b> از پشت خودرو — برنامه پلاک، نوشتهٔ برند و مدل و VIN را می‌خواند و برای تأیید نشانت می‌دهد. عکس نزدیک، روبه‌رو و در نور خوب بهتر خوانده می‌شود. <b>▥ اسکن VIN</b> بارکد کنار در را می‌خواند (اندروید).</li></ul>
 <h3>۴. محاسبهٔ مبلغ</h3><ul><li>۵۰ دلار ثابت برای هر کال.</li><li>مسافت تا خودرو: ۵ کیلومتر اول برای همه رایگان.</li><li>مسافت حمل رایگان: بیسیک ۱۰، پلاس ۲۰۰، پریمیوم ۳۰۰، کش ۰ کیلومتر.</li><li>کیلومتر مازاد (هم تا خودرو هم حمل): پلاس و پریمیوم ۲٫۵ دلار، بیسیک و کش ۴٫۵ دلار. HST ‏۱۳٪ جدا نشان داده می‌شود. همه در تنظیمات قابل تغییرند.</li></ul>
 <h3>۵. ذخیره و گزارش</h3><ul><li>آخر کار <b>💾 ذخیرهٔ کال</b>، بعد <b>＋ کال جدید</b>.</li><li>زبانهٔ <b>گزارش</b>: هر دو هفته یک جدول با جمع‌ها ← <b>اکسل (CSV)</b> یا <b>چاپ/PDF</b>.</li></ul>
+<h3>۶. پشتیبان و ایمیل</h3><ul><li><b>تنظیمات ← ایمیل</b>: ایمیلت را وارد کن و <b>ارسال ایمیل آزمایشی</b> را بزن، بعد در ایمیلی که می‌آید روی <b>Activate</b> بزن (Spam را هم ببین). از آن به بعد هر کال ذخیره‌شده برایت ایمیل می‌شود و هر دوشنبه گزارش هفتهٔ قبل به‌صورت فایل اکسل (CSV) می‌آید.</li><li><b>▶ شروع</b> (بالای صفحهٔ کال): روی گوشی جدید یا بعد از نصب دوباره، <b>لود دیتابیس</b> را بزن و آخرین فایل دیتابیس را انتخاب کن.</li><li><b>⏹ خروج و پشتیبان</b>: کل دیتابیس را ذخیره می‌کند — <b>Save to Files ← iCloud Drive</b> (یا Google Drive) را انتخاب کن — و برایت ایمیل هم می‌کند.</li></ul>
 <div class="tip">🔒 اطلاعاتت فقط روی گوشی <b>خودت</b> می‌ماند و کس دیگری نمی‌بیند. از <b>تنظیمات ← گرفتن پشتیبان</b> مرتب (و قبل از عوض کردن گوشی) استفاده کن.</div>
 <div class="tip">⚠️ موقع رانندگی تایپ نکن؛ از صدا استفاده کن یا وقتی پارک کردی پر کن.</div>`
 }};
@@ -467,7 +513,7 @@ function wireAC(){['make','model'].forEach(k=>{const el=$('#f_'+k);el.setAttribu
 
 // ---------- storage ----------
 const LS={get:(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){toast(t('tStorage'))}}};
-let calls=LS.get('tl_calls',[]), S=Object.assign({ui:'en',lang:'en-CA',speak:'1',periodStart:mondayOf(new Date())},LS.get('tl_set',{}));
+let calls=LS.get('tl_calls',[]), S=Object.assign({ui:'en',lang:'en-CA',speak:'1',email:'',mailCall:'1',mailWeek:'1',mailBk:'1',periodStart:mondayOf(new Date())},LS.get('tl_set',{}));
 if(!S.enDefault){S.ui='en';S.lang='en-CA';S.enDefault=1}
 RATES.forEach(r=>{if(S[r[0]]===undefined)S[r[0]]=r[3]});
 let cur=LS.get('tl_cur',null)||blank();
@@ -516,7 +562,7 @@ function buildUI(){
   $('#f_reason').innerHTML=`<option value="">${t('selReason')}</option>`+REASONS.map(r=>`<option value="${r[0]}">${reasonText(r)}</option>`).join('');
   $('#setGrid').innerHTML=SET.map(s=>`<div><label>${lb(s)}</label><input id="s_${s[0]}" type="${s[3]||'text'}"></div>`).join('');
   $('#rateGrid').innerHTML=RATES.map(r=>`<div><label>${lb(r)}</label><input id="s_${r[0]}" class="ltr" inputmode="decimal"></div>`).join('');
-  [...SET,...RATES,['ui'],['lang'],['speak']].forEach(([k])=>$('#s_'+k).onchange=e=>{S[k]=e.target.value;saveSet();if(k==='ui'){buildUI();fillSet()}else renderPrice()});
+  [...SET,...RATES,['ui'],['lang'],['speak'],['email'],['mailCall'],['mailWeek'],['mailBk']].forEach(([k])=>$('#s_'+k).onchange=e=>{S[k]=e.target.value;saveSet();if(k==='ui'){buildUI();fillSet()}else renderPrice()});
   FIELDS.forEach(k=>{const el=$('#f_'+k);if(!el)return;el.oninput=el.onchange=()=>{cur[k]=el.value;if(k==='plate'||k==='vin')cur[k]=el.value=el.value.toUpperCase();saveCur();renderPrice()}});
   $('#guide').innerHTML=L[S.ui].guide;
   $('#fb_type').innerHTML=L[S.ui].fbTypes.map((x,i)=>`<option value="${L.en.fbTypes[i]}">${x}</option>`).join('');renderStars();
@@ -804,7 +850,8 @@ $('#saveBtn').onclick=()=>{
   if(!cur.account){toast(t('tChooseAcct'));return}
   if(needCash()&&!cur.cashOk&&!confirm(t('tCashQ')))return;
   cur.date=cur.date||today();cur.saved=Date.now();const i=calls.findIndex(c=>c.id===cur.id);
-  if(i>=0)calls[i]={...cur};else calls.push({...cur});saveCalls();toast(t('tSaved'));say('sSaved');
+  const upd=i>=0;if(upd)calls[i]={...cur};else calls.push({...cur});saveCalls();toast(t('tSaved'));say('sSaved');
+  queueMail({type:'call',id:cur.id,upd});
 };
 $('#newBtn').onclick=()=>{if(!calls.find(c=>c.id===cur.id)&&(cur.make||cur.plate||cur.account)&&!confirm(t('tUnsaved')))return;stopGPS();cur=blank();saveCur();fillForm();$('#dispMsg').textContent=t('dispHint');scrollTo(0,0)};
 
@@ -861,18 +908,100 @@ function checkReport(){
 }
 
 // ---------- settings ----------
-function fillSet(){[...SET,...RATES].forEach(([k])=>$('#s_'+k).value=S[k]??'');$('#s_ui').value=S.ui;$('#s_lang').value=S.lang;$('#s_speak').value=S.speak}
+function fillSet(){[...SET,...RATES,['email'],['mailCall'],['mailWeek'],['mailBk']].forEach(([k])=>$('#s_'+k).value=S[k]??'');$('#s_ui').value=S.ui;$('#s_lang').value=S.lang;$('#s_speak').value=S.speak}
 function checkBackup(){
   const last=LS.get('tl_bk',0);if(!calls.length||Date.now()-last<7*864e5)return;
   const b=document.createElement('div');b.className='banner';b.innerHTML=`💾 <b>${t('bkRemind')}</b> <button class="btn acc" id="bkNow">${t('exp')}</button>`;
   $('#v-call').prepend(b);$('#bkNow').onclick=()=>{$('#expBtn').click();b.remove()};
 }
-$('#expBtn').onclick=async()=>{LS.set('tl_bk',Date.now());const photos={};for(const c of calls)for(const id of c.photos||[]){const b=await getPhoto(id).catch(()=>null);if(b)photos[id]=await new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)})}
-  dl(new Blob([JSON.stringify({v:1,calls,settings:S,photos})],{type:'application/json'}),`towlog_backup_${today()}.json`)};
+// ---------- database file (backup / load) ----------
+async function backupBlob(withPhotos){
+  const photos={};
+  if(withPhotos)for(const c of calls)for(const id of c.photos||[]){const b=await getPhoto(id).catch(()=>null);if(b)photos[id]=await new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)})}
+  return new Blob([JSON.stringify({v:1,saved:Date.now(),calls,settings:S,photos})],{type:'application/json'});
+}
+const bkName=()=>`towlog_database_${today()}_${nowT().replace(':','')}.json`;
+// on phones this opens the share sheet → "Save to Files" (iCloud Drive) or Google Drive; elsewhere it downloads
+async function saveDbFile(){
+  LS.set('tl_bk',Date.now());const f=new File([await backupBlob(true)],bkName(),{type:'application/json'});
+  try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'TowLog database'});return true}}catch(e){if(e.name==='AbortError')return false}
+  dl(f,f.name);return true;
+}
+$('#expBtn').onclick=saveDbFile;
 $('#impBtn').onclick=()=>$('#impIn').click();
-$('#impIn').onchange=async e=>{try{const j=JSON.parse(await e.target.files[0].text());if(!confirm(`${t('tImportQ')} (${j.calls.length})`))return;
+// merge: a call from the file replaces the phone's copy only when it was saved later
+async function loadDb(j){
   for(const [id,d] of Object.entries(j.photos||{}))await putPhoto(id,await (await fetch(d)).blob());
-  const ids=new Set(calls.map(c=>c.id));j.calls.forEach(c=>{if(!ids.has(c.id))calls.push(c)});Object.assign(S,j.settings||{});saveCalls();saveSet();buildUI();fillSet();toast(t('tImported'))}catch(err){toast(t('tBadBackup'))}e.target.value=''};
+  let n=0;(j.calls||[]).forEach(c=>{const i=calls.findIndex(x=>x.id===c.id);if(i<0){calls.push(c);n++}else if((c.saved||0)>(calls[i].saved||0)){calls[i]=c;n++}});
+  const keep={email:S.email,ui:S.ui};Object.assign(S,j.settings||{});if(!S.email)S.email=keep.email;
+  saveCalls();saveSet();buildUI();fillSet();renderLog();LS.set('tl_loaded',Date.now());return n;
+}
+$('#impIn').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
+  try{const j=JSON.parse(await f.text());if(!Array.isArray(j.calls))throw 0;const n=await loadDb(j);toast(`${t('tImported')} (${n})`);shiftStat()}catch(err){toast(t('tBadBackup'))}};
+
+// ---------- start / end shift ----------
+function shiftStat(){const a=LS.get('tl_bk',0),l=LS.get('tl_loaded',0),q=LS.get('tl_out',[]).length;
+  $('#shiftStat').textContent=`${t('lastBk')}: ${a?new Date(a).toLocaleString():'—'} · ${t('nCalls')}: ${calls.length}`+(q?` · ✉️ ${q} ${t('pending')}`:'')}
+$('#shiftStart').onclick=()=>{$('#startModal').classList.add('show')};
+$('#smLoad').onclick=()=>{$('#startModal').classList.remove('show');LS.set('tl_shift',Date.now());$('#impIn').click()};
+$('#smGo').onclick=()=>{$('#startModal').classList.remove('show');LS.set('tl_shift',Date.now());toast(t('shiftOn'));say('sShift');flushMail();checkWeekly()};
+$('#shiftEnd').onclick=async()=>{
+  if(!calls.find(c=>c.id===cur.id)&&(cur.make||cur.plate||cur.account)&&!confirm(t('tUnsaved')))return;
+  stopGPS();
+  // the share sheet must open straight from the tap, so the file goes first and the emails after
+  const ok=await saveDbFile();LS.set('tl_shift',0);
+  toast(ok?t('shiftOff'):t('tSaved'));say('sShiftEnd');
+  if(mailOn()&&S.mailBk!=='0')await mailBackup();
+  await flushMail();await checkWeekly();shiftStat();
+};
+
+// ---------- email: each call, weekly Excel, end-of-shift backup (via FormSubmit) ----------
+const MAIL='https://formsubmit.co/';
+const mailOn=()=>/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(S.email||'');
+function queueMail(job){if(!mailOn()||S.mailCall==='0')return;const q=LS.get('tl_out',[]).filter(j=>!(j.type===job.type&&j.id===job.id));q.push(job);LS.set('tl_out',q);flushMail()}
+function callFields(c){const p=price(c),o={};
+  COLS.forEach(([k,en])=>{let v=['net','hst','total'].includes(k)?p[k].toFixed(2):(k==='account'?an(c.account,1):c[k]);if(k==='kmTo')v=p.kmTo;if(k==='kmTow')v=p.kmTow;if(v!==''&&v!=null)o[en]=String(v)});
+  if(c.notes)o.Notes=c.notes;o.Driver=[S.driverName,S.driverNo&&'#'+S.driverNo,S.truckNo&&'Truck '+S.truckNo].filter(Boolean).join(' ');return o}
+async function postJSON(d,keepalive){const r=await fetch(MAIL+'ajax/'+encodeURIComponent(S.email),{method:'POST',keepalive:!!keepalive,headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({...d,_template:'table',_captcha:'false'})});
+  const j=await r.json().catch(()=>({}));if(!r.ok||String(j.success)==='false')throw new Error(j.message||r.status);return j}
+let flushing=false;
+async function flushMail(keepalive){
+  if(flushing||!mailOn()||!navigator.onLine)return;flushing=true;
+  try{let q=LS.get('tl_out',[]);
+    for(const job of q.slice()){const c=calls.find(x=>x.id===job.id);
+      if(c)try{await postJSON({_subject:`TowLog ${job.upd?'(updated) ':''}call ${c.date} ${c.timeStart||''} · ${[c.make,c.model,c.plate].filter(Boolean).join(' ')} · ${$f(price(c).net)}`,...callFields(c)},keepalive)}catch(e){$('#mailStat').textContent='✉️ '+e.message;break}
+      q=q.filter(j=>j!==job);LS.set('tl_out',q)}
+  }finally{flushing=false;shiftStat()}
+}
+// attachments go through a normal form post into a hidden frame (FormSubmit's documented upload path)
+function postWithFile(fields,file){return new Promise(res=>{
+  const f=document.createElement('form');f.method='POST';f.action=MAIL+encodeURIComponent(S.email);f.enctype='multipart/form-data';f.target='mailFrame';f.className='hide';
+  Object.entries({...fields,_template:'table',_captcha:'false'}).forEach(([k,v])=>{const i=document.createElement('input');i.type='hidden';i.name=k;i.value=v;f.appendChild(i)});
+  try{const dt=new DataTransfer();dt.items.add(file);const i=document.createElement('input');i.type='file';i.name='attachment';i.files=dt.files;f.appendChild(i)}catch(e){}
+  document.body.appendChild(f);let done=false;const fin=()=>{if(done)return;done=true;f.remove();res()};
+  $('#mailFrame').onload=fin;setTimeout(fin,20000);f.submit()})}
+function csvOf(rows){const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+  return '\ufeff'+[COLS.map(c=>q(c[1])).join(','),...rows.map(r=>COLS.map(([k])=>q(MONEY.includes(k)?r[k].toFixed(2):r[k])).join(','))].join('\r\n')}
+// weekly report (Mon–Sun) is sent the first time the app runs after the week ends
+async function checkWeekly(){
+  if(!mailOn()||S.mailWeek==='0'||!navigator.onLine)return;
+  const mon=new Date(mondayOf(new Date())+'T12:00:00');mon.setDate(mon.getDate()-7);const s=iso(mon),e=new Date(mon);e.setDate(e.getDate()+6);const en=iso(e);
+  if(LS.get('tl_wk','')===s)return;const rows=repRows(s,en,1);if(!rows.length){LS.set('tl_wk',s);return}
+  const sum=k=>r2(rows.reduce((a,r)=>a+(+r[k]||0),0));
+  await postWithFile({_subject:`TowLog weekly report ${s} → ${en}`,Period:`${s} → ${en}`,Driver:S.driverName||'',Calls:rows.length,'Total net (excl. HST)':sum('net').toFixed(2),HST:sum('hst').toFixed(2),'Total invoice':sum('total').toFixed(2),'Cash collected':sum('collected').toFixed(2),'Km to vehicle / towed':`${sum('kmTo')} / ${sum('kmTow')}`},
+    new File([csvOf(rows)],`TowLog_week_${s}_${en}.csv`,{type:'text/csv'}));
+  LS.set('tl_wk',s);toast(t('wkSent'));
+}
+async function mailBackup(){
+  if(!navigator.onLine)return;const d=today(),todays=calls.filter(c=>c.date===d);
+  await postWithFile({_subject:`TowLog end of shift ${d} · ${todays.length} calls · ${$f(r2(todays.reduce((a,c)=>a+price(c).net,0)))}`,Date:d,'Calls today':todays.length,'Calls in database':calls.length,Note:'Attached: TowLog database (without photos). To restore: TowLog → Start shift → Load database.'},
+    new File([await backupBlob(false)],bkName(),{type:'application/json'}));
+}
+$('#mailTest').onclick=async()=>{if(!mailOn()){toast(t('mailBad'));return}$('#mailStat').textContent=t('fbSending');
+  try{await postJSON({_subject:'TowLog test email',Message:'Your TowLog emails are working.'});$('#mailStat').textContent=t('mailOk')}catch(e){$('#mailStat').textContent='✉️ '+e.message}};
+// leaving the app: push any unsent call emails (small, so they fit in a keepalive request)
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flushMail(true);else{flushMail();checkWeekly()}});
+addEventListener('online',()=>flushMail());
 
 // ---------- feedback (FormSubmit relays the form to the owner's inbox; mail app as fallback) ----------
 const FEEDBACK_TO='m.f.atipey@gmail.com';
@@ -899,7 +1028,9 @@ function show(v){$$('main>section').forEach(s=>s.classList.toggle('hide',s.id!==
 $$('nav button').forEach(b=>b.onclick=()=>show(b.dataset.v));
 let tt;function toast(m){const el=$('#toast');el.textContent=m;el.style.display='block';clearTimeout(tt);tt=setTimeout(()=>el.style.display='none',3500)}
 
-buildUI();checkReport();checkBackup();takeShared();
+buildUI();checkReport();checkBackup();takeShared();shiftStat();flushMail();checkWeekly();
+// fresh install (no calls on this phone): offer to load the database first
+if(!calls.length)$('#startModal').classList.add('show');
 if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
