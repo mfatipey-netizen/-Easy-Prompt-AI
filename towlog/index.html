@@ -86,13 +86,14 @@ textarea{min-height:60px;resize:vertical}
 .hint{font-size:12px;color:var(--mut)}
 .guide h3{font-size:15px;margin:16px 0 6px;color:var(--tx)}.guide ol,.guide ul{margin:0;padding-inline-start:22px}.guide li{margin:4px 0}
 .guide .tip{background:#0b1220;border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:10px;font-size:14px}
-.ac{position:absolute;left:0;right:0;top:100%;z-index:20;background:#0b1220;border:1px solid var(--acc);border-radius:10px;margin-top:2px;max-height:260px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.ac{overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;position:absolute;left:0;right:0;top:100%;z-index:20;background:#0b1220;border:1px solid var(--acc);border-radius:10px;margin-top:2px;max-height:260px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.5)}
 .ac button{display:block;width:100%;text-align:start;background:none;border:0;border-bottom:1px solid var(--line);color:var(--tx);padding:12px;font-size:16px;font-family:inherit}
 .ac button:last-child{border-bottom:0}.ac button b{color:var(--acc)}.ac button small{color:var(--mut);margin-inline-start:6px}
 .ocrbox{margin-top:10px;background:#0b1220;border:2px solid var(--acc);border-radius:12px;padding:12px}
 .ocrbox label{display:flex;align-items:center;gap:10px;font-size:16px;color:var(--tx);margin:6px 0}.ocrbox input[type=checkbox]{width:auto;transform:scale(1.4)}
 .ocrbox input.v{flex:1}
 .shift{border-color:var(--ok)}
+#todaySum{grid-template-columns:repeat(3,1fr)}#todaySum b{font-size:17px}
 .stars{display:flex;gap:4px}.stars button{background:none;border:0;font-size:28px;padding:0 2px;color:#475569}.stars button.on{color:var(--acc)}
 .hide{display:none!important}
 @media print{
@@ -113,16 +114,28 @@ textarea{min-height:60px;resize:vertical}
 
 <main>
 <!-- ================= CALL ================= -->
-<section id="v-call">
+<section id="v-home">
   <div id="reportBanner" class="banner hide"></div>
-
+  <div class="row" style="margin-bottom:12px;flex-direction:column">
+    <button class="btn acc big" id="resumeBtn" style="font-size:20px;padding:20px"></button>
+    <button class="btn ok big" id="homeNew" data-i="newCall" style="font-size:22px;padding:22px"></button>
+  </div>
+  <div class="card">
+    <h2 data-i="todayT"></h2>
+    <div class="sum" id="todaySum"></div>
+    <div class="list" id="todayList"></div>
+  </div>
   <div class="card shift">
     <div class="row">
-      <button class="btn ok big" id="shiftStart" data-i="shiftStart"></button>
+      <button class="btn big" id="shiftStart" data-i="shiftStart"></button>
       <button class="btn bad big" id="shiftEnd" data-i="shiftEnd"></button>
     </div>
     <p class="hint" id="shiftStat"></p>
   </div>
+</section>
+
+<section id="v-call" class="hide">
+  <button class="btn" id="backHome" data-i="backHome" style="margin-bottom:10px"></button>
 
   <div class="card disp">
     <h2 data-i="dispT"></h2>
@@ -157,6 +170,8 @@ textarea{min-height:60px;resize:vertical}
       <div class="f"><label data-i="timeEnd"></label><input type="time" id="f_timeEnd" class="ltr"></div>
       <div class="f"><label data-i="kmTo"></label><input id="f_kmTo" class="ltr" inputmode="decimal"></div>
       <div class="f"><label data-i="kmTow"></label><input id="f_kmTow" class="ltr" inputmode="decimal"></div>
+      <div class="f"><label>REM</label><input id="f_rem" class="ltr" inputmode="decimal"><button class="mic" data-k="rem" type="button">🎤</button></div>
+      <div class="f"><label>RPM</label><input id="f_rpm" class="ltr" inputmode="decimal"><button class="mic" data-k="rpm" type="button">🎤</button></div>
     </div>
   </div>
 
@@ -276,7 +291,7 @@ textarea{min-height:60px;resize:vertical}
 <button class="voicebar" id="voiceAll">🎤</button>
 
 <nav>
-  <button data-v="call" class="on"><b>📝</b><span data-i="navCall"></span></button>
+  <button data-v="home" class="on"><b>🏠</b><span data-i="navCall"></span></button>
   <button data-v="log"><b>📋</b><span data-i="navLog"></span></button>
   <button data-v="rep"><b>📊</b><span data-i="navRep"></span></button>
   <button data-v="set"><b>⚙️</b><span data-i="navSet"></span></button>
@@ -350,7 +365,7 @@ const L={en:{
  voiceHint:'Big blue 🎤 = say several fields at once, e.g. “account cash, make Honda, model Civic, colour red, plate C X R T 4 5 2, reason flat tire”. The 🎤 on plate, VIN and address fields always listens in English.',
  setT:'Driver / sheet header',ratesT:'Rates',ratesHint:'Km to vehicle: first km free for every account, extra km at the account rate. Km towed: free km depend on the account, extra km at the account rate. Every call adds the base fee.',
  backupT:'Database file',backupHint:'Save the whole database (with photos) to iCloud Drive / Google Drive, or load it back after reinstalling or on a new phone.',exp:'💾 Save database',imp:'📂 Load database',
- navCall:'Call',navLog:'Log',navRep:'Report',navSet:'Settings',
+ navCall:'Today',todayT:'📅 Today’s calls',backHome:'← Today',tResume:'▶ Continue call',noToday:'No calls yet today.',dayTotal:'Today (net)',navLog:'Log',navRep:'Report',navSet:'Settings',
  alarmH:'COLLECT CASH FIRST',alarmP:'Collect payment BEFORE hooking / towing the vehicle.',collectedBtn:'✅ Collected',later:'Close',acctEst:'account · estimate updates with km',extraKm:'Extra km',
  base:'Base fee (call accepted)',toVeh:'To vehicle',towed:'Towed',free:'free',tNet:'Total net (excl. HST)',tTot:'Total',payT:'Pay estimate',pickAcct:'Select the account type to calculate.',
  gpsOff:'GPS off',noGps:'No GPS',
@@ -373,7 +388,7 @@ const L={en:{
 <h3>3. Filling details hands-free</h3><ul><li>Big blue <b>🎤</b>: say several fields at once, e.g. “make Honda, model Civic, colour red, reason flat tire”.</li><li>Small 🎤 next to a field fills just that field. Plate/VIN: spell it (“C X R T 4 5 2”).</li><li><b>iPhone:</b> Apple blocks the app’s own microphone, so the 🎤 opens the keyboard — tap the 🎤 on the keyboard and speak (turn on Settings → General → Keyboard → Enable Dictation).</li><li><b>📷 Take photo</b> of the rear of the vehicle — the app reads the plate, the make/model badges and a VIN, then asks you to confirm. Close, straight-on photos in good light work best. <b>▥ Scan VIN</b> reads the door-jamb barcode (Android).</li></ul>
 <h3>4. Pay calculation</h3><ul><li>$50 base for every call.</li><li>Km to vehicle: first 5 km free (all accounts).</li><li>Km towed free: Basic 10, Plus 200, Premium 300, Cash 0.</li><li>Extra km (to vehicle and towed): Plus/Premium $2.50, Basic/Cash $4.50. HST 13% shown separately. All editable in Settings.</li></ul>
 <h3>5. Save & report</h3><ul><li><b>💾 Save call</b> at the end, then <b>＋ New call</b>.</li><li><b>Report</b> tab: every 2 weeks a table with totals → <b>Excel (CSV)</b> or <b>Print/PDF</b>.</li></ul>
-<h3>6. Backup & email</h3><ul><li><b>Settings → Email</b>: enter your email and tap <b>Send test email</b>, then click <b>Activate</b> in the email you get (check Spam). From then on every saved call is emailed to you, and each Monday you get last week’s report as an Excel (CSV) file.</li><li><b>▶ Start</b> (top of the Call page): on a new phone or after reinstalling, tap <b>Load database</b> and pick your latest database file.</li><li><b>⏹ Exit & back up</b>: saves the whole database — choose <b>Save to Files → iCloud Drive</b> (or Google Drive) — and emails it to you too.</li></ul>
+<h3>6. Backup & email</h3><ul><li><b>Settings → Email</b>: enter your email and tap <b>Send test email</b>, then click <b>Activate</b> in the email you get (check Spam). From then on every saved call is emailed to you, and each Monday you get last week’s report as an Excel (CSV) file.</li><li><b>▶ Start</b> (on the Today page): on a new phone or after reinstalling, tap <b>Load database</b> and pick your latest database file.</li><li><b>⏹ Exit & back up</b>: saves the whole database — choose <b>Save to Files → iCloud Drive</b> (or Google Drive) — and emails it to you too.</li></ul>
 <div class="tip">🔒 Your data stays only on <b>your</b> phone — nobody else sees it. Use <b>Settings → Export backup</b> regularly (and before changing phones).</div>
 <div class="tip">⚠️ Don’t type while driving — use voice, or fill details when parked.</div>`
 },fa:{
@@ -392,7 +407,7 @@ const L={en:{
  voiceHint:'🎤 آبی بزرگ = چند فیلد را یک‌جا بگو، مثلاً «اکانت کش، سازنده تویوتا، مدل کرولا، رنگ سفید، علت پنچری، مبدأ … مقصد …». میکروفونِ کنار پلاک، VIN و آدرس‌ها همیشه انگلیسی گوش می‌دهد.',
  setT:'مشخصات راننده / سربرگ',ratesT:'نرخ‌ها',ratesHint:'مسافت تا خودرو: چند کیلومتر اول برای همه رایگان، مازاد با نرخ همان اکانت. مسافت حمل: کیلومتر رایگان بسته به اکانت، مازاد با نرخ همان اکانت. هزینهٔ ثابت قبول کال به همه اضافه می‌شود.',
  backupT:'فایل دیتابیس',backupHint:'کل دیتابیس (با عکس‌ها) را در iCloud Drive یا Google Drive ذخیره کن، یا بعد از نصب دوباره یا روی گوشی جدید لودش کن.',exp:'💾 ذخیرهٔ دیتابیس',imp:'📂 لود دیتابیس',
- navCall:'کال',navLog:'لیست',navRep:'گزارش',navSet:'تنظیمات',
+ navCall:'امروز',todayT:'📅 کال‌های امروز',backHome:'→ امروز',tResume:'▶ ادامهٔ کال',noToday:'امروز هنوز کالی ثبت نشده.',dayTotal:'جمع امروز (خالص)',navLog:'لیست',navRep:'گزارش',navSet:'تنظیمات',
  alarmH:'اول پول نقد را بگیر!',alarmP:'قبل از بستن و حمل خودرو، اول وجه نقد را دریافت کن.',collectedBtn:'✅ دریافت شد',later:'بستن',acctEst:' · مبلغ تخمینی با کیلومتر به‌روز می‌شود',extraKm:'کیلومتر مازاد',
  base:'هزینهٔ ثابت قبول کال',toVeh:'تا خودرو',towed:'حمل',free:'رایگان',tNet:'جمع خالص (بدون HST)',tTot:'جمع کل',payT:'محاسبهٔ مبلغ',pickAcct:'برای محاسبه نوع اکانت را انتخاب کن.',
  gpsOff:'GPS خاموش',noGps:'GPS ندارد',
@@ -415,7 +430,7 @@ const L={en:{
 <h3>۳. پر کردن بدون دست</h3><ul><li><b>🎤 آبی بزرگ</b>: چند فیلد را یک‌جا بگو، مثلاً «سازنده تویوتا، مدل کرولا، رنگ سفید، علت پنچری».</li><li>🎤 کوچک کنار هر فیلد فقط همان فیلد را پر می‌کند. پلاک و VIN را حرف‌به‌حرف انگلیسی بگو («C X R T 4 5 2»).</li><li><b>آیفون:</b> اپل میکروفونِ خودِ برنامه را می‌بندد، پس 🎤 کیبورد را باز می‌کند — روی 🎤 کیبورد بزن و بگو (Settings ← General ← Keyboard ← Enable Dictation روشن باشد).</li><li><b>📷 گرفتن عکس</b> از پشت خودرو — برنامه پلاک، نوشتهٔ برند و مدل و VIN را می‌خواند و برای تأیید نشانت می‌دهد. عکس نزدیک، روبه‌رو و در نور خوب بهتر خوانده می‌شود. <b>▥ اسکن VIN</b> بارکد کنار در را می‌خواند (اندروید).</li></ul>
 <h3>۴. محاسبهٔ مبلغ</h3><ul><li>۵۰ دلار ثابت برای هر کال.</li><li>مسافت تا خودرو: ۵ کیلومتر اول برای همه رایگان.</li><li>مسافت حمل رایگان: بیسیک ۱۰، پلاس ۲۰۰، پریمیوم ۳۰۰، کش ۰ کیلومتر.</li><li>کیلومتر مازاد (هم تا خودرو هم حمل): پلاس و پریمیوم ۲٫۵ دلار، بیسیک و کش ۴٫۵ دلار. HST ‏۱۳٪ جدا نشان داده می‌شود. همه در تنظیمات قابل تغییرند.</li></ul>
 <h3>۵. ذخیره و گزارش</h3><ul><li>آخر کار <b>💾 ذخیرهٔ کال</b>، بعد <b>＋ کال جدید</b>.</li><li>زبانهٔ <b>گزارش</b>: هر دو هفته یک جدول با جمع‌ها ← <b>اکسل (CSV)</b> یا <b>چاپ/PDF</b>.</li></ul>
-<h3>۶. پشتیبان و ایمیل</h3><ul><li><b>تنظیمات ← ایمیل</b>: ایمیلت را وارد کن و <b>ارسال ایمیل آزمایشی</b> را بزن، بعد در ایمیلی که می‌آید روی <b>Activate</b> بزن (Spam را هم ببین). از آن به بعد هر کال ذخیره‌شده برایت ایمیل می‌شود و هر دوشنبه گزارش هفتهٔ قبل به‌صورت فایل اکسل (CSV) می‌آید.</li><li><b>▶ شروع</b> (بالای صفحهٔ کال): روی گوشی جدید یا بعد از نصب دوباره، <b>لود دیتابیس</b> را بزن و آخرین فایل دیتابیس را انتخاب کن.</li><li><b>⏹ خروج و پشتیبان</b>: کل دیتابیس را ذخیره می‌کند — <b>Save to Files ← iCloud Drive</b> (یا Google Drive) را انتخاب کن — و برایت ایمیل هم می‌کند.</li></ul>
+<h3>۶. پشتیبان و ایمیل</h3><ul><li><b>تنظیمات ← ایمیل</b>: ایمیلت را وارد کن و <b>ارسال ایمیل آزمایشی</b> را بزن، بعد در ایمیلی که می‌آید روی <b>Activate</b> بزن (Spam را هم ببین). از آن به بعد هر کال ذخیره‌شده برایت ایمیل می‌شود و هر دوشنبه گزارش هفتهٔ قبل به‌صورت فایل اکسل (CSV) می‌آید.</li><li><b>▶ شروع</b> (در صفحهٔ امروز): روی گوشی جدید یا بعد از نصب دوباره، <b>لود دیتابیس</b> را بزن و آخرین فایل دیتابیس را انتخاب کن.</li><li><b>⏹ خروج و پشتیبان</b>: کل دیتابیس را ذخیره می‌کند — <b>Save to Files ← iCloud Drive</b> (یا Google Drive) را انتخاب کن — و برایت ایمیل هم می‌کند.</li></ul>
 <div class="tip">🔒 اطلاعاتت فقط روی گوشی <b>خودت</b> می‌ماند و کس دیگری نمی‌بیند. از <b>تنظیمات ← گرفتن پشتیبان</b> مرتب (و قبل از عوض کردن گوشی) استفاده کن.</div>
 <div class="tip">⚠️ موقع رانندگی تایپ نکن؛ از صدا استفاده کن یا وقتی پارک کردی پر کن.</div>`
 }};
@@ -425,8 +440,8 @@ const an=(a,en)=>ACCTS[a]?ACCTS[a][en||S.ui!=='fa'?0:1]:'';
 const REASONS=[['Accident / collision','تصادف'],['Flat tire (no spare)','پنچری (بدون زاپاس)'],['Multiple flat tires','چند لاستیک پنچر'],['Dead battery / no start','باتری خالی / روشن نمی‌شود'],['Engine failure','خرابی موتور'],['Overheating','جوش آوردن موتور'],['Transmission failure','خرابی گیربکس'],['Brake failure','خرابی ترمز'],['Electrical failure','خرابی برق'],['Fuel issue / out of fuel','مشکل سوخت / تمام شدن بنزین'],['Wrong fuel','سوخت اشتباه'],['Steering / suspension damage','آسیب فرمان / جلوبندی'],['Broken axle / wheel','شکستن اکسل / چرخ'],['Timing belt / chain','تسمه / زنجیر تایم'],['Clutch failure','خرابی کلاچ'],['Coolant / oil leak','نشتی آب / روغن'],['Lockout – keys locked in','سوئیچ داخل ماشین مانده'],['Lost / broken key','گم شدن / شکستن سوئیچ'],['Stuck – ditch / snow / mud (winch)','گیر کردن در گودال / برف / گل (وینچ)'],['Vehicle fire damage','آتش‌سوزی'],['Flood / water damage','آب‌گرفتگی'],['Stolen / recovered','سرقتی / پیدا شده'],['Impound / illegal parking','توقیف / پارک غیرمجاز'],['Private property tow','حمل از ملک خصوصی'],['Dealer / repair shop transfer','انتقال به نمایندگی / تعمیرگاه'],['Mechanical – unknown','مکانیکی – نامشخص'],['Other','سایر']];
 // [key, English, Persian, fullWidth, options, ltr]
 const VEH=[['make','Make','سازنده'],['model','Model','مدل'],['colour','Colour','رنگ'],['plate','Plate','پلاک',0,0,1],['vin','VIN','شماره شاسی (VIN)',1,0,1]];
-const JOB=[['location','Location','مبدأ (محل خودرو)',1],['destination','Destination','مقصد',1],['hirer','Name of hirer','سفارش‌دهنده'],['consentee','Name of consentee','رضایت‌دهنده'],['receiver','Veh receiver: business & person','تحویل‌گیرنده (شرکت و شخص)',1],['rem','REM','REM',0,0,1],['rpm','RPM','RPM',0,0,1],['invoice','Invoice #','شماره فاکتور',0,0,1],['towImpound','Tow or impound','حمل یا توقیف',0,[['','—','—'],['Tow','Tow','حمل'],['Impound','Impound','توقیف']]],['whoAuth','Who auth. impound?','مجوز توقیف از طرف'],['passenger','Passenger (legal full name)','مسافر (نام کامل)'],['passReason','Reason for passenger','علت سوار کردن مسافر']];
-const EN_MIC=new Set(['make','model','plate','vin','location','destination','receiver','hirer','consentee','rem','rpm','invoice','whoAuth','passenger']);
+const JOB=[['location','Location','مبدأ (محل خودرو)',1],['destination','Destination','مقصد',1],['owner','Owner (name / phone)','مالک (نام / تلفن)',1],['receiver','Veh receiver: business & person','تحویل‌گیرنده (شرکت و شخص)',1],['invoice','Invoice #','شماره فاکتور',0,0,1],['towImpound','Tow or impound','حمل یا توقیف',0,[['','—','—'],['Tow','Tow','حمل'],['Impound','Impound','توقیف']]]];
+const EN_MIC=new Set(['make','model','plate','vin','location','destination','receiver','owner','rem','rpm','invoice']);
 const SET=[['driverName','Driver name','نام راننده'],['driverNo','Driver No.','شماره راننده'],['truckNo','Truck No.','شماره کامیون'],['licenseNo','License No.','شماره گواهینامه'],['tssea','TSSEA certificate No. (TD-)','شماره گواهی TSSEA (TD-)'],['company','Tow driver company name','نام شرکت'],['periodStart','Pay period start date','تاریخ شروع دورهٔ دوهفته‌ای','date']];
 const RATES=[['base','Base fee per call ($)','هزینهٔ ثابت هر کال ($)',50],['freeTo','Free km to vehicle (all)','کیلومتر رایگان تا خودرو (همه)',5],['freeBasic','Basic: free tow km','بیسیک: کیلومتر رایگان حمل',10],['freePlus','Plus: free tow km','پلاس: کیلومتر رایگان حمل',200],['freePremium','Premium: free tow km','پریمیوم: کیلومتر رایگان حمل',300],['freeCash','Cash: free tow km','کش: کیلومتر رایگان حمل',0],['rateLow','Plus/Premium $ per extra km','پلاس/پریمیوم: $ هر کیلومتر مازاد',2.5],['rateHigh','Basic/Cash $ per extra km','بیسیک/کش: $ هر کیلومتر مازاد',4.5],['hst','HST %','HST %',13]];
 const lb=a=>S.ui==='fa'?a[2]:a[1];
@@ -485,9 +500,9 @@ Object.keys(CARS).forEach(k=>CARS[k]=CARS[k].split(','));
 const MAKES=Object.keys(CARS);
 const findMake=v=>MAKES.find(m=>m.toLowerCase()===String(v||'').trim().toLowerCase());
 // prefix matches first, then matches at the start of a word, then anywhere
-function rank(list,q,key=x=>x){q=q.trim().toLowerCase();if(!q)return list.slice(0,30);
+function rank(list,q,key=x=>x){q=q.trim().toLowerCase();if(!q)return list.slice(0,80);
   const a=[],b=[],c=[];list.forEach(x=>{const s=key(x).toLowerCase();if(s.startsWith(q))a.push(x);else if(s.split(/[\s\-.]+/).some(w=>w.startsWith(q)))b.push(x);else if(s.replace(/[\s\-.]/g,'').includes(q.replace(/[\s\-.]/g,'')))c.push(x)});
-  return a.concat(b,c).slice(0,30)}
+  return a.concat(b,c).slice(0,80)}
 function suggest(k){
   const el=$('#f_'+k),q=el.value;
   if(k==='make')return rank(MAKES,q).map(m=>({v:m,label:m}));
@@ -501,21 +516,30 @@ function openAC(k){
   closeAC();const el=$('#f_'+k),items=suggest(k);if(!items.length)return;
   const box=document.createElement('div');box.className='ac';box.id='ac';box.dataset.k=k;
   box.innerHTML=items.map((o,i)=>`<button type="button" data-i="${i}" dir="ltr">${hl(o.label,el.value)}${o.sub?`<small>${esc(o.sub)}</small>`:''}</button>`).join('');
-  box.addEventListener('pointerdown',e=>{const b=e.target.closest('button');if(!b)return;e.preventDefault();const o=items[+b.dataset.i];
+  const pick=btn=>{const o=items[+btn.dataset.i];
     if(k==='make'){if(o.v!==cur.make){cur.model=''}cur.make=o.v}else{cur.model=o.v;if(o.make)cur.make=o.make}
-    saveCur();closeAC();fillForm();if(k==='make'){$('#f_model').focus();openAC('model')}});
+    saveCur();closeAC();fillForm();if(k==='make'){$('#f_model').focus();openAC('model')}};
+  // touch: a drag scrolls the list, only a tap picks; touchend is cancelled so no stray click/blur follows
+  let sy=null;
+  box.addEventListener('touchstart',e=>{sy=e.touches[0].clientY},{passive:true});
+  box.addEventListener('touchmove',e=>{if(sy!==null&&Math.abs(e.touches[0].clientY-sy)>8)sy=null},{passive:true});
+  box.addEventListener('touchend',e=>{const btn=e.target.closest('button');if(!btn)return;e.preventDefault();if(sy!==null)pick(btn);sy=null});
+  // mouse: keep focus in the field, pick on click
+  box.addEventListener('mousedown',e=>e.preventDefault());
+  box.addEventListener('click',e=>{const btn=e.target.closest('button');if(btn)pick(btn)});
   el.parentNode.appendChild(box);
 }
 function closeAC(k){const b=$('#ac');if(b&&(!k||b.dataset.k===k))b.remove()}
 function wireAC(){['make','model'].forEach(k=>{const el=$('#f_'+k);el.setAttribute('autocomplete','off');el.setAttribute('autocapitalize','words');
   el.addEventListener('focus',()=>openAC(k));el.addEventListener('input',()=>openAC(k));
-  el.addEventListener('blur',()=>setTimeout(()=>{closeAC(k);if(k==='make'){const m=findMake(el.value);if(m&&m!==cur.make){cur.make=m;saveCur();fillForm()}}},150))})}
+  el.addEventListener('blur',()=>setTimeout(()=>{if(document.activeElement===el)return;closeAC(k);if(k==='make'){const m=findMake(el.value);if(m&&m!==cur.make){cur.make=m;saveCur();fillForm()}}},400))})}
 
 // ---------- storage ----------
 const LS={get:(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){toast(t('tStorage'))}}};
 let calls=LS.get('tl_calls',[]), S=Object.assign({ui:'en',lang:'en-CA',speak:'1',email:'',mailCall:'1',mailWeek:'1',mailBk:'1',periodStart:mondayOf(new Date())},LS.get('tl_set',{}));
 if(!S.enDefault){S.ui='en';S.lang='en-CA';S.enDefault=1}
 RATES.forEach(r=>{if(S[r[0]]===undefined)S[r[0]]=r[3]});
+calls.forEach(c=>{if(!c.owner&&c.consentee)c.owner=c.consentee});
 let cur=LS.get('tl_cur',null)||blank();
 function blank(){return{id:'c'+Date.now(),date:today(),account:'',reason:'',photos:[],stage:-1,kmTo:'',kmTow:'',cashOk:false}}
 function today(){return iso(new Date())}
@@ -550,7 +574,7 @@ function field([k,en,fa,full,opts,ltr]){
   const gps=(k==='location'||k==='destination')?`<button class="mic gps2" data-g="${k}" type="button">📍</button>`:'';
   return `<div class="${cls}">${lab}<input id="f_${k}" autocomplete="off"${ltr?' class="ltr"':' dir="auto"'}>${gps}<button class="mic" data-k="${k}" type="button">🎤</button></div>`;
 }
-const FIELDS=['timeStart','timeEnd','kmTo','kmTow','reason','notes','collected',...VEH.map(f=>f[0]),...JOB.map(f=>f[0])];
+const FIELDS=['timeStart','timeEnd','kmTo','kmTow','rem','rpm','reason','notes','collected',...VEH.map(f=>f[0]),...JOB.map(f=>f[0])];
 function buildUI(){
   const fa=S.ui==='fa';document.documentElement.lang=fa?'fa':'en';document.documentElement.dir=fa?'rtl':'ltr';
   $('#langBtn').textContent=fa?'EN':'فا';
@@ -577,7 +601,7 @@ function fillForm(){
   renderStages();renderPrice();renderThumbs();
 }
 $('#cashOk').onchange=e=>{cur.cashOk=e.target.checked;saveCur()};
-$('#langBtn').onclick=()=>{S.ui=S.ui==='fa'?'en':'fa';saveSet();buildUI();if(!$('#v-set').classList.contains('hide'))fillSet();if(!$('#v-log').classList.contains('hide'))renderLog();if(!$('#v-rep').classList.contains('hide'))renderReport()};
+$('#langBtn').onclick=()=>{S.ui=S.ui==='fa'?'en':'fa';saveSet();buildUI();if(!$('#v-set').classList.contains('hide'))fillSet();if(!$('#v-log').classList.contains('hide'))renderLog();if(!$('#v-home').classList.contains('hide'))renderHome();if(!$('#v-rep').classList.contains('hide'))renderReport()};
 // only cash calls are collected by the driver; the main company pays Basic extra km
 function needCash(){return cur.account==='cash'}
 function setAccount(a){cur.account=a;saveCur();fillForm();if(needCash()&&!cur.cashOk)alarm()}
@@ -678,7 +702,7 @@ const FA_WORDS={'سفید':'White','مشکی':'Black','سیاه':'Black','نقر
  'تویوتا':'Toyota','هوندا':'Honda','فورد':'Ford','شورلت':'Chevrolet','شورولت':'Chevrolet','نیسان':'Nissan','هیوندای':'Hyundai','هیوندا':'Hyundai','کیا':'Kia','مزدا':'Mazda','بی ام و':'BMW','بنز':'Mercedes-Benz','مرسدس':'Mercedes-Benz','فولکس':'Volkswagen','دوج':'Dodge','جیپ':'Jeep','تسلا':'Tesla','لکسوس':'Lexus','آئودی':'Audi','آودی':'Audi','سوبارو':'Subaru','جی ام سی':'GMC','رم':'RAM','کرایسلر':'Chrysler','میتسوبیشی':'Mitsubishi','آکورا':'Acura','ولوو':'Volvo','مینی':'Mini','پورشه':'Porsche','لندرور':'Land Rover','کادیلاک':'Cadillac','لینکلن':'Lincoln','بیوک':'Buick','اینفینیتی':'Infiniti',
  'کرولا':'Corolla','کمری':'Camry','سیویک':'Civic','آکورد':'Accord','راو فور':'RAV4','سی آر وی':'CR-V','الانترا':'Elantra','سوناتا':'Sonata','توسان':'Tucson','سانتافه':'Santa Fe','اف ۱۵۰':'F-150','اف 150':'F-150','اسکیپ':'Escape','ماستنگ':'Mustang','سیلورادو':'Silverado','اکوینوکس':'Equinox','روگ':'Rogue','سنترا':'Sentra','آلتیما':'Altima','اپتیما':'Optima','سورنتو':'Sorento','فورته':'Forte','جتا':'Jetta','گلف':'Golf','مدل ۳':'Model 3','مدل 3':'Model 3','گرند کاروان':'Grand Caravan','سیهنا':'Sienna','اودیسه':'Odyssey'};
 const faTr=v=>{const k=v.trim().replace(/\s+/g,' ');return FA_WORDS[k]||v.replace(/\b\w/g,c=>c.toUpperCase())};
-const KEYS=[['account','account|acct|اکانت|حساب|نوع حساب|نوع اکانت'],['make','make|brand|سازنده|برند|مارک|ماشین'],['model','model|مدل'],['colour','colou?r|رنگ'],['plate','plate|license plate|پلاک'],['vin','vin|v i n|شاسی|شماره شاسی|وین'],['reason','reason|problem|issue|علت|دلیل|مشکل|خرابی'],['location','location|pick ?up|from|مبدا|مبدأ|محل'],['destination','destination|drop ?off|to address|مقصد'],['hirer','hirer|hired by|سفارش دهنده|سفارش‌دهنده'],['consentee','consentee|رضایت دهنده|رضایت‌دهنده'],['receiver','receiver|received by|تحویل گیرنده|تحویل‌گیرنده'],['invoice','invoice|فاکتور'],['kmTo','km to vehicle|distance to vehicle|kilometers to vehicle|کیلومتر تا ماشین|کیلومتر تا خودرو|فاصله تا ماشین'],['kmTow','km towed|tow distance|towed|kilometers towed|کیلومتر حمل|مسافت حمل|کیلومتر بکسل'],['rem','rem'],['rpm','rpm'],['notes','note|notes|توضیح|توضیحات|یادداشت'],['collected','cash collected|collected|دریافتی|مبلغ دریافتی']];
+const KEYS=[['account','account|acct|اکانت|حساب|نوع حساب|نوع اکانت'],['make','make|brand|سازنده|برند|مارک|ماشین'],['model','model|مدل'],['colour','colou?r|رنگ'],['plate','plate|license plate|پلاک'],['vin','vin|v i n|شاسی|شماره شاسی|وین'],['reason','reason|problem|issue|علت|دلیل|مشکل|خرابی'],['location','location|pick ?up|from|مبدا|مبدأ|محل'],['destination','destination|drop ?off|to address|مقصد'],['owner','owner|consentee|customer|مالک|صاحب'],['receiver','receiver|received by|تحویل گیرنده|تحویل‌گیرنده'],['invoice','invoice|فاکتور'],['kmTo','km to vehicle|distance to vehicle|kilometers to vehicle|کیلومتر تا ماشین|کیلومتر تا خودرو|فاصله تا ماشین'],['kmTow','km towed|tow distance|towed|kilometers towed|کیلومتر حمل|مسافت حمل|کیلومتر بکسل'],['rem','rem'],['rpm','rpm'],['notes','note|notes|توضیح|توضیحات|یادداشت'],['collected','cash collected|collected|دریافتی|مبلغ دریافتی']];
 const ACCT_WORDS={cash:/cash|کش|نقد/i,basic:/basic|بیسیک|بیسیک/i,plus:/plus|پلاس/i,premium:/premi(um|er)|پریمیوم|پرمیوم|پریمیر/i};
 const B='(?<![\\p{L}\\p{N}])',E='(?![\\p{L}\\p{N}])';
 function parseVoice(s){
@@ -794,12 +818,12 @@ function parseDispatch(raw){
   if(/\bpremi(er|um)\b/i.test(at))out.account='premium';else if(/\bplus\b/i.test(at))out.account='plus';else if(/\b(basic|classic)\b/i.test(at))out.account='basic';else if(/\b(cash|credit card|c\.?o\.?d)\b/i.test(at))out.account='cash';
   const rs=val(/^(problem|reason|service( type)?|issue|complaint|tow reason|call type)\b/i);if(rs){const r=matchReason(rs);if(r)out.reason=r;out.notes=rs}
   const cn=val(/^(call|job|po|dispatch|reference|ref|case|work order)\s*(#|no\.?|number|id)/i);if(cn)out.callNo=cn.split(' ')[0];
-  const cu=val(/^(member name|customer( name)?|caller( name)?|client( name)?|contact name|name)\b/i);if(cu)out.consentee=cu.split(/\s{2,}|\(|\d{3}/)[0].trim();
+  const cu=val(/^(member name|customer( name)?|caller( name)?|client( name)?|contact name|name)\b/i);if(cu)out.owner=cu.split(/\s{2,}|\(|\d{3}/)[0].trim();
   return out;
 }
 function applyDispatch(txt){
   const o=parseDispatch(txt),got=[];
-  ['location','destination','make','model','colour','plate','vin','reason','consentee'].forEach(k=>{if(o[k]){cur[k]=o[k];got.push(k)}});
+  ['location','destination','make','model','colour','plate','vin','reason','owner'].forEach(k=>{if(o[k]){cur[k]=o[k];got.push(k)}});
   if(o.kmTo!==undefined){cur.kmTo=o.kmTo;cur.kmToLocked=true;got.push('kmTo '+o.kmTo)}
   if(o.kmTow!==undefined){cur.kmTow=o.kmTow;cur.kmTowLocked=true;got.push('kmTow '+o.kmTow)}
   if(o.callNo){cur.notes=((cur.notes||'')+' Call# '+o.callNo).trim();got.push('call#')}
@@ -853,8 +877,23 @@ $('#saveBtn').onclick=()=>{
   cur.date=cur.date||today();cur.saved=Date.now();const i=calls.findIndex(c=>c.id===cur.id);
   const upd=i>=0;if(upd)calls[i]={...cur};else calls.push({...cur});saveCalls();toast(t('tSaved'));say('sSaved');
   queueMail({type:'call',id:cur.id,upd});
+  stopGPS();cur=blank();saveCur();fillForm();$('#dispMsg').textContent=t('dispHint');show('home');
 };
-$('#newBtn').onclick=()=>{if(!calls.find(c=>c.id===cur.id)&&(cur.make||cur.plate||cur.account)&&!confirm(t('tUnsaved')))return;stopGPS();cur=blank();saveCur();fillForm();$('#dispMsg').textContent=t('dispHint');scrollTo(0,0)};
+const isDraft=()=>!calls.find(c=>c.id===cur.id)&&!!(cur.account||cur.make||cur.plate||cur.location||cur.timeStart);
+function newCall(){if(isDraft()&&!confirm(t('tUnsaved')))return;stopGPS();cur=blank();saveCur();fillForm();$('#dispMsg').textContent=t('dispHint');show('call')}
+$('#homeNew').onclick=newCall;
+$('#resumeBtn').onclick=()=>show('call');
+$('#backHome').onclick=()=>show('home');
+function renderHome(){
+  const d=today(),rows=calls.filter(c=>c.date===d).sort((a,b)=>(a.timeStart||'').localeCompare(b.timeStart||''));
+  const draft=isDraft();$('#resumeBtn').classList.toggle('hide',!draft);
+  if(draft)$('#resumeBtn').textContent=`${t('tResume')}: ${[an(cur.account),cur.make,cur.model,cur.plate].filter(Boolean).join(' ')||cur.timeStart||''}`;
+  const net=r2(rows.reduce((a,c)=>a+price(c).net,0)),cash=r2(rows.reduce((a,c)=>a+(+c.collected||0),0));
+  $('#todaySum').innerHTML=`<div>${t('sCalls')}<b>${rows.length}</b></div><div>${t('dayTotal')}<b>${$f(net)}</b></div><div>${t('sCash')}<b>${$f(cash)}</b></div>`;
+  $('#todayList').innerHTML=rows.map(c=>`<div class="it" data-e="${c.id}"><div><b class="ltr" style="display:inline-block">${c.timeStart||''}${c.timeEnd?' – '+c.timeEnd:''}</b> <span class="chip c-${c.account}">${an(c.account)}</span><br><small>${esc([c.colour,c.make,c.model,c.plate].filter(Boolean).join(' ')||'—')}</small><br><small><bdi>${esc(c.location||'')}</bdi> ⇄ <bdi>${esc(c.destination||'')}</bdi></small></div><b class="ltr">${$f(price(c).net)}</b><button class="btn" data-e="${c.id}">✎</button></div>`).join('')||`<p class="hint">${t('noToday')}</p>`;
+}
+$('#todayList').onclick=e=>{const id=e.target.closest('[data-e]')?.dataset.e;if(!id)return;if(isDraft()&&!confirm(t('tUnsaved')))return;cur={...calls.find(c=>c.id===id)};saveCur();fillForm();show('call')};
+$('#newBtn').onclick=newCall;
 
 // ---------- log ----------
 const reasonLabel=r=>{const x=REASONS.find(z=>z[0]===r);return x?reasonText(x):(r||'')};
@@ -876,7 +915,7 @@ function periods(){
   for(let i=i1;i>=i0;i--){const s=new Date(+a+i*14*DAY+3*36e5),e=new Date(+s+13*DAY);out.push([iso(s),iso(e)])}
   return out;
 }
-const COLS=[['date','Date','تاریخ'],['timeStart','Time start','شروع'],['timeEnd','Time ended','پایان'],['account','Account','اکانت'],['reason','Reason','علت'],['make','Make','سازنده'],['model','Model','مدل'],['colour','Colour','رنگ'],['plate','Plate','پلاک'],['vin','VIN','VIN'],['location','Location','مبدأ'],['destination','Destination','مقصد'],['hirer','Hirer','سفارش‌دهنده'],['consentee','Consentee','رضایت‌دهنده'],['receiver','Veh receiver','تحویل‌گیرنده'],['rem','REM','REM'],['rpm','RPM','RPM'],['invoice','Invoice#','فاکتور'],['towImpound','Tow/Impound','حمل/توقیف'],['whoAuth','Who auth.','مجوز'],['kmTo','Km to veh','کیلومتر تا خودرو'],['kmTow','Km towed','کیلومتر حمل'],['net','Total net','خالص'],['hst','HST','HST'],['total','Total charged','جمع'],['collected','Total collected','نقد دریافتی']];
+const COLS=[['date','Date','تاریخ'],['timeStart','Time start','شروع'],['timeEnd','Time ended','پایان'],['account','Account','اکانت'],['reason','Reason','علت'],['make','Make','سازنده'],['model','Model','مدل'],['colour','Colour','رنگ'],['plate','Plate','پلاک'],['vin','VIN','VIN'],['location','Location','مبدأ'],['destination','Destination','مقصد'],['owner','Owner','مالک'],['receiver','Veh receiver','تحویل‌گیرنده'],['rem','REM','REM'],['rpm','RPM','RPM'],['invoice','Invoice#','فاکتور'],['towImpound','Tow/Impound','حمل/توقیف'],['kmTo','Km to veh','کیلومتر تا خودرو'],['kmTow','Km towed','کیلومتر حمل'],['net','Total net','خالص'],['hst','HST','HST'],['total','Total charged','جمع'],['collected','Total collected','نقد دریافتی']];
 const MONEY=['net','hst','total'];
 function repRows(s,e,en){return calls.filter(c=>c.date>=s&&c.date<=e).sort((a,b)=>(a.date+a.timeStart).localeCompare(b.date+b.timeStart)).map(c=>{const p=price(c);return{...c,...p,kmTo:p.kmTo,kmTow:p.kmTow,acct:c.account,account:an(c.account,en),reason:en?c.reason:reasonLabel(c.reason)}})}
 function renderReport(){
@@ -913,7 +952,7 @@ function fillSet(){[...SET,...RATES,['email'],['mailCall'],['mailWeek'],['mailBk
 function checkBackup(){
   const last=LS.get('tl_bk',0);if(!calls.length||Date.now()-last<7*864e5)return;
   const b=document.createElement('div');b.className='banner';b.innerHTML=`💾 <b>${t('bkRemind')}</b> <button class="btn acc" id="bkNow">${t('exp')}</button>`;
-  $('#v-call').prepend(b);$('#bkNow').onclick=()=>{$('#expBtn').click();b.remove()};
+  $('#v-home').prepend(b);$('#bkNow').onclick=()=>{$('#expBtn').click();b.remove()};
 }
 // ---------- database file (backup / load) ----------
 async function backupBlob(withPhotos){
@@ -1025,11 +1064,11 @@ $('#fbForm').onsubmit=async e=>{
 };
 
 // ---------- nav ----------
-function show(v){$$('main>section').forEach(s=>s.classList.toggle('hide',s.id!=='v-'+v));$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));$('#voiceAll').classList.toggle('hide',v!=='call');if(v==='log')renderLog();if(v==='rep')renderReport();if(v==='set')fillSet();scrollTo(0,0)}
+function show(v){$$('main>section').forEach(s=>s.classList.toggle('hide',s.id!=='v-'+v));$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));$('#voiceAll').classList.toggle('hide',v!=='call');if(v==='home'){renderHome();shiftStat()}if(v==='log')renderLog();if(v==='rep')renderReport();if(v==='set')fillSet();scrollTo(0,0)}
 $$('nav button').forEach(b=>b.onclick=()=>show(b.dataset.v));
 let tt;function toast(m){const el=$('#toast');el.textContent=m;el.style.display='block';clearTimeout(tt);tt=setTimeout(()=>el.style.display='none',3500)}
 
-buildUI();checkReport();checkBackup();takeShared();shiftStat();flushMail();checkWeekly();
+buildUI();show(isDraft()?'call':'home');checkReport();checkBackup();takeShared();shiftStat();flushMail();checkWeekly();
 // fresh install (no calls on this phone): offer to load the database first
 if(!calls.length)$('#startModal').classList.add('show');
 if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
