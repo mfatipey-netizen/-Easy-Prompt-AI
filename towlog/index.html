@@ -89,6 +89,9 @@ textarea{min-height:60px;resize:vertical}
 .ac{position:absolute;left:0;right:0;top:100%;z-index:20;background:#0b1220;border:1px solid var(--acc);border-radius:10px;margin-top:2px;max-height:260px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.5)}
 .ac button{display:block;width:100%;text-align:start;background:none;border:0;border-bottom:1px solid var(--line);color:var(--tx);padding:12px;font-size:16px;font-family:inherit}
 .ac button:last-child{border-bottom:0}.ac button b{color:var(--acc)}.ac button small{color:var(--mut);margin-inline-start:6px}
+.ocrbox{margin-top:10px;background:#0b1220;border:2px solid var(--acc);border-radius:12px;padding:12px}
+.ocrbox label{display:flex;align-items:center;gap:10px;font-size:16px;color:var(--tx);margin:6px 0}.ocrbox input[type=checkbox]{width:auto;transform:scale(1.4)}
+.ocrbox input.v{flex:1}
 .stars{display:flex;gap:4px}.stars button{background:none;border:0;font-size:28px;padding:0 2px;color:#475569}.stars button.on{color:var(--acc)}
 .hide{display:none!important}
 @media print{
@@ -165,6 +168,7 @@ textarea{min-height:60px;resize:vertical}
     <input type="file" id="vinIn" accept="image/*" capture="environment" class="hide">
     <div class="thumbs" id="thumbs"></div>
     <p class="hint" id="ocrMsg"></p>
+    <div id="ocrBox" class="ocrbox hide"></div>
   </div>
 
   <div class="card"><h2 data-i="vehT"></h2><div class="grid" id="vehGrid"></div></div>
@@ -280,6 +284,17 @@ textarea{min-height:60px;resize:vertical}
     </div>
   </div>
 </div>
+<div class="modal" id="voiceModal">
+  <div class="card">
+    <h2 data-i="vmT"></h2>
+    <p class="hint" data-i="vmHint"></p>
+    <textarea id="voiceTxt" dir="auto" style="min-height:140px" data-ip="vmPh"></textarea>
+    <div class="row" style="margin-top:10px">
+      <button class="btn blue big" id="voiceGo" data-i="dispApply"></button>
+      <button class="btn" id="voiceClose" data-i="later"></button>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -307,17 +322,17 @@ const L={en:{
  alarmH:'COLLECT CASH FIRST',alarmP:'Collect payment BEFORE hooking / towing the vehicle.',collectedBtn:'✅ Collected',later:'Close',acctEst:'account · estimate updates with km',extraKm:'Extra km',
  base:'Base fee (call accepted)',toVeh:'To vehicle',towed:'Towed',free:'free',tNet:'Total net (excl. HST)',tTot:'Total',payT:'Pay estimate',pickAcct:'Select the account type to calculate.',
  gpsOff:'GPS off',noGps:'No GPS',
- tChooseAcct:'Choose account type first',tSaved:'Saved ✓',tPhoto:'Photo saved',tPhotoFirst:'Take a photo of the plate / VIN first',tReading:'Reading text… (first time downloads the reader, ~10 s)',
+ tChooseAcct:'Choose account type first',tSaved:'Saved ✓',tPhoto:'Photo saved',tPhotoFirst:'Take a photo of the plate / VIN first',tReading:'Reading photo…',
  tFound:'Found',tCheck:'please check.',tNotFound:'Could not find a plate / VIN. Text:',tOcrNet:'The text reader needs internet the first time.',tNoVoice:'Voice input not supported in this browser (use Chrome / Safari).',
  tFilled:'Filled',tFields:'field(s)',tHeard:'Heard',tTry:'say e.g. “make Honda model Civic”',tCashQ:'Cash not marked as collected. Save anyway?',tUnsaved:'Current call is not saved. Start a new one?',
  tDelCall:'Delete this call?',tDelPhoto:'Delete photo?',tImported:'Imported ✓',tBadBackup:'Bad backup file',tImportQ:'Import calls? (merged with existing)',tLocNo:'Location unavailable',tStorage:'Storage full! Export a backup.',
  tNoBarcode:'No barcode found',tScanNo:'Barcode scan not supported here — use 🔎 Read plate/VIN',tScanFail:'Scan failed',tDispNone:'Nothing recognised — check the screenshot or paste the text.',tDispOk:'From dispatch:',
  repReady:'Your 2-week report is ready',open:'Open',
- sStart:'Call started. Drive safe.',sArrive:'Arrived. {0} kilometers to vehicle.',sTow:'Towing. Measuring distance.',sDrop:'Dropped. {0} kilometers towed. Total {1} dollars before tax.',sCashW:'Warning. {0} account. Collect cash before towing the vehicle.',sColl:'Cash collected.',sSaved:'Call saved.',sRep:'Your two week report is ready.',navHelp:'Guide',fbT:'💬 Suggestions & feedback',fbHint:'Your message goes straight to the app developer by email.',fbName:'Your name (optional)',fbEmail:'Your email (optional, for a reply)',fbType:'Type',fbRate:'Rate the app',fbMsg:'Your message',fbSend:'📨 Send',fbTypes:['Suggestion','Problem / bug','Criticism','Other'],fbSending:'Sending…',fbOk:'✅ Sent. Thank you!',fbFail:'Could not send (no internet?). Your mail app will open instead; if it does not, email:',fbEmpty:'Please write a message.',
+ sStart:'Call started. Drive safe.',sArrive:'Arrived. {0} kilometers to vehicle.',sTow:'Towing. Measuring distance.',sDrop:'Dropped. {0} kilometers towed. Total {1} dollars before tax.',sCashW:'Warning. {0} account. Collect cash before towing the vehicle.',sColl:'Cash collected.',sSaved:'Call saved.',sRep:'Your two week report is ready.',navHelp:'Guide',fbT:'💬 Suggestions & feedback',fbHint:'Your message goes straight to the app developer by email.',fbName:'Your name (optional)',fbEmail:'Your email (optional, for a reply)',fbType:'Type',fbRate:'Rate the app',fbMsg:'Your message',fbSend:'📨 Send',fbTypes:['Suggestion','Problem / bug','Criticism','Other'],fbSending:'Sending…',fbOk:'✅ Sent. Thank you!',fbFail:'Could not send (no internet?). Your mail app will open instead; if it does not, email:',fbEmpty:'Please write a message.',tKbMic:'Tap the 🎤 on your keyboard and speak.',vmT:'🎤 Say it',vmHint:'Tap the 🎤 on the keyboard and say the details, e.g. “make Honda model Civic colour red plate CXRT 452 reason flat tire”. Then tap Fill.',vmPh:'Speak with the keyboard 🎤 …',tNothing:'Could not read a plate, VIN or badge. Take the photo closer, straight on, in good light.',sFound:'Vehicle details found. Please check.',bkRemind:'It has been a week — save a backup of your calls.',
  guide:`<h2>📖 How to use TowLog</h2>
 <h3>1. First time</h3><ol><li>Open the link in Chrome (Android) or Safari (iPhone) → menu → <b>Add to Home Screen</b>.</li><li>Allow <b>microphone, camera and location</b> when asked.</li><li><b>Settings</b>: enter your name, driver/truck numbers and the start date of your 2-week pay period. Check the rates.</li></ol>
 <h3>2. When a call comes in</h3><ol><li><b>📸 Screenshot</b> of the call in the dispatch app (or <b>📋 Paste</b> its text, or on Android <b>Share → TowLog</b>) — pickup, destination and km fill in.</li><li>Pick the <b>account type</b>. For <b>Cash</b> and <b>Basic</b> a red alarm reminds you to <b>collect cash before towing</b>; “Towing” stays locked until you tap <b>Collected</b>.</li><li>Tap the steps as you go: <b>En route → At vehicle → Towing → Dropped</b>. Times are recorded and GPS measures km (keep the app open).</li></ol>
-<h3>3. Filling details hands-free</h3><ul><li>Big blue <b>🎤</b>: say several fields at once, e.g. “make Honda, model Civic, colour red, reason flat tire”.</li><li>Small 🎤 next to a field fills just that field. Plate/VIN: spell it (“C X R T 4 5 2”).</li><li><b>📷 Take photo</b> of the vehicle; <b>🔎 Read plate/VIN</b> reads the last photo; <b>▥ Scan VIN</b> reads the door-jamb barcode.</li></ul>
+<h3>3. Filling details hands-free</h3><ul><li>Big blue <b>🎤</b>: say several fields at once, e.g. “make Honda, model Civic, colour red, reason flat tire”.</li><li>Small 🎤 next to a field fills just that field. Plate/VIN: spell it (“C X R T 4 5 2”).</li><li><b>iPhone:</b> Apple blocks the app’s own microphone, so the 🎤 opens the keyboard — tap the 🎤 on the keyboard and speak (turn on Settings → General → Keyboard → Enable Dictation).</li><li><b>📷 Take photo</b> of the rear of the vehicle — the app reads the plate, the make/model badges and a VIN, then asks you to confirm. Close, straight-on photos in good light work best. <b>▥ Scan VIN</b> reads the door-jamb barcode (Android).</li></ul>
 <h3>4. Pay calculation</h3><ul><li>$50 base for every call.</li><li>Km to vehicle: first 5 km free (all accounts).</li><li>Km towed free: Basic 10, Plus 200, Premium 300, Cash 0.</li><li>Extra km (to vehicle and towed): Plus/Premium $2.50, Basic/Cash $4.50. HST 13% shown separately. All editable in Settings.</li></ul>
 <h3>5. Save & report</h3><ul><li><b>💾 Save call</b> at the end, then <b>＋ New call</b>.</li><li><b>Report</b> tab: every 2 weeks a table with totals → <b>Excel (CSV)</b> or <b>Print/PDF</b>.</li></ul>
 <div class="tip">🔒 Your data stays only on <b>your</b> phone — nobody else sees it. Use <b>Settings → Export backup</b> regularly (and before changing phones).</div>
@@ -342,17 +357,17 @@ const L={en:{
  alarmH:'اول پول نقد را بگیر!',alarmP:'قبل از بستن و حمل خودرو، اول وجه نقد را دریافت کن.',collectedBtn:'✅ دریافت شد',later:'بستن',acctEst:' · مبلغ تخمینی با کیلومتر به‌روز می‌شود',extraKm:'کیلومتر مازاد',
  base:'هزینهٔ ثابت قبول کال',toVeh:'تا خودرو',towed:'حمل',free:'رایگان',tNet:'جمع خالص (بدون HST)',tTot:'جمع کل',payT:'محاسبهٔ مبلغ',pickAcct:'برای محاسبه نوع اکانت را انتخاب کن.',
  gpsOff:'GPS خاموش',noGps:'GPS ندارد',
- tChooseAcct:'اول نوع اکانت را انتخاب کن',tSaved:'ذخیره شد ✓',tPhoto:'عکس ذخیره شد',tPhotoFirst:'اول از پلاک یا VIN عکس بگیر',tReading:'در حال خواندن متن… (بار اول حدود ۱۰ ثانیه)',
+ tChooseAcct:'اول نوع اکانت را انتخاب کن',tSaved:'ذخیره شد ✓',tPhoto:'عکس ذخیره شد',tPhotoFirst:'اول از پلاک یا VIN عکس بگیر',tReading:'در حال خواندن عکس…',
  tFound:'پیدا شد',tCheck:'لطفاً چک کن.',tNotFound:'پلاک یا VIN پیدا نشد. متن:',tOcrNet:'خواندن متن بار اول به اینترنت نیاز دارد.',tNoVoice:'این مرورگر ورودی صوتی ندارد (Chrome یا Safari).',
  tFilled:'پر شد:',tFields:'فیلد',tHeard:'شنیدم',tTry:'مثلاً بگو «سازنده هوندا مدل سیویک»',tCashQ:'دریافت نقد تأیید نشده. با این حال ذخیره شود؟',tUnsaved:'کال فعلی ذخیره نشده. کال جدید شروع شود؟',
  tDelCall:'این کال حذف شود؟',tDelPhoto:'عکس حذف شود؟',tImported:'بازگردانی شد ✓',tBadBackup:'فایل پشتیبان معتبر نیست',tImportQ:'کال‌ها اضافه شوند؟ (با فعلی‌ها ادغام می‌شوند)',tLocNo:'موقعیت در دسترس نیست',tStorage:'حافظه پر است! پشتیبان بگیر.',
  tNoBarcode:'بارکدی پیدا نشد',tScanNo:'اسکن بارکد اینجا پشتیبانی نمی‌شود — از «خواندن پلاک/VIN» استفاده کن',tScanFail:'اسکن ناموفق بود',tDispNone:'چیزی شناسایی نشد — اسکرین‌شات را چک کن یا متن را بچسبان.',tDispOk:'از دیسپچ:',
  repReady:'گزارش دوهفته‌ای‌ات آماده است',open:'باز کن',
- sStart:'کال شروع شد. با احتیاط برانید.',sArrive:'رسیدید. {0} کیلومتر تا خودرو.',sTow:'حمل شروع شد. مسافت اندازه‌گیری می‌شود.',sDrop:'تحویل شد. {0} کیلومتر حمل. جمع {1} دلار بدون مالیات.',sCashW:'هشدار. اکانت {0}. قبل از حمل خودرو اول پول نقد را بگیرید.',sColl:'نقد دریافت شد.',sSaved:'کال ذخیره شد.',sRep:'گزارش دوهفته‌ای آماده است.',navHelp:'راهنما',fbT:'💬 پیشنهاد و انتقاد',fbHint:'پیامت مستقیم به ایمیل سازندهٔ برنامه فرستاده می‌شود.',fbName:'نام شما (اختیاری)',fbEmail:'ایمیل شما (اختیاری، برای جواب)',fbType:'نوع پیام',fbRate:'امتیاز به برنامه',fbMsg:'متن پیام',fbSend:'📨 ارسال',fbTypes:['پیشنهاد','مشکل / خطا','انتقاد','سایر'],fbSending:'در حال ارسال…',fbOk:'✅ ارسال شد. ممنون!',fbFail:'ارسال نشد (اینترنت؟). برنامهٔ ایمیل باز می‌شود؛ اگر باز نشد به این آدرس بفرست:',fbEmpty:'لطفاً متن پیام را بنویس.',
+ sStart:'کال شروع شد. با احتیاط برانید.',sArrive:'رسیدید. {0} کیلومتر تا خودرو.',sTow:'حمل شروع شد. مسافت اندازه‌گیری می‌شود.',sDrop:'تحویل شد. {0} کیلومتر حمل. جمع {1} دلار بدون مالیات.',sCashW:'هشدار. اکانت {0}. قبل از حمل خودرو اول پول نقد را بگیرید.',sColl:'نقد دریافت شد.',sSaved:'کال ذخیره شد.',sRep:'گزارش دوهفته‌ای آماده است.',navHelp:'راهنما',fbT:'💬 پیشنهاد و انتقاد',fbHint:'پیامت مستقیم به ایمیل سازندهٔ برنامه فرستاده می‌شود.',fbName:'نام شما (اختیاری)',fbEmail:'ایمیل شما (اختیاری، برای جواب)',fbType:'نوع پیام',fbRate:'امتیاز به برنامه',fbMsg:'متن پیام',fbSend:'📨 ارسال',fbTypes:['پیشنهاد','مشکل / خطا','انتقاد','سایر'],fbSending:'در حال ارسال…',fbOk:'✅ ارسال شد. ممنون!',fbFail:'ارسال نشد (اینترنت؟). برنامهٔ ایمیل باز می‌شود؛ اگر باز نشد به این آدرس بفرست:',fbEmpty:'لطفاً متن پیام را بنویس.',tKbMic:'روی 🎤 کیبورد بزن و بگو.',vmT:'🎤 بگو',vmHint:'روی 🎤 کیبورد بزن و مشخصات را بگو، مثلاً «سازنده تویوتا مدل کرولا رنگ سفید علت پنچری». بعد «پر کردن فرم» را بزن.',vmPh:'با 🎤 کیبورد بگو…',tNothing:'پلاک، VIN یا نوشتهٔ پشت ماشین خوانده نشد. از نزدیک‌تر، روبه‌رو و در نور خوب عکس بگیر.',sFound:'مشخصات خودرو پیدا شد. لطفاً چک کنید.',bkRemind:'یک هفته گذشته — از کال‌هایت پشتیبان بگیر.',
  guide:`<h2>📖 راهنمای استفاده</h2>
 <h3>۱. بار اول</h3><ol><li>لینک را در Chrome (اندروید) یا Safari (آیفون) باز کن ← منو ← <b>Add to Home Screen</b> تا مثل اپ نصب شود.</li><li>وقتی پرسید، اجازهٔ <b>میکروفون، دوربین و موقعیت (GPS)</b> را بده.</li><li>در <b>تنظیمات</b>: نام، شماره راننده و کامیون، و تاریخ شروع دورهٔ دوهفته‌ای را وارد کن و نرخ‌ها را چک کن.</li></ol>
 <h3>۲. وقتی کال می‌آید</h3><ol><li>از صفحهٔ کال در اپ دیسپچ <b>📸 اسکرین‌شات</b> بده (یا متنش را <b>📋 بچسبان</b>، یا در اندروید <b>Share ← TowLog</b>)؛ مبدأ، مقصد و کیلومترها خودکار پر می‌شوند.</li><li><b>نوع اکانت</b> را انتخاب کن. برای <b>Cash</b> و <b>Basic</b> هشدار قرمز می‌آید که <b>قبل از حمل، پول نقد را بگیری</b>؛ تا «دریافت شد» را نزنی، دکمهٔ «شروع حمل» قفل است.</li><li>مراحل را همان‌طور که پیش می‌روی بزن: <b>در راه ← رسیدم ← شروع حمل ← تحویل شد</b>. ساعت‌ها ثبت می‌شود و GPS کیلومتر را می‌شمارد (برنامه باز بماند).</li></ol>
-<h3>۳. پر کردن بدون دست</h3><ul><li><b>🎤 آبی بزرگ</b>: چند فیلد را یک‌جا بگو، مثلاً «سازنده تویوتا، مدل کرولا، رنگ سفید، علت پنچری».</li><li>🎤 کوچک کنار هر فیلد فقط همان فیلد را پر می‌کند. پلاک و VIN را حرف‌به‌حرف انگلیسی بگو («C X R T 4 5 2»).</li><li><b>📷 گرفتن عکس</b> از خودرو؛ <b>🔎 خواندن پلاک/VIN</b> آخرین عکس را می‌خواند؛ <b>▥ اسکن VIN</b> بارکد کنار در را می‌خواند.</li></ul>
+<h3>۳. پر کردن بدون دست</h3><ul><li><b>🎤 آبی بزرگ</b>: چند فیلد را یک‌جا بگو، مثلاً «سازنده تویوتا، مدل کرولا، رنگ سفید، علت پنچری».</li><li>🎤 کوچک کنار هر فیلد فقط همان فیلد را پر می‌کند. پلاک و VIN را حرف‌به‌حرف انگلیسی بگو («C X R T 4 5 2»).</li><li><b>آیفون:</b> اپل میکروفونِ خودِ برنامه را می‌بندد، پس 🎤 کیبورد را باز می‌کند — روی 🎤 کیبورد بزن و بگو (Settings ← General ← Keyboard ← Enable Dictation روشن باشد).</li><li><b>📷 گرفتن عکس</b> از پشت خودرو — برنامه پلاک، نوشتهٔ برند و مدل و VIN را می‌خواند و برای تأیید نشانت می‌دهد. عکس نزدیک، روبه‌رو و در نور خوب بهتر خوانده می‌شود. <b>▥ اسکن VIN</b> بارکد کنار در را می‌خواند (اندروید).</li></ul>
 <h3>۴. محاسبهٔ مبلغ</h3><ul><li>۵۰ دلار ثابت برای هر کال.</li><li>مسافت تا خودرو: ۵ کیلومتر اول برای همه رایگان.</li><li>مسافت حمل رایگان: بیسیک ۱۰، پلاس ۲۰۰، پریمیوم ۳۰۰، کش ۰ کیلومتر.</li><li>کیلومتر مازاد (هم تا خودرو هم حمل): پلاس و پریمیوم ۲٫۵ دلار، بیسیک و کش ۴٫۵ دلار. HST ‏۱۳٪ جدا نشان داده می‌شود. همه در تنظیمات قابل تغییرند.</li></ul>
 <h3>۵. ذخیره و گزارش</h3><ul><li>آخر کار <b>💾 ذخیرهٔ کال</b>، بعد <b>＋ کال جدید</b>.</li><li>زبانهٔ <b>گزارش</b>: هر دو هفته یک جدول با جمع‌ها ← <b>اکسل (CSV)</b> یا <b>چاپ/PDF</b>.</li></ul>
 <div class="tip">🔒 اطلاعاتت فقط روی گوشی <b>خودت</b> می‌ماند و کس دیگری نمی‌بیند. از <b>تنظیمات ← گرفتن پشتیبان</b> مرتب (و قبل از عوض کردن گوشی) استفاده کن.</div>
@@ -589,17 +604,26 @@ function say(k,...a){
 
 // ---------- voice ----------
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-function listen(lang,onText,btn){
-  if(!SR){toast(t('tNoVoice'));return}
-  const r=new SR();r.lang=lang;r.interimResults=false;r.maxAlternatives=1;
+// iPhone home-screen apps refuse web speech ("service-not-allowed"), so there we use the keyboard's 🎤 instead
+const IOS_APP=navigator.standalone===true;
+let srBroken=IOS_APP||!SR;
+function listen(lang,onText,btn,fallback){
+  if(srBroken){fallback();return}
+  let r;try{r=new SR()}catch(e){srBroken=true;fallback();return}
+  r.lang=lang;r.interimResults=false;r.maxAlternatives=1;
   btn&&btn.classList.add('rec');
   r.onresult=e=>onText(normDigits(e.results[0][0].transcript));
-  r.onerror=e=>toast('🎤 '+e.error);r.onend=()=>btn&&btn.classList.remove('rec');
-  r.start();
+  r.onerror=e=>{if(/not-allowed|service-not-allowed|audio-capture/.test(e.error)){srBroken=true;fallback()}else if(e.error!=='no-speech'&&e.error!=='aborted')toast('🎤 '+e.error)};
+  r.onend=()=>btn&&btn.classList.remove('rec');
+  try{r.start()}catch(e){srBroken=true;btn&&btn.classList.remove('rec');fallback()}
 }
+const voiceResult=v=>{const n=parseVoice(v);toast(n?`${t('tFilled')} ${n} ${t('tFields')}: “${v}”`:`${t('tHeard')}: “${v}” — ${t('tTry')}`)};
 document.addEventListener('click',e=>{const b=e.target.closest('.mic[data-k]');if(!b)return;const k=b.dataset.k;
-  listen(EN_MIC.has(k)?'en-CA':S.lang,v=>{if(k==='plate'||k==='vin')v=spell(v);cur[k]=v;saveCur();fillForm()},b)});
-$('#voiceAll').onclick=e=>listen(S.lang,v=>{const n=parseVoice(v);toast(n?`${t('tFilled')} ${n} ${t('tFields')}: “${v}”`:`${t('tHeard')}: “${v}” — ${t('tTry')}`)},e.currentTarget);
+  listen(EN_MIC.has(k)?'en-CA':S.lang,v=>{if(k==='plate'||k==='vin')v=spell(v);cur[k]=v;saveCur();fillForm()},b,
+    ()=>{const el=$('#f_'+k);el.focus();el.select&&el.select();toast(t('tKbMic'))})});
+$('#voiceAll').onclick=e=>listen(S.lang,voiceResult,e.currentTarget,()=>{$('#voiceTxt').value='';$('#voiceModal').classList.add('show');$('#voiceTxt').focus()});
+$('#voiceGo').onclick=()=>{$('#voiceModal').classList.remove('show');const v=normDigits($('#voiceTxt').value.trim());if(v)voiceResult(v)};
+$('#voiceClose').onclick=()=>$('#voiceModal').classList.remove('show');
 
 const NUMW={zero:0,oh:0,one:1,two:2,to:2,too:2,three:3,four:4,for:4,five:5,six:6,seven:7,eight:8,ate:8,nine:9};
 function spell(s){return s.split(/\s+/).map(w=>{const l=w.toLowerCase().replace(/[^a-z0-9]/g,'');return l in NUMW?NUMW[l]:/^[a-z]{2,}$/.test(l)?(/^(dash|space|hyphen)$/.test(l)?'':l[0]):l}).join('').toUpperCase()}
@@ -637,9 +661,62 @@ function matchReason(v){
 
 // ---------- OCR helpers ----------
 let tess;
-async function ocr(blob){
-  if(!tess)tess=await new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';s.onload=()=>res(window.Tesseract);s.onerror=rej;document.head.appendChild(s)});
-  return (await tess.recognize(blob,'eng')).data.text;
+// the text reader (tesseract.js) is hosted with the app in ocr/, so it works without any CDN and offline after first use
+let ocrPct=null;
+async function ocr(blob,onPct){
+  ocrPct=onPct;
+  if(!tess)tess=(async()=>{
+    if(!window.Tesseract)await new Promise((res,rej)=>{const s=document.createElement('script');s.src='ocr/tesseract.min.js';s.onload=res;s.onerror=rej;document.head.appendChild(s)});
+    const base=new URL('ocr/',location.href).href;
+    return Tesseract.createWorker('eng',1,{workerPath:base+'worker.min.js',corePath:base,langPath:base,gzip:true,workerBlobURL:false,
+      logger:m=>ocrPct&&m.progress!=null&&ocrPct(m.status,Math.round(m.progress*100))});
+  })();
+  let w;try{w=await tess}catch(e){tess=null;throw e}
+  const job=w.recognize(blob);
+  return (await Promise.race([job,new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),90000))])).data.text;
+}
+// grayscale + contrast stretch at up to 2000px: plates and badges read much better
+function prep(file){return new Promise(res=>{const img=new Image();img.onload=()=>{const sc=Math.min(1,2000/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=img.width*sc;c.height=img.height*sc;
+  const g=c.getContext('2d');g.drawImage(img,0,0,c.width,c.height);const d=g.getImageData(0,0,c.width,c.height),px=d.data;let lo=255,hi=0;
+  for(let i=0;i<px.length;i+=4){const y=.299*px[i]+.587*px[i+1]+.114*px[i+2];px[i]=y;if(y<lo)lo=y;if(y>hi)hi=y}
+  const k=255/Math.max(1,hi-lo);for(let i=0;i<px.length;i+=4){const y=(px[i]-lo)*k;px[i]=px[i+1]=px[i+2]=y}
+  g.putImageData(d,0,0);URL.revokeObjectURL(img.src);c.toBlob(res,'image/png')};img.src=URL.createObjectURL(file)})}
+// pull plate, VIN, make and model (from rear badges) out of OCR text
+function readVehicleText(raw){
+  const T=' '+raw.toUpperCase().replace(/[^A-Z0-9\-\s]/g,' ').replace(/\s+/g,' ')+' ',out={};
+  // a VIN is 17 characters with plenty of digits; allow it to be split over up to 3 OCR words
+  const ws=T.trim().split(' ');
+  for(let i=0;i<ws.length&&!out.vin;i++)for(let n=1;n<=3;n++){const v=ws.slice(i,i+n).join('').replace(/-/g,'');
+    if(v.length===17&&(v.match(/[0-9]/g)||[]).length>=5){out.vin=v.replace(/O/g,'0').replace(/[IQ]/g,'1');break}}
+  const has=w=>new RegExp('(^|[^A-Z0-9])'+w.toUpperCase().replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/[\s\-]/g,'[\\s\\-]?')+'(?![A-Z0-9])').test(T);
+  const mk=MAKES.find(m=>has(m))||(has('CHEVY')?'Chevrolet':has('VW')?'Volkswagen':has('MERCEDES')?'Mercedes-Benz':'');
+  const pool=mk?CARS[mk].map(x=>[mk,x]):MAKES.flatMap(m=>CARS[m].map(x=>[m,x]));
+  const md=pool.filter(([,x])=>x.replace(/[\s\-]/g,'').length>=3&&has(x)).sort((a,b)=>b[1].length-a[1].length)[0]
+    ||pool.find(([,x])=>{const w=x.split(' ')[0];return w.length>=4&&/[A-Z]/i.test(w)&&has(w)});
+  if(mk)out.make=mk;if(md){out.model=md[1];out.make=out.make||md[0]}
+  const skip=new Set(['ONTARIO','DISCOVER','YOURS','CANADA','QUEBEC','ALBERTA','HYBRID','LIMITED','SPORT','TOURING','AWD','4WD','4X4','PLUS','PREMIUM']);
+  const words=T.trim().split(' ');let plate='';
+  for(let i=0;i<words.length&&!plate;i++){for(const cand of [words[i]+(words[i+1]||''),words[i]]){
+    if(skip.has(cand)||(out.vin&&out.vin.includes(cand)))continue;
+    if(/^[A-Z]{4}[0-9]{3}$|^[A-Z]{3}[0-9]{3,4}$|^[0-9]{3}[A-Z]{3}$|^[A-Z]{2}[0-9]{2}[A-Z]{2}$|^[0-9][A-Z]{2}[0-9]{3}$/.test(cand)){plate=cand;break}}}
+  if(plate)out.plate=plate;
+  return out;
+}
+let lastShot=null;
+async function readPhoto(file){
+  const msg=$('#ocrMsg'),box=$('#ocrBox');box.classList.add('hide');
+  msg.textContent=t('tReading');toast(t('tReading'));
+  try{
+    const txt=await ocr(await prep(file),(st,pc)=>{msg.textContent=`${t('tReading')} ${/recogn/i.test(st)?pc+'%':''}`});
+    const o=readVehicleText(txt),keys=['make','model','plate','vin'].filter(k=>o[k]);
+    if(!keys.length){msg.textContent=t('tNothing');toast(t('tNothing'));return}
+    msg.textContent='';
+    box.innerHTML=`<b>${t('tFound')}:</b>`+keys.map(k=>`<label><input type="checkbox" data-k="${k}" checked> ${lb(VEH.find(f=>f[0]===k))} <input class="v ltr" id="ov_${k}" value="${esc(o[k])}"></label>`).join('')+
+      `<div class="row" style="margin-top:8px"><button class="btn ok" id="ocrApply">✅ ${t('dispApply')}</button><button class="btn" id="ocrCancel">${t('later')}</button></div>`;
+    box.classList.remove('hide');say('sFound');
+    $('#ocrApply').onclick=()=>{$$('#ocrBox input[type=checkbox]').forEach(c=>{if(c.checked){const k=c.dataset.k;cur[k]=$('#ov_'+k).value.trim();if(k==='plate'||k==='vin')cur[k]=cur[k].toUpperCase()}});saveCur();fillForm();box.classList.add('hide');toast(t('tSaved'))};
+    $('#ocrCancel').onclick=()=>box.classList.add('hide');
+  }catch(e){msg.textContent=t('tOcrNet');toast(t('tOcrNet'))}
 }
 
 // ---------- dispatch app import (screenshot / pasted text / Android share) ----------
@@ -706,7 +783,7 @@ async function takeShared(){
 
 // ---------- vehicle photos / OCR / barcode ----------
 $('#photoBtn').onclick=()=>$('#photoIn').click();
-$('#photoIn').onchange=async e=>{const f=e.target.files[0];if(!f)return;const blob=await shrink(f,1280);const id='p'+Date.now();await putPhoto(id,blob);cur.photos=[...(cur.photos||[]),id];saveCur();renderThumbs();toast(t('tPhoto'));e.target.value=''};
+$('#photoIn').onchange=async e=>{const f=e.target.files[0];if(!f)return;e.target.value='';lastShot=f;const blob=await shrink(f,1280);const id='p'+Date.now();await putPhoto(id,blob);cur.photos=[...(cur.photos||[]),id];saveCur();renderThumbs();readPhoto(f)};
 function shrink(file,max){return new Promise(res=>{const img=new Image();img.onload=()=>{const s=Math.min(1,max/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=img.width*s;c.height=img.height*s;c.getContext('2d').drawImage(img,0,0,c.width,c.height);c.toBlob(b=>{URL.revokeObjectURL(img.src);res(b)},'image/jpeg',.75)};img.src=URL.createObjectURL(file)})}
 async function renderThumbs(){
   const box=$('#thumbs');box.innerHTML='';
@@ -715,15 +792,9 @@ async function renderThumbs(){
     d.querySelector('img').onclick=()=>window.open(d.querySelector('img').src);box.appendChild(d)}
 }
 $('#ocrBtn').onclick=async()=>{
+  if(lastShot)return readPhoto(lastShot);
   const id=(cur.photos||[]).slice(-1)[0];if(!id){toast(t('tPhotoFirst'));return}
-  $('#ocrMsg').textContent=t('tReading');
-  try{
-    const txt=(await ocr(await getPhoto(id))).toUpperCase().replace(/[^A-Z0-9\s]/g,' ');
-    const vin=(txt.replace(/\s+/g,'').match(/[A-HJ-NPR-Z0-9]{17}/)||[])[0];
-    const plate=(txt.match(/\b[A-Z]{4}\s?\d{3}\b|\b[A-Z]{3}\s?\d{3,4}\b|\b\d{3}\s?[A-Z]{3}\b|\b[A-Z0-9]{2,4}\s?[A-Z0-9]{3,4}\b/)||[])[0];
-    const got=[];if(vin){cur.vin=vin;got.push('VIN '+vin)}if(plate&&!vin){cur.plate=plate.replace(/\s/g,'');got.push('Plate '+cur.plate)}
-    saveCur();fillForm();$('#ocrMsg').textContent=got.length?`${t('tFound')}: ${got.join(' · ')} — ${t('tCheck')}`:`${t('tNotFound')} ${txt.trim().slice(0,80)}`;
-  }catch(e){$('#ocrMsg').textContent=t('tOcrNet')}
+  readPhoto(await getPhoto(id));
 };
 $('#vinScanBtn').onclick=()=>{if(!('BarcodeDetector' in window)){toast(t('tScanNo'));return}$('#vinIn').click()};
 $('#vinIn').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const r=await new BarcodeDetector().detect(await createImageBitmap(f));const v=r.map(x=>x.rawValue.replace(/^I/,'').toUpperCase()).find(x=>/^[A-HJ-NPR-Z0-9]{17}$/.test(x))||(r[0]&&r[0].rawValue);if(v){cur.vin=v;saveCur();fillForm();toast('VIN: '+v)}else toast(t('tNoBarcode'))}catch(err){toast(t('tScanFail'))}e.target.value=''};
@@ -791,7 +862,12 @@ function checkReport(){
 
 // ---------- settings ----------
 function fillSet(){[...SET,...RATES].forEach(([k])=>$('#s_'+k).value=S[k]??'');$('#s_ui').value=S.ui;$('#s_lang').value=S.lang;$('#s_speak').value=S.speak}
-$('#expBtn').onclick=async()=>{const photos={};for(const c of calls)for(const id of c.photos||[]){const b=await getPhoto(id).catch(()=>null);if(b)photos[id]=await new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)})}
+function checkBackup(){
+  const last=LS.get('tl_bk',0);if(!calls.length||Date.now()-last<7*864e5)return;
+  const b=document.createElement('div');b.className='banner';b.innerHTML=`💾 <b>${t('bkRemind')}</b> <button class="btn acc" id="bkNow">${t('exp')}</button>`;
+  $('#v-call').prepend(b);$('#bkNow').onclick=()=>{$('#expBtn').click();b.remove()};
+}
+$('#expBtn').onclick=async()=>{LS.set('tl_bk',Date.now());const photos={};for(const c of calls)for(const id of c.photos||[]){const b=await getPhoto(id).catch(()=>null);if(b)photos[id]=await new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)})}
   dl(new Blob([JSON.stringify({v:1,calls,settings:S,photos})],{type:'application/json'}),`towlog_backup_${today()}.json`)};
 $('#impBtn').onclick=()=>$('#impIn').click();
 $('#impIn').onchange=async e=>{try{const j=JSON.parse(await e.target.files[0].text());if(!confirm(`${t('tImportQ')} (${j.calls.length})`))return;
@@ -823,7 +899,7 @@ function show(v){$$('main>section').forEach(s=>s.classList.toggle('hide',s.id!==
 $$('nav button').forEach(b=>b.onclick=()=>show(b.dataset.v));
 let tt;function toast(m){const el=$('#toast');el.textContent=m;el.style.display='block';clearTimeout(tt);tt=setTimeout(()=>el.style.display='none',3500)}
 
-buildUI();checkReport();takeShared();
+buildUI();checkReport();checkBackup();takeShared();
 if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
