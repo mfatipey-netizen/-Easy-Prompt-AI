@@ -93,7 +93,10 @@ textarea{min-height:60px;resize:vertical}
 .ocrbox label{display:flex;align-items:center;gap:10px;font-size:16px;color:var(--tx);margin:6px 0}.ocrbox input[type=checkbox]{width:auto;transform:scale(1.4)}
 .ocrbox input.v{flex:1}
 .shift{border-color:var(--ok)}
-#todaySum{grid-template-columns:repeat(3,1fr)}#todaySum b{font-size:17px}
+.price table.split{margin-top:10px;font-size:13px}.split th{text-align:end;color:var(--mut);font-weight:600;padding:4px 0;direction:ltr}.split th:first-child{text-align:start}
+.split td{text-align:end;direction:ltr;white-space:nowrap;padding:5px 0 5px 6px}.split td:first-child{text-align:start;direction:inherit;white-space:normal}
+.split tr.me td{color:var(--ok);font-weight:800}.split tr.tot td{font-weight:800;border-top:2px solid var(--line);border-bottom:0}
+#todaySum{grid-template-columns:repeat(2,1fr)}#todaySum b{font-size:17px}
 .stars{display:flex;gap:4px}.stars button{background:none;border:0;font-size:28px;padding:0 2px;color:#475569}.stars button.on{color:var(--acc)}
 .hide{display:none!important}
 @media print{
@@ -365,7 +368,7 @@ const L={en:{
  voiceHint:'Big blue 🎤 = say several fields at once, e.g. “account cash, make Honda, model Civic, colour red, plate C X R T 4 5 2, reason flat tire”. The 🎤 on plate, VIN and address fields always listens in English.',
  setT:'Driver / sheet header',ratesT:'Rates',ratesHint:'Km to vehicle: first km free for every account, extra km at the account rate. Km towed: free km depend on the account, extra km at the account rate. Every call adds the base fee.',
  backupT:'Database file',backupHint:'Save the whole database (with photos) to iCloud Drive / Google Drive, or load it back after reinstalling or on a new phone.',exp:'💾 Save database',imp:'📂 Load database',
- navCall:'Today',todayT:'📅 Today’s calls',backHome:'← Today',tResume:'▶ Continue call',noToday:'No calls yet today.',dayTotal:'Today (net)',navLog:'Log',navRep:'Report',navSet:'Settings',
+ navCall:'Today',share:'Share',exHst:'Before HST',incHst:'With HST',driverShare:'Driver (me)',myShare:'My share',todayT:'📅 Today’s calls',backHome:'← Today',tResume:'▶ Continue call',noToday:'No calls yet today.',dayTotal:'Today (net)',navLog:'Log',navRep:'Report',navSet:'Settings',
  alarmH:'COLLECT CASH FIRST',alarmP:'Collect payment BEFORE hooking / towing the vehicle.',collectedBtn:'✅ Collected',later:'Close',acctEst:'account · estimate updates with km',extraKm:'Extra km',
  base:'Base fee (call accepted)',toVeh:'To vehicle',towed:'Towed',free:'free',tNet:'Total net (excl. HST)',tTot:'Total',payT:'Pay estimate',pickAcct:'Select the account type to calculate.',
  gpsOff:'GPS off',noGps:'No GPS',
@@ -386,7 +389,7 @@ const L={en:{
 <h3>1. First time</h3><ol><li>Open the link in Chrome (Android) or Safari (iPhone) → menu → <b>Add to Home Screen</b>.</li><li>Allow <b>microphone, camera and location</b> when asked.</li><li><b>Settings</b>: enter your name, driver/truck numbers and the start date of your 2-week pay period. Check the rates.</li></ol>
 <h3>2. When a call comes in</h3><ol><li><b>📸 Screenshot</b> of the call in the dispatch app (or <b>📋 Paste</b> its text, or on Android <b>Share → TowLog</b>) — pickup, destination and km fill in.</li><li>Pick the <b>account type</b>. For <b>Cash</b> calls a red alarm reminds you to <b>collect cash before towing</b>; “Towing” stays locked until you tap <b>Collected</b>.</li><li>Tap the steps as you go: <b>En route → At vehicle → Towing → Dropped</b>. Times are recorded and GPS measures km (keep the app open).</li></ol>
 <h3>3. Filling details hands-free</h3><ul><li>Big blue <b>🎤</b>: say several fields at once, e.g. “make Honda, model Civic, colour red, reason flat tire”.</li><li>Small 🎤 next to a field fills just that field. Plate/VIN: spell it (“C X R T 4 5 2”).</li><li><b>iPhone:</b> Apple blocks the app’s own microphone, so the 🎤 opens the keyboard — tap the 🎤 on the keyboard and speak (turn on Settings → General → Keyboard → Enable Dictation).</li><li><b>📷 Take photo</b> of the rear of the vehicle — the app reads the plate, the make/model badges and a VIN, then asks you to confirm. Close, straight-on photos in good light work best. <b>▥ Scan VIN</b> reads the door-jamb barcode (Android).</li></ul>
-<h3>4. Pay calculation</h3><ul><li>$50 base for every call.</li><li>Km to vehicle: first 5 km free (all accounts).</li><li>Km towed free: Basic 10, Plus 200, Premium 300, Cash 0.</li><li>Extra km (to vehicle and towed): Plus/Premium $2.50, Basic/Cash $4.50. HST 13% shown separately. All editable in Settings.</li></ul>
+<h3>4. Pay calculation</h3><ul><li>$52 base for every call.</li><li>Km to vehicle: first 5 km free (all accounts).</li><li>Km towed free: Basic 10, Plus 200, Premium 300, Cash 0.</li><li>Extra km (to vehicle and towed): Plus/Premium $2.50, Basic/Cash $4.50. HST 13% shown separately. All editable in Settings.</li><li>Split (before HST): 10% Classic Towing; of the rest, 35% driver and 65% Golden Gate Towing. Each share shows its HST in the next column.</li></ul>
 <h3>5. Save & report</h3><ul><li><b>💾 Save call</b> at the end, then <b>＋ New call</b>.</li><li><b>Report</b> tab: every 2 weeks a table with totals → <b>Excel (CSV)</b> or <b>Print/PDF</b>.</li></ul>
 <h3>6. Backup & email</h3><ul><li><b>Settings → Email</b>: enter your email and tap <b>Send test email</b>, then click <b>Activate</b> in the email you get (check Spam). From then on every saved call is emailed to you, and each Monday you get last week’s report as an Excel (CSV) file.</li><li><b>▶ Start</b> (on the Today page): on a new phone or after reinstalling, tap <b>Load database</b> and pick your latest database file.</li><li><b>⏹ Exit & back up</b>: saves the whole database — choose <b>Save to Files → iCloud Drive</b> (or Google Drive) — and emails it to you too.</li></ul>
 <div class="tip">🔒 Your data stays only on <b>your</b> phone — nobody else sees it. Use <b>Settings → Export backup</b> regularly (and before changing phones).</div>
@@ -407,7 +410,7 @@ const L={en:{
  voiceHint:'🎤 آبی بزرگ = چند فیلد را یک‌جا بگو، مثلاً «اکانت کش، سازنده تویوتا، مدل کرولا، رنگ سفید، علت پنچری، مبدأ … مقصد …». میکروفونِ کنار پلاک، VIN و آدرس‌ها همیشه انگلیسی گوش می‌دهد.',
  setT:'مشخصات راننده / سربرگ',ratesT:'نرخ‌ها',ratesHint:'مسافت تا خودرو: چند کیلومتر اول برای همه رایگان، مازاد با نرخ همان اکانت. مسافت حمل: کیلومتر رایگان بسته به اکانت، مازاد با نرخ همان اکانت. هزینهٔ ثابت قبول کال به همه اضافه می‌شود.',
  backupT:'فایل دیتابیس',backupHint:'کل دیتابیس (با عکس‌ها) را در iCloud Drive یا Google Drive ذخیره کن، یا بعد از نصب دوباره یا روی گوشی جدید لودش کن.',exp:'💾 ذخیرهٔ دیتابیس',imp:'📂 لود دیتابیس',
- navCall:'امروز',todayT:'📅 کال‌های امروز',backHome:'→ امروز',tResume:'▶ ادامهٔ کال',noToday:'امروز هنوز کالی ثبت نشده.',dayTotal:'جمع امروز (خالص)',navLog:'لیست',navRep:'گزارش',navSet:'تنظیمات',
+ navCall:'امروز',share:'سهم',exHst:'بدون HST',incHst:'با HST',driverShare:'راننده (من)',myShare:'سهم من',todayT:'📅 کال‌های امروز',backHome:'→ امروز',tResume:'▶ ادامهٔ کال',noToday:'امروز هنوز کالی ثبت نشده.',dayTotal:'جمع امروز (خالص)',navLog:'لیست',navRep:'گزارش',navSet:'تنظیمات',
  alarmH:'اول پول نقد را بگیر!',alarmP:'قبل از بستن و حمل خودرو، اول وجه نقد را دریافت کن.',collectedBtn:'✅ دریافت شد',later:'بستن',acctEst:' · مبلغ تخمینی با کیلومتر به‌روز می‌شود',extraKm:'کیلومتر مازاد',
  base:'هزینهٔ ثابت قبول کال',toVeh:'تا خودرو',towed:'حمل',free:'رایگان',tNet:'جمع خالص (بدون HST)',tTot:'جمع کل',payT:'محاسبهٔ مبلغ',pickAcct:'برای محاسبه نوع اکانت را انتخاب کن.',
  gpsOff:'GPS خاموش',noGps:'GPS ندارد',
@@ -428,7 +431,7 @@ const L={en:{
 <h3>۱. بار اول</h3><ol><li>لینک را در Chrome (اندروید) یا Safari (آیفون) باز کن ← منو ← <b>Add to Home Screen</b> تا مثل اپ نصب شود.</li><li>وقتی پرسید، اجازهٔ <b>میکروفون، دوربین و موقعیت (GPS)</b> را بده.</li><li>در <b>تنظیمات</b>: نام، شماره راننده و کامیون، و تاریخ شروع دورهٔ دوهفته‌ای را وارد کن و نرخ‌ها را چک کن.</li></ol>
 <h3>۲. وقتی کال می‌آید</h3><ol><li>از صفحهٔ کال در اپ دیسپچ <b>📸 اسکرین‌شات</b> بده (یا متنش را <b>📋 بچسبان</b>، یا در اندروید <b>Share ← TowLog</b>)؛ مبدأ، مقصد و کیلومترها خودکار پر می‌شوند.</li><li><b>نوع اکانت</b> را انتخاب کن. برای کال‌های <b>Cash</b> هشدار قرمز می‌آید که <b>قبل از حمل، پول نقد را بگیری</b>؛ تا «دریافت شد» را نزنی، دکمهٔ «شروع حمل» قفل است.</li><li>مراحل را همان‌طور که پیش می‌روی بزن: <b>در راه ← رسیدم ← شروع حمل ← تحویل شد</b>. ساعت‌ها ثبت می‌شود و GPS کیلومتر را می‌شمارد (برنامه باز بماند).</li></ol>
 <h3>۳. پر کردن بدون دست</h3><ul><li><b>🎤 آبی بزرگ</b>: چند فیلد را یک‌جا بگو، مثلاً «سازنده تویوتا، مدل کرولا، رنگ سفید، علت پنچری».</li><li>🎤 کوچک کنار هر فیلد فقط همان فیلد را پر می‌کند. پلاک و VIN را حرف‌به‌حرف انگلیسی بگو («C X R T 4 5 2»).</li><li><b>آیفون:</b> اپل میکروفونِ خودِ برنامه را می‌بندد، پس 🎤 کیبورد را باز می‌کند — روی 🎤 کیبورد بزن و بگو (Settings ← General ← Keyboard ← Enable Dictation روشن باشد).</li><li><b>📷 گرفتن عکس</b> از پشت خودرو — برنامه پلاک، نوشتهٔ برند و مدل و VIN را می‌خواند و برای تأیید نشانت می‌دهد. عکس نزدیک، روبه‌رو و در نور خوب بهتر خوانده می‌شود. <b>▥ اسکن VIN</b> بارکد کنار در را می‌خواند (اندروید).</li></ul>
-<h3>۴. محاسبهٔ مبلغ</h3><ul><li>۵۰ دلار ثابت برای هر کال.</li><li>مسافت تا خودرو: ۵ کیلومتر اول برای همه رایگان.</li><li>مسافت حمل رایگان: بیسیک ۱۰، پلاس ۲۰۰، پریمیوم ۳۰۰، کش ۰ کیلومتر.</li><li>کیلومتر مازاد (هم تا خودرو هم حمل): پلاس و پریمیوم ۲٫۵ دلار، بیسیک و کش ۴٫۵ دلار. HST ‏۱۳٪ جدا نشان داده می‌شود. همه در تنظیمات قابل تغییرند.</li></ul>
+<h3>۴. محاسبهٔ مبلغ</h3><ul><li>۵۲ دلار ثابت برای هر کال.</li><li>مسافت تا خودرو: ۵ کیلومتر اول برای همه رایگان.</li><li>مسافت حمل رایگان: بیسیک ۱۰، پلاس ۲۰۰، پریمیوم ۳۰۰، کش ۰ کیلومتر.</li><li>کیلومتر مازاد (هم تا خودرو هم حمل): پلاس و پریمیوم ۲٫۵ دلار، بیسیک و کش ۴٫۵ دلار. HST ‏۱۳٪ جدا نشان داده می‌شود. همه در تنظیمات قابل تغییرند.</li><li>تقسیم مبلغ (بدون HST): ۱۰٪ Classic Towing؛ از باقیمانده ۳۵٪ سهم راننده و ۶۵٪ Golden Gate Towing. HST هر سهم در ستون بعدی آمده است.</li></ul>
 <h3>۵. ذخیره و گزارش</h3><ul><li>آخر کار <b>💾 ذخیرهٔ کال</b>، بعد <b>＋ کال جدید</b>.</li><li>زبانهٔ <b>گزارش</b>: هر دو هفته یک جدول با جمع‌ها ← <b>اکسل (CSV)</b> یا <b>چاپ/PDF</b>.</li></ul>
 <h3>۶. پشتیبان و ایمیل</h3><ul><li><b>تنظیمات ← ایمیل</b>: ایمیلت را وارد کن و <b>ارسال ایمیل آزمایشی</b> را بزن، بعد در ایمیلی که می‌آید روی <b>Activate</b> بزن (Spam را هم ببین). از آن به بعد هر کال ذخیره‌شده برایت ایمیل می‌شود و هر دوشنبه گزارش هفتهٔ قبل به‌صورت فایل اکسل (CSV) می‌آید.</li><li><b>▶ شروع</b> (در صفحهٔ امروز): روی گوشی جدید یا بعد از نصب دوباره، <b>لود دیتابیس</b> را بزن و آخرین فایل دیتابیس را انتخاب کن.</li><li><b>⏹ خروج و پشتیبان</b>: کل دیتابیس را ذخیره می‌کند — <b>Save to Files ← iCloud Drive</b> (یا Google Drive) را انتخاب کن — و برایت ایمیل هم می‌کند.</li></ul>
 <div class="tip">🔒 اطلاعاتت فقط روی گوشی <b>خودت</b> می‌ماند و کس دیگری نمی‌بیند. از <b>تنظیمات ← گرفتن پشتیبان</b> مرتب (و قبل از عوض کردن گوشی) استفاده کن.</div>
@@ -443,7 +446,7 @@ const VEH=[['make','Make','سازنده'],['model','Model','مدل'],['colour','
 const JOB=[['location','Location','مبدأ (محل خودرو)',1],['destination','Destination','مقصد',1],['owner','Owner (name / phone)','مالک (نام / تلفن)',1],['receiver','Veh receiver: business & person','تحویل‌گیرنده (شرکت و شخص)',1],['invoice','Invoice #','شماره فاکتور',0,0,1],['towImpound','Tow or impound','حمل یا توقیف',0,[['','—','—'],['Tow','Tow','حمل'],['Impound','Impound','توقیف']]]];
 const EN_MIC=new Set(['make','model','plate','vin','location','destination','receiver','owner','rem','rpm','invoice']);
 const SET=[['driverName','Driver name','نام راننده'],['driverNo','Driver No.','شماره راننده'],['truckNo','Truck No.','شماره کامیون'],['licenseNo','License No.','شماره گواهینامه'],['tssea','TSSEA certificate No. (TD-)','شماره گواهی TSSEA (TD-)'],['company','Tow driver company name','نام شرکت'],['periodStart','Pay period start date','تاریخ شروع دورهٔ دوهفته‌ای','date']];
-const RATES=[['base','Base fee per call ($)','هزینهٔ ثابت هر کال ($)',50],['freeTo','Free km to vehicle (all)','کیلومتر رایگان تا خودرو (همه)',5],['freeBasic','Basic: free tow km','بیسیک: کیلومتر رایگان حمل',10],['freePlus','Plus: free tow km','پلاس: کیلومتر رایگان حمل',200],['freePremium','Premium: free tow km','پریمیوم: کیلومتر رایگان حمل',300],['freeCash','Cash: free tow km','کش: کیلومتر رایگان حمل',0],['rateLow','Plus/Premium $ per extra km','پلاس/پریمیوم: $ هر کیلومتر مازاد',2.5],['rateHigh','Basic/Cash $ per extra km','بیسیک/کش: $ هر کیلومتر مازاد',4.5],['hst','HST %','HST %',13]];
+const RATES=[['base','Base fee per call ($)','هزینهٔ ثابت هر کال ($)',52],['freeTo','Free km to vehicle (all)','کیلومتر رایگان تا خودرو (همه)',5],['freeBasic','Basic: free tow km','بیسیک: کیلومتر رایگان حمل',10],['freePlus','Plus: free tow km','پلاس: کیلومتر رایگان حمل',200],['freePremium','Premium: free tow km','پریمیوم: کیلومتر رایگان حمل',300],['freeCash','Cash: free tow km','کش: کیلومتر رایگان حمل',0],['rateLow','Plus/Premium $ per extra km','پلاس/پریمیوم: $ هر کیلومتر مازاد',2.5],['rateHigh','Basic/Cash $ per extra km','بیسیک/کش: $ هر کیلومتر مازاد',4.5],['hst','HST %','HST %',13],['classicPct','Classic Towing share %','سهم Classic Towing %',10],['driverPct','Driver % of the rest','سهم راننده از باقیمانده %',35]];
 const lb=a=>S.ui==='fa'?a[2]:a[1];
 // reasons always read "English (فارسی)"
 const reasonText=r=>`${r[0].replace(/\s*\((.*)\)/,' – $1')} (${r[1].replace(/[()]/g,'')})`;
@@ -539,6 +542,8 @@ const LS={get:(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v)
 let calls=LS.get('tl_calls',[]), S=Object.assign({ui:'en',lang:'en-CA',speak:'1',email:'',mailCall:'1',mailWeek:'1',mailBk:'1',periodStart:mondayOf(new Date())},LS.get('tl_set',{}));
 if(!S.enDefault){S.ui='en';S.lang='en-CA';S.enDefault=1}
 RATES.forEach(r=>{if(S[r[0]]===undefined)S[r[0]]=r[3]});
+// the base fee was set to $50 before the real figure ($52) was known
+if(!S.base52){if(+S.base===50)S.base=52;S.base52=1}
 calls.forEach(c=>{if(!c.owner&&c.consentee)c.owner=c.consentee});
 let cur=LS.get('tl_cur',null)||blank();
 function blank(){return{id:'c'+Date.now(),date:today(),account:'',reason:'',photos:[],stage:-1,kmTo:'',kmTow:'',cashOk:false}}
@@ -562,8 +567,11 @@ function price(c){
   const rate=(a==='plus'||a==='premium')?+S.rateLow:+S.rateHigh;
   const freeTow=+S['free'+a[0].toUpperCase()+a.slice(1)]||0;
   const exTo=Math.max(0,kmTo-(+S.freeTo)), exTow=Math.max(0,kmTow-freeTow);
-  const base=+S.base, toAmt=exTo*rate, towAmt=exTow*rate, net=base+toAmt+towAmt, hst=net*(+S.hst)/100;
-  return{a,kmTo,kmTow,rate,freeTow,exTo,exTow,base,toAmt,towAmt,net:r2(net),hst:r2(hst),total:r2(net+hst)};
+  const base=+S.base, toAmt=exTo*rate, towAmt=exTow*rate, net=base+toAmt+towAmt, tx=+S.hst/100, hst=net*tx;
+  // split of the amount before HST: Classic Towing first, then driver / Golden Gate Towing share the rest
+  const classic=net*(+S.classicPct)/100, rest=net-classic, driver=rest*(+S.driverPct)/100, golden=rest-driver;
+  return{a,kmTo,kmTow,rate,freeTow,exTo,exTow,base,toAmt,towAmt,net:r2(net),hst:r2(hst),total:r2(net+hst),
+    classic:r2(classic),classicHst:r2(classic*tx),driver:r2(driver),driverHst:r2(driver*tx),golden:r2(golden),goldenHst:r2(golden*tx)};
 }
 const r2=n=>Math.round(n*100)/100, $f=n=>'$'+(+n||0).toFixed(2);
 
@@ -612,9 +620,10 @@ function renderPrice(){
   <table><tr><td>${t('base')}</td><td>${$f(p.base)}</td></tr>
   <tr><td>${t('toVeh')}: <bdi dir="ltr">${p.kmTo} km − ${S.freeTo} ${t('free')} = ${r2(p.exTo)} km × ${$f(p.rate)}</bdi></td><td>${$f(p.toAmt)}</td></tr>
   <tr><td>${t('towed')}: <bdi dir="ltr">${p.kmTow} km − ${p.freeTow} ${t('free')} = ${r2(p.exTow)} km × ${$f(p.rate)}</bdi></td><td>${$f(p.towAmt)}</td></tr>
-  <tr><td>${t('tNet')}</td><td>${$f(p.net)}</td></tr>
-  <tr><td>HST ${S.hst}%</td><td>${$f(p.hst)}</td></tr>
-  <tr class="t"><td>${t('tTot')}</td><td>${$f(p.total)}</td></tr></table>
+  <tr class="t"><td>${t('tNet')}</td><td>${$f(p.net)}</td></tr></table>
+  <table class="split"><tr><th>${t('share')}</th><th>${t('exHst')}</th><th>HST ${S.hst}%</th><th>${t('incHst')}</th></tr>
+  ${[['classic','Classic Towing',S.classicPct],['driver',t('driverShare'),S.driverPct],['golden','Golden Gate Towing',100-S.driverPct]].map(([k,n,pc])=>`<tr${k==='driver'?' class="me"':''}><td>${n} <small>${pc}%</small></td><td>${$f(p[k])}</td><td>${$f(p[k+'Hst'])}</td><td>${$f(r2(p[k]+p[k+'Hst']))}</td></tr>`).join('')}
+  <tr class="tot"><td>${t('tTot')}</td><td>${$f(p.net)}</td><td>${$f(p.hst)}</td><td>${$f(p.total)}</td></tr></table>
   ${cur.account?'':`<p class="hint">${t('pickAcct')}</p>`}`;
 }
 
@@ -888,8 +897,8 @@ function renderHome(){
   const d=today(),rows=calls.filter(c=>c.date===d).sort((a,b)=>(a.timeStart||'').localeCompare(b.timeStart||''));
   const draft=isDraft();$('#resumeBtn').classList.toggle('hide',!draft);
   if(draft)$('#resumeBtn').textContent=`${t('tResume')}: ${[an(cur.account),cur.make,cur.model,cur.plate].filter(Boolean).join(' ')||cur.timeStart||''}`;
-  const net=r2(rows.reduce((a,c)=>a+price(c).net,0)),cash=r2(rows.reduce((a,c)=>a+(+c.collected||0),0));
-  $('#todaySum').innerHTML=`<div>${t('sCalls')}<b>${rows.length}</b></div><div>${t('dayTotal')}<b>${$f(net)}</b></div><div>${t('sCash')}<b>${$f(cash)}</b></div>`;
+  const net=r2(rows.reduce((a,c)=>a+price(c).net,0)),mine=r2(rows.reduce((a,c)=>a+price(c).driver,0)),cash=r2(rows.reduce((a,c)=>a+(+c.collected||0),0));
+  $('#todaySum').innerHTML=`<div>${t('sCalls')}<b>${rows.length}</b></div><div>${t('dayTotal')}<b>${$f(net)}</b></div><div>${t('myShare')}<b>${$f(mine)}</b></div><div>${t('sCash')}<b>${$f(cash)}</b></div>`;
   $('#todayList').innerHTML=rows.map(c=>`<div class="it" data-e="${c.id}"><div><b class="ltr" style="display:inline-block">${c.timeStart||''}${c.timeEnd?' – '+c.timeEnd:''}</b> <span class="chip c-${c.account}">${an(c.account)}</span><br><small>${esc([c.colour,c.make,c.model,c.plate].filter(Boolean).join(' ')||'—')}</small><br><small><bdi>${esc(c.location||'')}</bdi> ⇄ <bdi>${esc(c.destination||'')}</bdi></small></div><b class="ltr">${$f(price(c).net)}</b><button class="btn" data-e="${c.id}">✎</button></div>`).join('')||`<p class="hint">${t('noToday')}</p>`;
 }
 $('#todayList').onclick=e=>{const id=e.target.closest('[data-e]')?.dataset.e;if(!id)return;if(isDraft()&&!confirm(t('tUnsaved')))return;cur={...calls.find(c=>c.id===id)};saveCur();fillForm();show('call')};
@@ -915,18 +924,19 @@ function periods(){
   for(let i=i1;i>=i0;i--){const s=new Date(+a+i*14*DAY+3*36e5),e=new Date(+s+13*DAY);out.push([iso(s),iso(e)])}
   return out;
 }
-const COLS=[['date','Date','تاریخ'],['timeStart','Time start','شروع'],['timeEnd','Time ended','پایان'],['account','Account','اکانت'],['reason','Reason','علت'],['make','Make','سازنده'],['model','Model','مدل'],['colour','Colour','رنگ'],['plate','Plate','پلاک'],['vin','VIN','VIN'],['location','Location','مبدأ'],['destination','Destination','مقصد'],['owner','Owner','مالک'],['receiver','Veh receiver','تحویل‌گیرنده'],['rem','REM','REM'],['rpm','RPM','RPM'],['invoice','Invoice#','فاکتور'],['towImpound','Tow/Impound','حمل/توقیف'],['kmTo','Km to veh','کیلومتر تا خودرو'],['kmTow','Km towed','کیلومتر حمل'],['net','Total net','خالص'],['hst','HST','HST'],['total','Total charged','جمع'],['collected','Total collected','نقد دریافتی']];
-const MONEY=['net','hst','total'];
+const COLS=[['date','Date','تاریخ'],['timeStart','Time start','شروع'],['timeEnd','Time ended','پایان'],['account','Account','اکانت'],['reason','Reason','علت'],['make','Make','سازنده'],['model','Model','مدل'],['colour','Colour','رنگ'],['plate','Plate','پلاک'],['vin','VIN','VIN'],['location','Location','مبدأ'],['destination','Destination','مقصد'],['owner','Owner','مالک'],['receiver','Veh receiver','تحویل‌گیرنده'],['rem','REM','REM'],['rpm','RPM','RPM'],['invoice','Invoice#','فاکتور'],['towImpound','Tow/Impound','حمل/توقیف'],['kmTo','Km to veh','کیلومتر تا خودرو'],['kmTow','Km towed','کیلومتر حمل'],['net','Total net','خالص'],['classic','Classic Towing','Classic Towing'],['classicHst','Classic HST','HST کلاسیک'],['driver','Driver','راننده'],['driverHst','Driver HST','HST راننده'],['golden','Golden Gate Towing','Golden Gate Towing'],['goldenHst','Golden Gate HST','HST گلدن گیت'],['hst','HST','HST'],['total','Total charged','جمع'],['collected','Total collected','نقد دریافتی']];
+const MONEY=['net','hst','total','classic','classicHst','driver','driverHst','golden','goldenHst'];
+const SUMC=new Set([...MONEY,'kmTo','kmTow','collected']);
 function repRows(s,e,en){return calls.filter(c=>c.date>=s&&c.date<=e).sort((a,b)=>(a.date+a.timeStart).localeCompare(b.date+b.timeStart)).map(c=>{const p=price(c);return{...c,...p,kmTo:p.kmTo,kmTow:p.kmTow,acct:c.account,account:an(c.account,en),reason:en?c.reason:reasonLabel(c.reason)}})}
 function renderReport(){
   const ps=periods(),sel=$('#period'),keep=sel.value;
   sel.innerHTML=ps.map(([s,e])=>`<option value="${s}|${e}">${s} → ${e}</option>`).join('');if(keep&&ps.some(p=>p.join('|')===keep))sel.value=keep;
   const [s,e]=sel.value.split('|'),rows=repRows(s,e),sum=k=>r2(rows.reduce((a,r)=>a+(+r[k]||0),0));
   $('#repHead').innerHTML=`<p class="hint">${esc(S.driverName||'')} · Driver# ${esc(S.driverNo||'')} · Truck# ${esc(S.truckNo||'')} · TSSEA TD-${esc(S.tssea||'')} · ${esc(S.company||'')}</p>`;
-  $('#repSum').innerHTML=`<div>${t('sCalls')}<b>${rows.length}</b></div><div>${t('sNet')}<b>${$f(sum('net'))}</b></div><div>${t('sHst')}<b>${$f(sum('hst'))}</b></div><div>${t('sInv')}<b>${$f(sum('total'))}</b></div><div>${t('sCash')}<b>${$f(sum('collected'))}</b></div><div>${t('sKm')}<b>${sum('kmTo')} / ${sum('kmTow')}</b></div>`
+  $('#repSum').innerHTML=`<div>${t('sCalls')}<b>${rows.length}</b></div><div>${t('sNet')}<b>${$f(sum('net'))}</b></div><div>${t('sHst')}<b>${$f(sum('hst'))}</b></div><div>${t('sInv')}<b>${$f(sum('total'))}</b></div><div>${t('sCash')}<b>${$f(sum('collected'))}</b></div><div>${t('myShare')} (${S.driverPct}%)<b>${$f(sum('driver'))} <small>+ HST ${$f(sum('driverHst'))}</small></b></div><div>Classic Towing<b>${$f(sum('classic'))}</b></div><div>Golden Gate Towing<b>${$f(sum('golden'))}</b></div><div>${t('sKm')}<b>${sum('kmTo')} / ${sum('kmTow')}</b></div>`
    +Object.keys(ACCTS).map(a=>{const rr=rows.filter(r=>r.acct===a);return rr.length?`<div>${an(a)}<b>${rr.length} · ${$f(r2(rr.reduce((x,r)=>x+r.net,0)))}</b></div>`:''}).join('');
   $('#repTbl').innerHTML=`<table><thead><tr>${COLS.map(c=>`<th>${lb(c)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${COLS.map(([k])=>`<td dir="auto">${esc(MONEY.includes(k)?r[k].toFixed(2):r[k]??'')}</td>`).join('')}</tr>`).join('')||`<tr><td colspan="${COLS.length}">${t('noCallsPeriod')}</td></tr>`}</tbody>
-  <tfoot><tr><td colspan="${COLS.length-6}">${t('total')} (${rows.length})</td><td>${sum('kmTo')}</td><td>${sum('kmTow')}</td><td>${sum('net').toFixed(2)}</td><td>${sum('hst').toFixed(2)}</td><td>${sum('total').toFixed(2)}</td><td>${sum('collected').toFixed(2)}</td></tr></tfoot></table>`;
+  <tfoot><tr>${COLS.map(([k],i)=>`<td>${i===0?`${t('total')} (${rows.length})`:SUMC.has(k)?(MONEY.includes(k)||k==='collected'?sum(k).toFixed(2):sum(k)):''}</td>`).join('')}</tr></tfoot></table>`;
 }
 const esc=v=>String(v).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 $('#period').onchange=renderReport;
