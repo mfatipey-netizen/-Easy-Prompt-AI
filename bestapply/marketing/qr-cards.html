@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>BestApply — QR pocket cards (EN + FA)</title>
+<style>
+  @page { size: A4; margin: 15mm; }
+  html, body { margin: 0; padding: 0; background: #f1f5f9; }
+  body { font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; padding: 30px; color: #0f172a; }
+  .sheet { max-width: 180mm; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.1); }
+  h1 { margin: 0 0 20px; font-size: 20px; }
+  .instr { background: #fef3c7; padding: 12px 16px; border-radius: 8px; font-size: 13px; margin-bottom: 20px; color: #78350f; }
+  .instr b { color: #92400e; }
+  .print-btn { position: fixed; top: 20px; right: 20px; background: #dc2626; color: white; padding: 12px 24px; border-radius: 8px; border: 0; font-weight: 700; cursor: pointer; box-shadow: 0 6px 20px rgba(220,38,38,0.35); z-index: 100; }
+  @media print { body { background: white; padding: 0; } .sheet { box-shadow: none; padding: 0; } .instr, h1 { display: none; } .print-btn { display: none; } }
+
+  .cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12mm; }
+  .card { border: 1.5px dashed #cbd5e1; border-radius: 8px; padding: 8mm; text-align: center; page-break-inside: avoid; }
+  @media print { .card { border: 1.5px dashed #94a3b8; } }
+  .card .brand { font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #dc2626; margin-bottom: 4mm; }
+  .card .brand .flag { display: inline-block; margin-right: 4px; }
+  .card .qr { width: 45mm; height: 45mm; margin: 2mm auto; display: block; }
+  .card .tagline { margin: 5mm 0 2mm; font-size: 13px; font-weight: 700; line-height: 1.4; color: #0f172a; min-height: 40px; display: flex; align-items: center; justify-content: center; text-align: center; }
+  .card .tagline.fa { font-family: 'Vazirmatn', 'Tahoma', 'Segoe UI', sans-serif; direction: rtl; font-size: 15px; }
+  .card .url { margin-top: 2mm; font-size: 11px; color: #64748b; font-weight: 600; letter-spacing: 0.5px; }
+  .card.dark { background: #0f172a; color: white; }
+  .card.dark .brand { color: #fca5a5; }
+  .card.dark .tagline { color: white; }
+  .card.dark .url { color: #94a3b8; }
+  .card.dark .qr { background: white; padding: 4mm; box-sizing: border-box; }
+</style>
+</head>
+<body>
+<button class="print-btn" onclick="window.print()">🖨️ Print</button>
+<div class="sheet">
+  <h1>BestApply.app — Pocket QR cards</h1>
+  <div class="instr">
+    <b>How to use:</b> Print this page on A4, then cut along the dashed lines to get 4 pocket-sized cards. Each card is ~72mm × 100mm — fits in a wallet. Take the two English cards to JVS tomorrow. Keep the Persian ones for Iranian community outreach later (supermarkets, mosques, Telegram groups).
+  </div>
+
+  <div class="cards">
+
+    <!-- Card 1: English, light -->
+    <div class="card">
+      <div class="brand"><span class="flag">🍁</span>BESTAPPLY.APP</div>
+      <img class="qr" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAApQAAAKUAQMAAACAATp/AAAABlBMVEUAAAD///+l2Z/dAAAAAnRSTlP//8i138cAAAAJcEhZcwAACxIAAAsSAdLdfvwAAAI0SURBVHic7dpBbsQgDADA/ID//zI/2KpVEhvDblWSS6XxAQmwx3uzSLu9no+NyWQymUwmk8lkMv+tudVo32etT9239AOOlLGMyWQymcwbZld/bAPZ+6p93pbJZDKZzAfMqBrGW6S0YTuWMZlMJpP5nJnPysWnLZPJZDKZj5rHxZa//B3vsPMxxmQymUzm82ZENseLWe8umclkMpnMVbNEu+o/L2MZk8lkMpnL5jzifVX+KWKP+lkwmUwmk3nDzGOrG2DRIqRyEQCTyWQymctmDLAjd7+4WnDp29WCyWQymcxnzPy+ev2uB3dGd8ZkMplM5qpZ4H2OHHo56wYdk8lkMpnL5myo5W13Oz9LwWQymUzmqtnVBxwdIy+4SOnymEwmk8lcNdt1VLizWd5GRZfHZDKZTOY9Mz+jRrhwOepzi8lkMpnMu2aUBlyqZq+vXDvMOCaTyWQy/2r+RJa65bcXWaQwmUwmk7loDrMrIi5anmzBlQsmk8lkMpfN+VAr5tanvIoUwWQymUzmmjmfcYU78/JQi7w9KphMJpPJXDNnkeu7paufnTGZTCaTuWZuNdpcz8ml2cZkMplM5n3zE5I/+rVJi5ZTmEwmk8m8Z85m12Bu/Z+jznj3XZHJZDKZzJvmkRZImWxvLphMJpPJfNQ8qvZreQ19YrJ1MJPJZDKZN8yIvJ1W9R3PvKucyWQymcxFs0S70s7cMvdms7DOOCaTyWQy/2Y+G0wmk8lkMplMJpP5H80vM+DbleI1sQIAAAAASUVORK5CYII=" alt="QR">
+      <div class="tagline">Check me<br>before you apply</div>
+      <div class="url">bestapply.app</div>
+    </div>
+
+    <!-- Card 2: English, dark -->
+    <div class="card dark">
+      <div class="brand"><span class="flag">🍁</span>BESTAPPLY.APP</div>
+      <img class="qr" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAApQAAAKUAQMAAACAATp/AAAABlBMVEUAAAD///+l2Z/dAAAAAnRSTlP//8i138cAAAAJcEhZcwAACxIAAAsSAdLdfvwAAAI0SURBVHic7dpBbsQgDADA/ID//zI/2KpVEhvDblWSS6XxAQmwx3uzSLu9no+NyWQymUwmk8lkMv+tudVo32etT9239AOOlLGMyWQymcwbZld/bAPZ+6p93pbJZDKZzAfMqBrGW6S0YTuWMZlMJpP5nJnPysWnLZPJZDKZj5rHxZa//B3vsPMxxmQymUzm82ZENseLWe8umclkMpnMVbNEu+o/L2MZk8lkMpnL5jzifVX+KWKP+lkwmUwmk3nDzGOrG2DRIqRyEQCTyWQymctmDLAjd7+4WnDp29WCyWQymcxnzPy+ev2uB3dGd8ZkMplM5qpZ4H2OHHo56wYdk8lkMpnL5myo5W13Oz9LwWQymUzmqtnVBxwdIy+4SOnymEwmk8lcNdt1VLizWd5GRZfHZDKZTOY9Mz+jRrhwOepzi8lkMpnMu2aUBlyqZq+vXDvMOCaTyWQy/2r+RJa65bcXWaQwmUwmk7loDrMrIi5anmzBlQsmk8lkMpfN+VAr5tanvIoUwWQymUzmmjmfcYU78/JQi7w9KphMJpPJXDNnkeu7paufnTGZTCaTuWZuNdpcz8ml2cZkMplM5n3zE5I/+rVJi5ZTmEwmk8m8Z85m12Bu/Z+jznj3XZHJZDKZzJvmkRZImWxvLphMJpPJfNQ8qvZreQ19YrJ1MJPJZDKZN8yIvJ1W9R3PvKucyWQymcxFs0S70s7cMvdms7DOOCaTyWQy/2Y+G0wmk8lkMplMJpP5H80vM+DbleI1sQIAAAAASUVORK5CYII=" alt="QR">
+      <div class="tagline">Should you apply?<br>Ask me first.</div>
+      <div class="url">bestapply.app</div>
+    </div>
+
+    <!-- Card 3: Persian, light -->
+    <div class="card">
+      <div class="brand"><span class="flag">🍁</span>BESTAPPLY.APP</div>
+      <img class="qr" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAApQAAAKUAQMAAACAATp/AAAABlBMVEUAAAD///+l2Z/dAAAAAnRSTlP//8i138cAAAAJcEhZcwAACxIAAAsSAdLdfvwAAAI0SURBVHic7dpBbsQgDADA/ID//zI/2KpVEhvDblWSS6XxAQmwx3uzSLu9no+NyWQymUwmk8lkMv+tudVo32etT9239AOOlLGMyWQymcwbZld/bAPZ+6p93pbJZDKZzAfMqBrGW6S0YTuWMZlMJpP5nJnPysWnLZPJZDKZj5rHxZa//B3vsPMxxmQymUzm82ZENseLWe8umclkMpnMVbNEu+o/L2MZk8lkMpnL5jzifVX+KWKP+lkwmUwmk3nDzGOrG2DRIqRyEQCTyWQymctmDLAjd7+4WnDp29WCyWQymcxnzPy+ev2uB3dGd8ZkMplM5qpZ4H2OHHo56wYdk8lkMpnL5myo5W13Oz9LwWQymUzmqtnVBxwdIy+4SOnymEwmk8lcNdt1VLizWd5GRZfHZDKZTOY9Mz+jRrhwOepzi8lkMpnMu2aUBlyqZq+vXDvMOCaTyWQy/2r+RJa65bcXWaQwmUwmk7loDrMrIi5anmzBlQsmk8lkMpfN+VAr5tanvIoUwWQymUzmmjmfcYU78/JQi7w9KphMJpPJXDNnkeu7paufnTGZTCaTuWZuNdpcz8ml2cZkMplM5n3zE5I/+rVJi5ZTmEwmk8m8Z85m12Bu/Z+jznj3XZHJZDKZzJvmkRZImWxvLphMJpPJfNQ8qvZreQ19YrJ1MJPJZDKZN8yIvJ1W9R3PvKucyWQymcxFs0S70s7cMvdms7DOOCaTyWQy/2Y+G0wmk8lkMplMJpP5H80vM+DbleI1sQIAAAAASUVORK5CYII=" alt="QR">
+      <div class="tagline fa">قبل از اپلای<br>یه سر به من بزن</div>
+      <div class="url">bestapply.app</div>
+    </div>
+
+    <!-- Card 4: Persian, dark -->
+    <div class="card dark">
+      <div class="brand"><span class="flag">🍁</span>BESTAPPLY.APP</div>
+      <img class="qr" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAApQAAAKUAQMAAACAATp/AAAABlBMVEUAAAD///+l2Z/dAAAAAnRSTlP//8i138cAAAAJcEhZcwAACxIAAAsSAdLdfvwAAAI0SURBVHic7dpBbsQgDADA/ID//zI/2KpVEhvDblWSS6XxAQmwx3uzSLu9no+NyWQymUwmk8lkMv+tudVo32etT9239AOOlLGMyWQymcwbZld/bAPZ+6p93pbJZDKZzAfMqBrGW6S0YTuWMZlMJpP5nJnPysWnLZPJZDKZj5rHxZa//B3vsPMxxmQymUzm82ZENseLWe8umclkMpnMVbNEu+o/L2MZk8lkMpnL5jzifVX+KWKP+lkwmUwmk3nDzGOrG2DRIqRyEQCTyWQymctmDLAjd7+4WnDp29WCyWQymcxnzPy+ev2uB3dGd8ZkMplM5qpZ4H2OHHo56wYdk8lkMpnL5myo5W13Oz9LwWQymUzmqtnVBxwdIy+4SOnymEwmk8lcNdt1VLizWd5GRZfHZDKZTOY9Mz+jRrhwOepzi8lkMpnMu2aUBlyqZq+vXDvMOCaTyWQy/2r+RJa65bcXWaQwmUwmk7loDrMrIi5anmzBlQsmk8lkMpfN+VAr5tanvIoUwWQymUzmmjmfcYU78/JQi7w9KphMJpPJXDNnkeu7paufnTGZTCaTuWZuNdpcz8ml2cZkMplM5n3zE5I/+rVJi5ZTmEwmk8m8Z85m12Bu/Z+jznj3XZHJZDKZzJvmkRZImWxvLphMJpPJfNQ8qvZreQ19YrJ1MJPJZDKZN8yIvJ1W9R3PvKucyWQymcxFs0S70s7cMvdms7DOOCaTyWQy/2Y+G0wmk8lkMplMJpP5H80vM+DbleI1sQIAAAAASUVORK5CYII=" alt="QR">
+      <div class="tagline fa">هوش مصنوعیه ولی<br>خیلی کاناداییه!</div>
+      <div class="url">bestapply.app</div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
