@@ -79,6 +79,10 @@ textarea{min-height:60px;resize:vertical}
 .tbl th,.tbl td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:start}
 .tbl th{background:#111827;color:var(--acc);position:sticky;top:0}
 .tbl tfoot td{font-weight:800;background:#111827}
+.tbl tbody tr:nth-child(even) td{background:#22304a}
+.tbl tbody tr.sel td{background:#3b2a07;color:#fde68a}
+.tbl td.num{text-align:end;direction:ltr}
+.list .it:nth-child(even){background:#1b2740;margin:0 -8px;padding-inline:8px}
 .sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:10px 0}
 .sum div{background:#0b1220;border:1px solid var(--line);border-radius:10px;padding:10px}.sum b{display:block;font-size:20px;color:var(--acc);direction:ltr;text-align:start}
 .voicebar{position:fixed;inset-inline-end:16px;bottom:96px;z-index:7;width:66px;height:66px;border-radius:50%;border:0;background:var(--blue);color:#fff;font-size:30px;box-shadow:0 6px 20px rgba(0,0,0,.5)}
@@ -228,6 +232,9 @@ textarea{min-height:60px;resize:vertical}
     </div>
     <div id="repHead"></div>
     <div class="sum" id="repSum"></div>
+    <h2 data-i="dailyT" style="margin-top:14px"></h2>
+    <div class="tbl" id="repDaily"></div>
+    <h2 data-i="callsT" style="margin-top:14px"></h2>
     <div class="tbl" id="repTbl"></div>
   </div>
 </section>
@@ -368,7 +375,7 @@ const L={en:{
  voiceHint:'Big blue 🎤 = say several fields at once, e.g. “account cash, make Honda, model Civic, colour red, plate C X R T 4 5 2, reason flat tire”. The 🎤 on plate, VIN and address fields always listens in English.',
  setT:'Driver / sheet header',ratesT:'Rates',ratesHint:'Km to vehicle: first km free for every account, extra km at the account rate. Km towed: free km depend on the account, extra km at the account rate. Every call adds the base fee.',
  backupT:'Database file',backupHint:'Save the whole database (with photos) to iCloud Drive / Google Drive, or load it back after reinstalling or on a new phone.',exp:'💾 Save database',imp:'📂 Load database',
- navCall:'Today',share:'Share',exHst:'Before HST',incHst:'With HST',driverShare:'Driver (me)',myShare:'My share',todayT:'📅 Today’s calls',backHome:'← Today',tResume:'▶ Continue call',noToday:'No calls yet today.',dayTotal:'Today (net)',navLog:'Log',navRep:'Report',navSet:'Settings',
+ navCall:'Today',dailyT:'💰 Financial summary — by day',callsT:'📋 Calls',dDate:'Date',dNet:'Net (excl. HST)',dDays:'days',share:'Share',exHst:'Before HST',incHst:'With HST',driverShare:'Driver (me)',myShare:'My share',todayT:'📅 Today’s calls',backHome:'← Today',tResume:'▶ Continue call',noToday:'No calls yet today.',dayTotal:'Today (net)',navLog:'Log',navRep:'Report',navSet:'Settings',
  alarmH:'COLLECT CASH FIRST',alarmP:'Collect payment BEFORE hooking / towing the vehicle.',collectedBtn:'✅ Collected',later:'Close',acctEst:'account · estimate updates with km',extraKm:'Extra km',
  base:'Base fee (call accepted)',toVeh:'To vehicle',towed:'Towed',free:'free',tNet:'Total net (excl. HST)',tTot:'Total',payT:'Pay estimate',pickAcct:'Select the account type to calculate.',
  gpsOff:'GPS off',noGps:'No GPS',
@@ -410,7 +417,7 @@ const L={en:{
  voiceHint:'🎤 آبی بزرگ = چند فیلد را یک‌جا بگو، مثلاً «اکانت کش، سازنده تویوتا، مدل کرولا، رنگ سفید، علت پنچری، مبدأ … مقصد …». میکروفونِ کنار پلاک، VIN و آدرس‌ها همیشه انگلیسی گوش می‌دهد.',
  setT:'مشخصات راننده / سربرگ',ratesT:'نرخ‌ها',ratesHint:'مسافت تا خودرو: چند کیلومتر اول برای همه رایگان، مازاد با نرخ همان اکانت. مسافت حمل: کیلومتر رایگان بسته به اکانت، مازاد با نرخ همان اکانت. هزینهٔ ثابت قبول کال به همه اضافه می‌شود.',
  backupT:'فایل دیتابیس',backupHint:'کل دیتابیس (با عکس‌ها) را در iCloud Drive یا Google Drive ذخیره کن، یا بعد از نصب دوباره یا روی گوشی جدید لودش کن.',exp:'💾 ذخیرهٔ دیتابیس',imp:'📂 لود دیتابیس',
- navCall:'امروز',share:'سهم',exHst:'بدون HST',incHst:'با HST',driverShare:'راننده (من)',myShare:'سهم من',todayT:'📅 کال‌های امروز',backHome:'→ امروز',tResume:'▶ ادامهٔ کال',noToday:'امروز هنوز کالی ثبت نشده.',dayTotal:'جمع امروز (خالص)',navLog:'لیست',navRep:'گزارش',navSet:'تنظیمات',
+ navCall:'امروز',dailyT:'💰 خلاصهٔ مالی — روزانه',callsT:'📋 کال‌ها',dDate:'تاریخ',dNet:'خالص (بدون HST)',dDays:'روز',share:'سهم',exHst:'بدون HST',incHst:'با HST',driverShare:'راننده (من)',myShare:'سهم من',todayT:'📅 کال‌های امروز',backHome:'→ امروز',tResume:'▶ ادامهٔ کال',noToday:'امروز هنوز کالی ثبت نشده.',dayTotal:'جمع امروز (خالص)',navLog:'لیست',navRep:'گزارش',navSet:'تنظیمات',
  alarmH:'اول پول نقد را بگیر!',alarmP:'قبل از بستن و حمل خودرو، اول وجه نقد را دریافت کن.',collectedBtn:'✅ دریافت شد',later:'بستن',acctEst:' · مبلغ تخمینی با کیلومتر به‌روز می‌شود',extraKm:'کیلومتر مازاد',
  base:'هزینهٔ ثابت قبول کال',toVeh:'تا خودرو',towed:'حمل',free:'رایگان',tNet:'جمع خالص (بدون HST)',tTot:'جمع کل',payT:'محاسبهٔ مبلغ',pickAcct:'برای محاسبه نوع اکانت را انتخاب کن.',
  gpsOff:'GPS خاموش',noGps:'GPS ندارد',
@@ -594,8 +601,9 @@ function buildUI(){
   $('#f_reason').innerHTML=`<option value="">${t('selReason')}</option>`+REASONS.map(r=>`<option value="${r[0]}">${reasonText(r)}</option>`).join('');
   $('#setGrid').innerHTML=SET.map(s=>`<div><label>${lb(s)}</label><input id="s_${s[0]}" type="${s[3]||'text'}"></div>`).join('');
   $('#rateGrid').innerHTML=RATES.map(r=>`<div><label>${lb(r)}</label><input id="s_${r[0]}" class="ltr" inputmode="decimal"></div>`).join('');
-  [...SET,...RATES,['ui'],['lang'],['speak'],['email'],['mailCall'],['mailWeek'],['mailBk']].forEach(([k])=>$('#s_'+k).onchange=e=>{S[k]=e.target.value;saveSet();if(k==='ui'){buildUI();fillSet()}else renderPrice()});
-  FIELDS.forEach(k=>{const el=$('#f_'+k);if(!el)return;el.oninput=el.onchange=()=>{cur[k]=el.value;if(k==='plate'||k==='vin')cur[k]=el.value=el.value.toUpperCase();saveCur();renderPrice()}});
+  [...SET,...RATES,['ui'],['lang'],['speak'],['email'],['mailCall'],['mailWeek'],['mailBk']].forEach(([k])=>$('#s_'+k).onchange=e=>{S[k]=RATES.some(r=>r[0]===k)?(e.target.value=normDigits(e.target.value).replace(/[^0-9.]/g,'')):e.target.value;saveSet();if(k==='ui'){buildUI();fillSet()}else renderPrice()});
+  const NUMF=new Set(['kmTo','kmTow','rem','rpm','collected']);
+  FIELDS.forEach(k=>{const el=$('#f_'+k);if(!el)return;if(NUMF.has(k))el.lang='en';el.oninput=el.onchange=()=>{if(NUMF.has(k)){const v=normDigits(el.value).replace(/[^0-9.]/g,'');if(v!==el.value)el.value=v}cur[k]=el.value;if(k==='plate'||k==='vin')cur[k]=el.value=el.value.toUpperCase();saveCur();renderPrice()}});
   $('#guide').innerHTML=L[S.ui].guide;
   $('#fb_type').innerHTML=L[S.ui].fbTypes.map((x,i)=>`<option value="${L.en.fbTypes[i]}">${x}</option>`).join('');renderStars();
   if(!watch)$('#gpsStat').textContent=t('gpsOff');
@@ -928,6 +936,7 @@ const COLS=[['date','Date','تاریخ'],['timeStart','Time start','شروع'],[
 const MONEY=['net','hst','total','classic','classicHst','driver','driverHst','golden','goldenHst'];
 const SUMC=new Set([...MONEY,'kmTo','kmTow','collected']);
 function repRows(s,e,en){return calls.filter(c=>c.date>=s&&c.date<=e).sort((a,b)=>(a.date+a.timeStart).localeCompare(b.date+b.timeStart)).map(c=>{const p=price(c);return{...c,...p,kmTo:p.kmTo,kmTow:p.kmTow,acct:c.account,account:an(c.account,en),reason:en?c.reason:reasonLabel(c.reason)}})}
+let dailyRows=[];
 function renderReport(){
   const ps=periods(),sel=$('#period'),keep=sel.value;
   sel.innerHTML=ps.map(([s,e])=>`<option value="${s}|${e}">${s} → ${e}</option>`).join('');if(keep&&ps.some(p=>p.join('|')===keep))sel.value=keep;
@@ -935,16 +944,28 @@ function renderReport(){
   $('#repHead').innerHTML=`<p class="hint">${esc(S.driverName||'')} · Driver# ${esc(S.driverNo||'')} · Truck# ${esc(S.truckNo||'')} · TSSEA TD-${esc(S.tssea||'')} · ${esc(S.company||'')}</p>`;
   $('#repSum').innerHTML=`<div>${t('sCalls')}<b>${rows.length}</b></div><div>${t('sNet')}<b>${$f(sum('net'))}</b></div><div>${t('sHst')}<b>${$f(sum('hst'))}</b></div><div>${t('sInv')}<b>${$f(sum('total'))}</b></div><div>${t('sCash')}<b>${$f(sum('collected'))}</b></div><div>${t('myShare')} (${S.driverPct}%)<b>${$f(sum('driver'))} <small>+ HST ${$f(sum('driverHst'))}</small></b></div><div>Classic Towing<b>${$f(sum('classic'))}</b></div><div>Golden Gate Towing<b>${$f(sum('golden'))}</b></div><div>${t('sKm')}<b>${sum('kmTo')} / ${sum('kmTow')}</b></div>`
    +Object.keys(ACCTS).map(a=>{const rr=rows.filter(r=>r.acct===a);return rr.length?`<div>${an(a)}<b>${rr.length} · ${$f(r2(rr.reduce((x,r)=>x+r.net,0)))}</b></div>`:''}).join('');
+  // daily financial summary: one row per working day in the period
+  const days=[...new Set(rows.map(r=>r.date))].sort(),DC=[['calls',t('sCalls')],['kmTo','Km to veh'],['kmTow','Km towed'],['net',t('dNet')],['hst','HST'],['classic','Classic 10%'],['driver',t('myShare')],['driverHst',t('myShare')+' HST'],['golden','Golden Gate'],['collected',t('sCash')]];
+  const dRow=rs=>({calls:rs.length,kmTo:r2(rs.reduce((a,r)=>a+(+r.kmTo||0),0)),kmTow:r2(rs.reduce((a,r)=>a+(+r.kmTow||0),0)),...Object.fromEntries(['net','hst','classic','driver','driverHst','golden','collected'].map(k=>[k,r2(rs.reduce((a,r)=>a+(+r[k]||0),0))]))});
+  const fmt=(k,v)=>['calls','kmTo','kmTow'].includes(k)?v:(+v).toFixed(2);
+  dailyRows=days.map(d=>({date:d,...dRow(rows.filter(r=>r.date===d))}));const dt=dRow(rows);
+  $('#repDaily').innerHTML=`<table><thead><tr><th>${t('dDate')}</th>${DC.map(c=>`<th>${c[1]}</th>`).join('')}</tr></thead><tbody>${dailyRows.map(r=>`<tr><td dir="ltr" style="white-space:nowrap">${r.date} <small>${new Date(r.date+'T12:00').toLocaleDateString('en-CA',{weekday:'short'})}</small></td>${DC.map(([k])=>`<td class="num">${fmt(k,r[k])}</td>`).join('')}</tr>`).join('')||`<tr><td colspan="${DC.length+1}">${t('noCallsPeriod')}</td></tr>`}</tbody>
+  <tfoot><tr><td>${t('total')} · ${days.length} ${t('dDays')}</td>${DC.map(([k])=>`<td class="num">${fmt(k,dt[k])}</td>`).join('')}</tr></tfoot></table>`;
   $('#repTbl').innerHTML=`<table><thead><tr>${COLS.map(c=>`<th>${lb(c)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${COLS.map(([k])=>`<td dir="auto">${esc(MONEY.includes(k)?r[k].toFixed(2):r[k]??'')}</td>`).join('')}</tr>`).join('')||`<tr><td colspan="${COLS.length}">${t('noCallsPeriod')}</td></tr>`}</tbody>
   <tfoot><tr>${COLS.map(([k],i)=>`<td>${i===0?`${t('total')} (${rows.length})`:SUMC.has(k)?(MONEY.includes(k)||k==='collected'?sum(k).toFixed(2):sum(k)):''}</td>`).join('')}</tr></tfoot></table>`;
 }
 const esc=v=>String(v).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 $('#period').onchange=renderReport;
+// tap a row to keep track of it
+document.addEventListener('click',e=>{const tr=e.target.closest('.tbl tbody tr');if(tr)tr.classList.toggle('sel')});
 $('#printBtn').onclick=()=>print();
 // CSV stays in English so it matches the company's paper runsheet
 $('#csvBtn').onclick=()=>{const [s,e]=$('#period').value.split('|'),rows=repRows(s,e,1);
   const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
-  const csv=[COLS.map(c=>q(c[1])).join(','),...rows.map(r=>COLS.map(([k])=>q(MONEY.includes(k)?r[k].toFixed(2):r[k])).join(','))].join('\r\n');
+  renderReport();const DK=['date','calls','kmTo','kmTow','net','hst','classic','driver','driverHst','golden','collected'];
+  const csv=[COLS.map(c=>q(c[1])).join(','),...rows.map(r=>COLS.map(([k])=>q(MONEY.includes(k)?r[k].toFixed(2):r[k])).join(',')),'','"Daily financial summary"',
+    ['Date','Calls','Km to veh','Km towed','Total net','HST','Classic Towing','Driver','Driver HST','Golden Gate Towing','Cash collected'].map(q).join(','),
+    ...dailyRows.map(r=>DK.map(k=>q(['date','calls','kmTo','kmTow'].includes(k)?r[k]:(+r[k]).toFixed(2))).join(','))].join('\r\n');
   dl(new Blob(['﻿'+csv],{type:'text/csv'}),`runsheet_${s}_${e}.csv`)};
 function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),5000)}
 
