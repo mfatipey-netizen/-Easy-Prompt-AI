@@ -1,0 +1,1239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<title>BestApply.app — Should you apply, or not?</title>
+<meta name="description" content="AI-powered job fit analysis built for Canada. Paste any job posting, get a fit score, real gaps, and a should-you-apply verdict in three minutes. Free tier — no credit card. Understands NOC 2021 codes, PGWP, LMIA-exempt roles, and 17 languages.">
+<meta name="keywords" content="Canadian job search, AI job fit, NOC 2021, PGWP, LMIA, immigrant job search Canada, cover letter, job application AI, LinkedIn Canada, Express Entry, work permit Canada">
+<meta name="author" content="BestApply.app">
+<link rel="canonical" href="https://bestapply.app/">
+
+<!-- Open Graph (LinkedIn, Facebook, WhatsApp preview cards) -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://bestapply.app/">
+<meta property="og:title" content="BestApply.app — Should you apply, or not?">
+<meta property="og:description" content="Before you spend hours on another application, let AI tell you your real chance of getting it. Built for the Canadian job market. Free tier, no credit card.">
+<meta property="og:site_name" content="BestApply.app">
+<meta property="og:locale" content="en_CA">
+<meta property="og:locale:alternate" content="fr_CA">
+
+<!-- Twitter / X card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="BestApply.app — Should you apply, or not?">
+<meta name="twitter:description" content="AI job-fit analyzer built for Canada. NOC codes, PGWP-aware, 17 languages. Free tier — no credit card.">
+
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🎯%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Vazirmatn:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+<script src="data.js"></script>
+
+<!-- Cloudflare Web Analytics — privacy-first, no cookies, no PII. Dashboard: dash.cloudflare.com → Web Analytics -->
+<script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "d8c8bd1510ae46c98b40c0cad2a1da3b"}'></script>
+<!-- End Cloudflare Web Analytics -->
+
+<style>
+  :root {
+    --bg: #f8fafc; --card: #ffffff; --ink: #0f172a; --muted: #64748b; --line: #e2e8f0;
+    --brand: #dc2626; --brand-dark: #b91c1c; --accent: #2563eb; --good: #10b981; --warn: #f59e0b;
+    --canada: #ff0000;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0b1120; --card: #111827; --ink: #f1f5f9; --muted: #94a3b8; --line: #1e293b; }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: 'Inter', 'Vazirmatn', sans-serif; }
+  body { min-height: 100vh; }
+  a { color: var(--accent); text-decoration: none; }
+
+  nav { position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+  nav .wrap { max-width: 1100px; margin: 0 auto; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  nav .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 17px; letter-spacing: -0.4px; }
+  nav .brand .flag { display: inline-block; width: 22px; height: 15px; background: linear-gradient(to right, var(--canada) 25%, white 25%, white 75%, var(--canada) 75%); position: relative; border-radius: 2px; }
+  nav .brand .flag::after { content: '🍁'; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 10px; }
+  nav .tabs { display: flex; gap: 4px; }
+  nav .tab { padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--muted); font-size: 14px; border: 0; background: transparent; }
+  nav .tab.active { background: var(--ink); color: var(--bg); }
+  @media (max-width: 640px) { nav .tab { padding: 6px 10px; font-size: 13px; } }
+  nav .user-pill { display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; background: var(--card); border: 1px solid var(--line); border-radius: 999px; cursor: pointer; font-size: 12px; font-weight: 600; }
+  nav .user-pill:hover { border-color: var(--brand); }
+  nav .user-pill .avatar { width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, var(--brand), var(--brand-dark)); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; }
+  nav .user-pill .plan-badge { padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+  nav .user-pill .plan-badge.free  { background: rgba(100,116,139,0.15); color: var(--muted); }
+  nav .user-pill .plan-badge.byok  { background: rgba(37,99,235,0.15);  color: var(--accent); }
+  nav .user-pill .plan-badge.basic { background: rgba(245,158,11,0.15); color: var(--warn); }
+  nav .user-pill .plan-badge.pro   { background: rgba(16,185,129,0.15); color: var(--good); }
+  nav .user-pill .rem { color: var(--muted); }
+  @media (max-width: 640px) {
+    nav .wrap { flex-wrap: wrap; }
+    nav .user-pill .rem { display: none; }
+    nav .tabs { order: 3; width: 100%; overflow-x: auto; }
+  }
+
+  .memory-alert { background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(220,38,38,0.08));
+    border-left: 4px solid var(--warn); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 12px; font-size: 14px; }
+  .memory-alert .icon { font-size: 22px; }
+  .memory-alert b { color: var(--warn); }
+  .related-jobs { border-top: 1px solid var(--line); padding-top: 20px; margin-top: 20px; }
+  .related-jobs h4 { margin: 0 0 12px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); font-weight: 700; }
+  .related-jobs .rel { display: flex; gap: 10px; padding: 8px 12px; background: var(--bg); border-radius: 8px; margin-bottom: 6px; cursor: pointer; font-size: 13px; align-items: center; }
+  .related-jobs .rel:hover { background: color-mix(in srgb, var(--brand) 10%, var(--bg)); }
+  .related-jobs .rel .mini-score { padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 11px; }
+  .related-jobs .rel .mini-score.go { background: rgba(16,185,129,0.15); color: var(--good); }
+  .related-jobs .rel .mini-score.wait { background: rgba(245,158,11,0.15); color: var(--warn); }
+  .related-jobs .rel .mini-score.skip { background: rgba(220,38,38,0.15); color: var(--brand); }
+
+  .companies-summary { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; margin-top: 8px; }
+  .company-card { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 13px; }
+  .company-card .n { font-weight: 800; color: var(--brand); font-size: 16px; }
+  .company-card .name { font-weight: 600; margin-top: 2px; }
+  .company-card .last { color: var(--muted); font-size: 11px; margin-top: 2px; }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 20px 80px; }
+  .view { display: none; }
+  .view.active { display: block; }
+
+  .hero { text-align: center; padding: 40px 0 30px; }
+  .hero .kicker { display: inline-block; padding: 4px 12px; border-radius: 999px; background: rgba(220,38,38,0.1); color: var(--brand); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
+  .hero h1 { margin: 0 0 16px; font-size: clamp(28px, 5vw, 48px); font-weight: 900; letter-spacing: -1.5px; line-height: 1.1; }
+  .hero h1 .hl { color: var(--brand); }
+  .hero p.lead { font-size: clamp(16px, 2vw, 20px); color: var(--muted); max-width: 640px; margin: 0 auto 28px; line-height: 1.55; }
+  .hero .cta { display: inline-flex; align-items: center; gap: 8px; padding: 14px 28px; background: var(--brand); color: white; border-radius: 12px; font-weight: 700; font-size: 16px; border: 0; cursor: pointer; box-shadow: 0 10px 30px rgba(220,38,38,0.25); }
+  .hero .cta:hover { background: var(--brand-dark); transform: translateY(-1px); transition: 150ms; }
+  .hero .free { display: block; margin-top: 12px; font-size: 13px; color: var(--muted); }
+
+  .pain { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 32px; margin: 32px 0; }
+  .pain h2 { margin: 0 0 8px; font-size: 24px; font-weight: 800; }
+  .pain h2 .fa { display: block; font-family: 'Vazirmatn'; font-size: 18px; color: var(--muted); direction: rtl; margin-top: 4px; font-weight: 600; }
+  .pain-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 24px; }
+  @media (max-width: 640px) { .pain-stats { grid-template-columns: 1fr; } }
+  .pain-stat { text-align: center; padding: 20px; background: var(--bg); border-radius: 12px; }
+  .pain-stat .n { font-size: 36px; font-weight: 900; color: var(--brand); letter-spacing: -1px; }
+  .pain-stat .l { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  .how { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 32px 0; }
+  @media (max-width: 720px) { .how { grid-template-columns: 1fr; } }
+  .how-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 24px; position: relative; }
+  .how-card .n { position: absolute; right: 20px; top: 20px; font-size: 44px; font-weight: 900; color: var(--line); line-height: 1; }
+  .how-card h3 { margin: 0 0 8px; font-size: 18px; font-weight: 700; }
+  .how-card p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+
+  /* "Why us" 3-up */
+  .why-us { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 24px 0 32px; }
+  @media (max-width: 720px) { .why-us { grid-template-columns: 1fr; } }
+  .why-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 24px; }
+  .why-card .icon { font-size: 36px; margin-bottom: 12px; line-height: 1; }
+  .why-card h3 { margin: 0 0 8px; font-size: 18px; font-weight: 700; }
+  .why-card p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+
+  /* Comparison table */
+  .compare-wrap { overflow-x: auto; margin: 12px 0 20px; }
+  .compare { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--card);
+    border: 1px solid var(--line); border-radius: 16px; overflow: hidden; font-size: 14px; }
+  .compare th, .compare td { padding: 14px 18px; text-align: left; border-bottom: 1px solid var(--line); }
+  .compare thead th { background: var(--bg); font-weight: 700; font-size: 13px; }
+  .compare thead th.us { background: linear-gradient(135deg, rgba(220,38,38,0.08), rgba(220,38,38,0.02)); color: var(--brand); }
+  .compare thead th .sub { display: block; font-size: 11px; font-weight: 500; color: var(--muted); text-transform: none; letter-spacing: 0; margin-top: 2px; }
+  .compare tbody tr:last-child td { border-bottom: 0; }
+  .compare td.yes { color: var(--good); font-weight: 700; text-align: center; }
+  .compare td.no { color: var(--brand); font-weight: 700; text-align: center; }
+  .compare td.partial { color: var(--warn); font-weight: 700; text-align: center; font-size: 12px; }
+  @media (max-width: 640px) { .compare th, .compare td { padding: 10px 12px; font-size: 13px; } }
+
+  /* FAQ */
+  .faq { max-width: 780px; margin: 0 auto; }
+  .faq-item { background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 4px 20px; margin-bottom: 10px; transition: border-color 0.15s; }
+  .faq-item[open] { border-color: var(--brand); }
+  .faq-item summary { padding: 14px 0; cursor: pointer; font-weight: 700; font-size: 15px;
+    list-style: none; position: relative; padding-right: 32px; }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item summary::after { content: '+'; position: absolute; right: 4px; top: 50%;
+    transform: translateY(-50%); font-size: 22px; font-weight: 400; color: var(--muted); transition: transform 0.2s; }
+  .faq-item[open] summary::after { content: '−'; }
+  .faq-item p { margin: 0 0 14px; color: var(--muted); font-size: 14px; line-height: 1.65; }
+  .faq-item p b, .faq-item p i { color: var(--ink); }
+
+  .pricing { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 40px 0 20px; }
+  @media (max-width: 720px) { .pricing { grid-template-columns: 1fr; } }
+  .price-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 28px 24px; position: relative; }
+  .price-card.popular { border: 2px solid var(--brand); box-shadow: 0 10px 40px rgba(220,38,38,0.12); }
+  .price-card .tag { position: absolute; top: -12px; right: 20px; padding: 4px 12px; background: var(--brand); color: white; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .price-card h4 { margin: 0 0 4px; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+  .price-card .price { font-size: 36px; font-weight: 900; letter-spacing: -1px; }
+  .price-card .price .cur { font-size: 18px; color: var(--muted); font-weight: 700; margin-right: 4px; }
+  .price-card .price .per { font-size: 14px; color: var(--muted); font-weight: 500; }
+  .price-card ul { margin: 16px 0 20px; padding: 0; list-style: none; font-size: 14px; color: var(--muted); }
+  .price-card li { padding: 6px 0; }
+  .price-card li::before { content: '✓ '; color: var(--good); font-weight: 900; margin-right: 4px; }
+  .price-card button { width: 100%; padding: 12px; border-radius: 10px; border: 0; font-weight: 700; font-size: 14px; cursor: pointer; background: var(--ink); color: var(--bg); }
+  .price-card.popular button { background: var(--brand); color: white; }
+
+  .step-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 24px; margin-bottom: 16px; }
+  .step-card h2 { margin: 0 0 8px; font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+  .step-card h2 .n { width: 28px; height: 28px; border-radius: 50%; background: var(--brand); color: white; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; }
+  .step-card p.help { margin: 0 0 16px; color: var(--muted); font-size: 14px; }
+  .segmented { display: inline-flex; background: var(--bg); padding: 4px; border-radius: 10px; border: 1px solid var(--line); gap: 4px; }
+  .segmented button { padding: 8px 14px; border: 0; background: transparent; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; color: var(--muted); }
+  .segmented button.active { background: var(--ink); color: var(--bg); }
+  textarea, input[type=text], input[type=url], input[type=password], select {
+    width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line);
+    background: var(--bg); color: var(--ink); font-family: inherit; font-size: 14px; box-sizing: border-box;
+  }
+  textarea { min-height: 100px; resize: vertical; }
+  textarea:focus, input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
+  label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; color: var(--muted); }
+  .btn-primary { padding: 14px 24px; background: var(--brand); color: white; border: 0; border-radius: 10px; font-weight: 700; font-size: 15px; cursor: pointer; }
+  .btn-primary:hover { background: var(--brand-dark); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-ghost { padding: 10px 16px; background: transparent; color: var(--ink); border: 1px solid var(--line); border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; }
+
+  /* Resume upload */
+  .resume-drop {
+    background: linear-gradient(135deg, rgba(37,99,235,0.06), rgba(220,38,38,0.06));
+    border: 2px dashed var(--accent); border-radius: 12px; padding: 24px;
+    text-align: center; cursor: pointer; transition: all 0.15s;
+  }
+  .resume-drop:hover, .resume-drop.dragover { background: rgba(37,99,235,0.1); border-color: var(--brand); }
+  .resume-drop .icon { font-size: 32px; margin-bottom: 8px; }
+  .resume-drop .t { font-weight: 700; font-size: 15px; }
+  .resume-drop .h { color: var(--muted); font-size: 13px; margin-top: 4px; }
+  .resume-drop input[type=file] { display: none; }
+  .resume-progress { margin-top: 12px; padding: 12px 16px; background: var(--bg); border-radius: 8px; font-size: 13px; color: var(--muted); display: none; align-items: center; gap: 10px; }
+  .resume-progress.active { display: flex; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .chip { padding: 5px 10px; background: var(--bg); border: 1px solid var(--line); border-radius: 999px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; }
+  .chip button { background: transparent; border: 0; color: var(--muted); cursor: pointer; padding: 0; font-size: 14px; line-height: 1; }
+  .chip-add { display: flex; gap: 6px; margin-top: 8px; }
+  .chip-add input { flex: 1; padding: 8px 12px; font-size: 13px; }
+  .chip-add button { padding: 8px 14px; }
+
+  /* Language rows */
+  .lang-row { display: grid; grid-template-columns: 1fr 1fr 30px; gap: 8px; margin-bottom: 8px; align-items: center; }
+  .lang-row button.rm { background: transparent; border: 1px solid var(--line); border-radius: 8px; color: var(--muted); cursor: pointer; padding: 8px 0; }
+
+  /* Result */
+  .result { background: var(--card); border-radius: 20px; padding: 28px; border: 1px solid var(--line); }
+  .score-hero { display: grid; grid-template-columns: 140px 1fr; gap: 24px; align-items: center; margin-bottom: 24px; }
+  @media (max-width: 640px) { .score-hero { grid-template-columns: 1fr; text-align: center; } }
+  .score-ring { position: relative; width: 140px; height: 140px; }
+  .score-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .score-ring .n { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .score-ring .n b { font-size: 40px; font-weight: 900; }
+  .score-ring .n s { text-decoration: none; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .verdict h3 { margin: 0 0 6px; font-size: 24px; font-weight: 800; }
+  .verdict p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.5; }
+  .verdict .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; margin-bottom: 8px; }
+  .badge.go { background: rgba(16,185,129,0.15); color: var(--good); }
+  .badge.wait { background: rgba(245,158,11,0.15); color: var(--warn); }
+  .badge.skip { background: rgba(220,38,38,0.15); color: var(--brand); }
+
+  .breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+  @media (max-width: 640px) { .breakdown { grid-template-columns: 1fr; } }
+  .col h4 { margin: 0 0 10px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); font-weight: 700; }
+  .col ul { margin: 0; padding: 0; list-style: none; }
+  .col li { padding: 10px 12px; margin-bottom: 6px; background: var(--bg); border-radius: 8px; font-size: 14px; line-height: 1.5; }
+  .col.strengths li::before { content: '✓ '; color: var(--good); font-weight: 900; }
+  .col.gaps li::before { content: '⚠ '; color: var(--warn); font-weight: 900; }
+  .action-list { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--line); }
+  .action-list h4 { margin: 0 0 12px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); font-weight: 700; }
+  .action-list ol { margin: 0; padding-left: 20px; }
+  .action-list li { padding: 6px 0; font-size: 14px; line-height: 1.5; }
+
+  .hist-item { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 14px; cursor: pointer; }
+  .hist-item:hover { border-color: var(--brand); }
+  .hist-item .score { font-size: 22px; font-weight: 900; padding: 8px 12px; border-radius: 10px; min-width: 60px; text-align: center; }
+  .hist-item .score.go { background: rgba(16,185,129,0.15); color: var(--good); }
+  .hist-item .score.wait { background: rgba(245,158,11,0.15); color: var(--warn); }
+  .hist-item .score.skip { background: rgba(220,38,38,0.15); color: var(--brand); }
+  .hist-item .title { font-weight: 700; font-size: 15px; }
+  .hist-item .meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .empty .icon { font-size: 48px; margin-bottom: 12px; }
+
+  .loader { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 100; }
+  .modal.open { display: flex; }
+  .modal-body { background: var(--card); border-radius: 16px; padding: 28px; max-width: 500px; width: 100%; max-height: 90vh; overflow: auto; }
+  .modal-body h3 { margin: 0 0 8px; }
+  .modal-body p { color: var(--muted); font-size: 14px; margin: 0 0 16px; }
+  .modal-close { float: right; background: transparent; border: 0; font-size: 24px; cursor: pointer; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="brand"><span class="flag"></span> BestApply<span style="color:var(--muted);font-weight:600">.app</span></div>
+    <div class="tabs">
+      <button class="tab active" data-view="home">Home</button>
+      <button class="tab" data-view="analyze">Analyze</button>
+      <button class="tab" data-view="profile">Profile</button>
+      <button class="tab" data-view="history">History</button>
+    </div>
+    <button class="user-pill" onclick="openPlan()" id="user-pill-btn">
+      <span class="avatar" id="user-avatar">?</span>
+      <span class="plan-badge free" id="plan-badge">Guest</span>
+      <span class="rem" id="plan-rem">Sign in</span>
+    </button>
+  </div>
+</nav>
+
+<main>
+
+<!-- HOME -->
+<section class="view active" id="view-home">
+  <div class="hero">
+    <div class="kicker">🍁 Made for the Canadian job market</div>
+    <h1>Tired of applying to jobs that <span class="hl">never reply?</span></h1>
+    <p class="lead">Before you spend hours on another application, let AI tell you your <b>real chance</b> of getting it — and exactly what's missing. Stop the guesswork. Start getting interviews.</p>
+    <button class="cta" onclick="go('analyze')">🎯 Analyze a job now <span>→</span></button>
+    <div class="free">First 3 analyses free · No credit card</div>
+  </div>
+
+  <div class="pain">
+    <h2>The Canadian job market is brutal right now.
+      <span class="fa">بازار کار کانادا الان بی‌رحم است.</span>
+    </h2>
+    <div class="pain-stats">
+      <div class="pain-stat"><div class="n">250+</div><div class="l">Average applicants per posting on LinkedIn Canada</div></div>
+      <div class="pain-stat"><div class="n">2%</div><div class="l">Reply rate for online applications</div></div>
+      <div class="pain-stat"><div class="n">80hrs</div><div class="l">Average time spent per job offer landed</div></div>
+    </div>
+  </div>
+
+  <h2 style="text-align:center;margin:40px 0 8px;font-size:28px;font-weight:800">Why BestApply, not ChatGPT?</h2>
+  <p style="text-align:center;color:var(--muted);margin:0 0 24px;max-width:640px;margin-left:auto;margin-right:auto">Generic AI doesn't know NOC 41400 from NOC 21231, or what a PGWP is. BestApply is built end-to-end for the Canadian job market.</p>
+  <div class="why-us">
+    <div class="why-card">
+      <div class="icon">🇨🇦</div>
+      <h3>Canadian labour data</h3>
+      <p>NOC 2021 job codes, Statistics Canada CMA cities, CRA tax-bracket-aligned salary bands. Not scraped from a US job board.</p>
+    </div>
+    <div class="why-card">
+      <div class="icon">📋</div>
+      <h3>Understands your permit</h3>
+      <p>PGWP, BOWP, closed work permit, Express Entry, LMIA-exempt roles — real advice based on your immigration status, not a "consult a lawyer" cop-out.</p>
+    </div>
+    <div class="why-card">
+      <div class="icon">🌏</div>
+      <h3>Bilingual + diaspora-first</h3>
+      <p>Analysis in your language (English, French, فارسی, 中文, العربية, ਪੰਜਾਬੀ, and 14 more). Because a newcomer doesn't want the verdict in a second-language they're still learning.</p>
+    </div>
+  </div>
+
+  <h2 style="text-align:center;margin:60px 0 8px;font-size:28px;font-weight:800">How it works</h2>
+  <p style="text-align:center;color:var(--muted);margin:0 0 24px">Three minutes. Total honesty about your chances.</p>
+  <div class="how">
+    <div class="how-card"><div class="n">1</div><h3>Upload your resume</h3><p>Drop a PDF and we auto-fill everything. Or type it in — dropdowns from NOC / Statistics Canada save your fingers.</p></div>
+    <div class="how-card"><div class="n">2</div><h3>Paste the job</h3><p>Drop a LinkedIn/Indeed URL or paste the job description text. We handle the rest.</p></div>
+    <div class="how-card"><div class="n">3</div><h3>Get your verdict</h3><p>A fit score (0–100), matched strengths, real gaps, and a "should you apply?" call with next steps.</p></div>
+  </div>
+
+  <h2 style="text-align:center;margin:60px 0 24px;font-size:28px;font-weight:800">Head to head</h2>
+  <div class="compare-wrap">
+    <table class="compare">
+      <thead>
+        <tr><th></th><th>Generic AI<br><span class="sub">(ChatGPT, Gemini, …)</span></th><th class="us">BestApply.app<br><span class="sub">🍁 built for Canada</span></th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Trained on the Canadian labour market</td><td class="no">✗</td><td class="yes">✓</td></tr>
+        <tr><td>Understands NOC 2021 codes &amp; TEER levels</td><td class="no">✗</td><td class="yes">✓</td></tr>
+        <tr><td>Factors in your work permit / PR status</td><td class="no">✗</td><td class="yes">✓</td></tr>
+        <tr><td>Salary bands aligned to CRA tax brackets</td><td class="no">✗</td><td class="yes">✓</td></tr>
+        <tr><td>Analysis language ≠ posting language</td><td class="partial">partial</td><td class="yes">✓ (17 languages)</td></tr>
+        <tr><td>Remembers every posting you've analyzed</td><td class="no">✗</td><td class="yes">✓ (private, local)</td></tr>
+        <tr><td>Runs offline once installed (PWA)</td><td class="no">✗</td><td class="yes">✓</td></tr>
+        <tr><td>Your resume ever leaves your device</td><td class="no">yes, always</td><td class="yes">never (BYOK)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 style="text-align:center;margin:60px 0 24px;font-size:28px;font-weight:800">Pricing</h2>
+  <div class="pricing">
+    <div class="price-card">
+      <h4>Free</h4>
+      <div class="price"><span class="cur">$</span>0</div>
+      <ul><li>3 analyses total</li><li>Profile stays private on your device</li><li>Full report</li></ul>
+      <button onclick="go('analyze')">Start free</button>
+    </div>
+    <div class="price-card popular">
+      <div class="tag">Most popular</div>
+      <h4>Basic</h4>
+      <div class="price"><span class="cur">C$</span>7.99<span class="per">/mo</span></div>
+      <ul><li>20 analyses per month</li><li>Save unlimited jobs</li><li>PDF export</li><li>Priority AI</li></ul>
+      <button onclick="buy('basic')">Get Basic</button>
+    </div>
+    <div class="price-card">
+      <h4>Pro</h4>
+      <div class="price"><span class="cur">C$</span>14.99<span class="per">/mo</span></div>
+      <ul><li>Unlimited analyses</li><li>Cover-letter drafts</li><li>Interview-prep questions</li><li>Everything in Basic</li></ul>
+      <button onclick="buy('pro')">Get Pro</button>
+    </div>
+  </div>
+  <p style="text-align:center;color:var(--muted);font-size:13px;margin-top:16px">Pay with PayPal · USDT · 🍁 Prices in Canadian dollars (CAD)</p>
+
+  <h2 style="text-align:center;margin:60px 0 24px;font-size:28px;font-weight:800">Questions Canadians actually ask</h2>
+  <div class="faq">
+    <details class="faq-item">
+      <summary>Does my resume or profile ever leave my browser?</summary>
+      <p>No. Your profile and job history live in your browser's local storage — never on our servers. Analysis happens by calling Claude directly from your browser with your own API key (BYOK), which means <b>we can't see it even if we wanted to</b>. When we launch the hosted plans, resume text is sent to Claude via a proxy, held for 24 hours for support, then deleted.</p>
+    </details>
+    <details class="faq-item">
+      <summary>How is this different from just pasting a job into ChatGPT?</summary>
+      <p>ChatGPT has read the whole internet — including US-first career blogs, US salary norms, and no clue what a PGWP is. BestApply is prompt-engineered on top of Claude with Canadian labour-market context baked in: NOC 2021 codes, Statistics Canada CMA cities, CRA tax brackets, and every Canadian work-permit category. The verdict factors in whether you can even <i>legally</i> take the job, not just your skills.</p>
+    </details>
+    <details class="faq-item">
+      <summary>I'm on a work permit / studying / applying for PR — will this help me?</summary>
+      <p>Yes — that's exactly who it's for. Tell it your status (PGWP, closed permit, student visa, applied under Express Entry, etc.) and the analysis will flag postings where the employer will need to sponsor you, LMIA-exempt roles you probably didn't know existed, and roles where your NOC code affects Express Entry points.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Is it available in French?</summary>
+      <p>Oui. Choose <b>Français</b> from the answer language dropdown and every analysis comes back in French — verdict, strengths, gaps, action plan. Right now the UI is English-first; a French UI is on the roadmap for launch. If you're in Quebec and want the whole app in French, join the waitlist and reply "FR please" — it moves French UI up the queue.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Can I try it before paying anything?</summary>
+      <p>Yes. Free tier gives you 3 full analyses — no credit card. Bring your own Anthropic API key and it becomes unlimited for free (BYOK mode). The paid plans exist for people who don't want to fiddle with API keys and want cover letters + interview prep.</p>
+    </details>
+    <details class="faq-item">
+      <summary>When does the paid version launch?</summary>
+      <p>We're taking the waitlist first so we don't build a checkout for zero traffic. Join the list, get 50% off launch pricing, and you'll be first when we open. Realistic ETA: 4–6 weeks after we hit 100 waitlist signups.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Does it work outside Canada?</summary>
+      <p>The AI analysis works globally, but the reference data (NOC codes, CMA cities, CRA brackets, work-permit categories) is Canadian. If you're job-hunting in the US or Europe, ChatGPT is probably a fine choice — this one is deliberately narrow so it can be sharper on Canada.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Who built this and why?</summary>
+      <p>Built by an immigrant to Canada who was tired of applying to jobs that never replied — and tired of watching friends do the same. If the market is going to auto-reject 98% of applications, at least you should know which 2% are worth your time.</p>
+    </details>
+  </div>
+
+  <div style="text-align:center;margin:60px 0 20px;padding:32px;background:linear-gradient(135deg,rgba(220,38,38,0.08),rgba(37,99,235,0.06));border-radius:20px;border:1px solid var(--line)">
+    <h2 style="margin:0 0 8px;font-size:26px;font-weight:800">Stop wasting weekends on applications that ghost you.</h2>
+    <p style="color:var(--muted);margin:0 0 20px;font-size:16px">Analyze your first job in the next three minutes. Free.</p>
+    <button class="cta" onclick="go('analyze')" style="padding:14px 32px">🎯 Analyze a job now <span>→</span></button>
+  </div>
+</section>
+
+<!-- ANALYZE -->
+<section class="view" id="view-analyze">
+  <div class="step-card">
+    <h2><span class="n">1</span> The job you're eyeing</h2>
+    <p class="help">Paste a URL from LinkedIn / Indeed / company site, OR paste the full job description text.</p>
+    <div class="segmented" id="job-input-mode">
+      <button class="active" data-mode="text">📋 Paste text</button>
+      <button data-mode="url">🔗 Job URL</button>
+    </div>
+    <div id="job-text-wrap" style="margin-top:12px">
+      <textarea id="job-text" placeholder="Paste the full job description here — title, company, requirements, everything…"></textarea>
+    </div>
+    <div id="job-url-wrap" style="margin-top:12px;display:none">
+      <input type="url" id="job-url" placeholder="https://linkedin.com/jobs/view/…">
+      <p style="font-size:12px;color:var(--muted);margin-top:6px">Note: paste text instead if the URL requires login (most LinkedIn jobs do).</p>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <h2><span class="n">2</span> Any specifics for this role?</h2>
+    <p class="help">Optional — helps the analysis be sharper.</p>
+    <div class="grid-2">
+      <div>
+        <label>Location / City</label>
+        <input type="text" id="job-loc" list="dl-cities" placeholder="Pick or type a Canadian city…">
+      </div>
+      <div>
+        <label>Salary expectation (CRA-aligned)</label>
+        <select id="job-salary">
+          <option value="">— Not specified —</option>
+        </select>
+      </div>
+      <div>
+        <label>Answer language (analysis output)</label>
+        <select id="answer-lang"></select>
+      </div>
+      <div>
+        <label>Tone</label>
+        <select id="answer-tone">
+          <option value="brutal">Brutally honest (recommended)</option>
+          <option value="balanced">Balanced</option>
+          <option value="encouraging">Encouraging</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+    <div style="color:var(--muted);font-size:13px">Uses your saved profile · <a href="#" onclick="go('profile');return false">Edit profile</a></div>
+    <button class="btn-primary" id="analyze-btn" onclick="analyze()">🎯 Get my fit score</button>
+  </div>
+
+  <div id="result-wrap" style="margin-top:24px"></div>
+</section>
+
+<!-- PROFILE -->
+<section class="view" id="view-profile">
+
+  <div class="step-card">
+    <h2><span class="n">📄</span> Auto-fill from your resume</h2>
+    <p class="help">Upload a PDF — we extract everything into the fields below with AI. You review and edit. <b>Your key is required</b> (set it once via 🔑 API key below).</p>
+    <label class="resume-drop" id="resume-drop">
+      <input type="file" id="resume-file" accept=".pdf,.txt">
+      <div class="icon">📄</div>
+      <div class="t">Drop your resume here — or click to choose</div>
+      <div class="h">PDF or TXT · Extracted with Claude · Nothing uploaded to us</div>
+    </label>
+    <div class="resume-progress" id="resume-progress"><span class="loader" style="border-color:rgba(0,0,0,0.15);border-top-color:var(--brand)"></span> <span id="resume-status">Extracting…</span></div>
+  </div>
+
+  <div class="step-card">
+    <h2><span class="n">👤</span> The basics</h2>
+    <div class="grid-2">
+      <div><label>Full name</label><input type="text" id="p-name" placeholder="Jane Doe"></div>
+      <div><label>Current job title</label><input type="text" id="p-title" list="dl-titles" placeholder="Pick or type your NOC title…"></div>
+      <div><label>Years of experience</label>
+        <select id="p-years">
+          <option>0 (student / new grad)</option><option>1</option><option>2</option><option>3</option>
+          <option>4</option><option>5</option><option>6</option><option>7</option><option>8</option>
+          <option>9</option><option>10</option><option>11–15</option><option>16–20</option><option>20+</option>
+        </select>
+      </div>
+      <div><label>Location in Canada</label><input type="text" id="p-loc" list="dl-cities" placeholder="Pick a city…"></div>
+      <div><label>Work permit / status</label>
+        <select id="p-permit"></select>
+      </div>
+      <div><label>Target job title</label><input type="text" id="p-target" list="dl-titles" placeholder="What role are you seeking?"></div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <h2><span class="n">🗣️</span> Languages you speak</h2>
+    <p class="help">Add each language and your level. Most Canadian employers care about English + French; other languages help for niche roles and diaspora markets.</p>
+    <div id="lang-rows"></div>
+    <button class="btn-ghost" onclick="addLangRow()" style="margin-top:8px">+ Add a language</button>
+  </div>
+
+  <div class="step-card">
+    <h2><span class="n">💼</span> Experience</h2>
+    <label>Recent work experience (companies, titles, key accomplishments)</label>
+    <textarea id="p-experience" placeholder="e.g. Senior Developer at ACME (2021–now) — led a team of 4 building a React SaaS…"></textarea>
+    <label style="margin-top:12px">Skills</label>
+    <div id="chips-skills" class="chips"></div>
+    <div class="chip-add"><input type="text" id="skill-input" placeholder="e.g. React, TypeScript, AWS" list="dl-skills"><button class="btn-ghost" onclick="addChip('skills')">Add</button></div>
+  </div>
+
+  <div class="step-card">
+    <h2><span class="n">🎓</span> Education & courses</h2>
+    <label>Degrees</label>
+    <textarea id="p-education" placeholder="e.g. B.Sc. Computer Science, University of Waterloo, 2020"></textarea>
+    <label style="margin-top:12px">Courses you've taken (add as you finish them)</label>
+    <div id="chips-courses" class="chips"></div>
+    <div class="chip-add"><input type="text" id="course-input" placeholder="e.g. AWS Solutions Architect on Coursera"><button class="btn-ghost" onclick="addChip('courses')">Add</button></div>
+  </div>
+
+  <div class="step-card">
+    <h2><span class="n">📜</span> Certifications</h2>
+    <label>Add new certs as you earn them</label>
+    <div id="chips-certs" class="chips"></div>
+    <div class="chip-add"><input type="text" id="cert-input" placeholder="Pick or type…" list="dl-certs"><button class="btn-ghost" onclick="addChip('certs')">Add</button></div>
+  </div>
+
+  <div class="step-card" id="companies-section" style="display:none">
+    <h2><span class="n">🧠</span> Companies you've analyzed</h2>
+    <p class="help">BestApply remembers every posting you've fed it, so if the same role or the same employer comes back you'll be warned before wasting another analysis.</p>
+    <div class="companies-summary" id="companies-summary"></div>
+  </div>
+
+  <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:16px">
+    <button class="btn-ghost" onclick="openKeys()">🔑 API key (BYOK)</button>
+    <button class="btn-primary" onclick="saveProfile()">Save profile</button>
+  </div>
+</section>
+
+<!-- HISTORY -->
+<section class="view" id="view-history">
+  <h2 style="margin-top:0">Your analyses</h2>
+  <div id="hist-list"></div>
+</section>
+
+</main>
+
+<!-- Datalists (autocomplete backing) -->
+<datalist id="dl-titles"></datalist>
+<datalist id="dl-cities"></datalist>
+<datalist id="dl-certs"></datalist>
+<datalist id="dl-skills">
+  <option value="Python"><option value="JavaScript"><option value="TypeScript"><option value="React">
+  <option value="Node.js"><option value="Java"><option value="C#"><option value="Go"><option value="Rust">
+  <option value="SQL"><option value="AWS"><option value="Azure"><option value="GCP"><option value="Docker">
+  <option value="Kubernetes"><option value="Terraform"><option value="Git"><option value="Linux">
+  <option value="Excel"><option value="PowerPoint"><option value="Word"><option value="Salesforce">
+  <option value="SAP"><option value="Oracle"><option value="Tableau"><option value="Power BI">
+  <option value="AutoCAD"><option value="Revit"><option value="Procore"><option value="Primavera P6">
+  <option value="Photoshop"><option value="Illustrator"><option value="Figma"><option value="Sketch">
+  <option value="Adobe XD"><option value="Premiere Pro"><option value="After Effects">
+  <option value="Project management"><option value="Agile"><option value="Scrum"><option value="Kanban">
+  <option value="Leadership"><option value="Customer service"><option value="Sales"><option value="Negotiation">
+</datalist>
+
+<div class="modal" id="plan-modal">
+  <div class="modal-body">
+    <button class="modal-close" onclick="closePlan()">×</button>
+    <h3 id="plan-title">Your account</h3>
+    <div id="plan-body"></div>
+  </div>
+</div>
+
+<div class="modal" id="keys-modal">
+  <div class="modal-body">
+    <button class="modal-close" onclick="closeKeys()">×</button>
+    <h3>🔑 Bring your own Anthropic key</h3>
+    <p>While we build the hosted subscription, use BestApply with your own <b>Claude API key</b> — completely free. Get one at <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a>.</p>
+    <label>Anthropic API key</label>
+    <input type="password" id="api-key" placeholder="sk-ant-…">
+    <p style="font-size:12px;color:var(--muted);margin-top:8px">Stored only in your browser (localStorage). Never sent to us.</p>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+      <button class="btn-ghost" onclick="closeKeys()">Cancel</button>
+      <button class="btn-primary" onclick="saveKey()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="waitlist-modal">
+  <div class="modal-body">
+    <button class="modal-close" onclick="closeWaitlist()">×</button>
+    <div id="waitlist-body">
+      <div style="text-align:center;margin-bottom:12px">
+        <div style="display:inline-block;padding:4px 12px;border-radius:999px;background:rgba(220,38,38,0.12);color:var(--brand);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px">🍁 Launching soon</div>
+      </div>
+      <h3 style="text-align:center;margin:0 0 6px"><span id="waitlist-plan-label">Basic</span> is coming</h3>
+      <p style="text-align:center;color:var(--muted);margin:0 0 20px">Join the waitlist and lock in <b style="color:var(--brand)">50% off launch pricing</b> — plus early access before we open to the public.</p>
+      <div style="background:var(--bg);border-radius:12px;padding:14px 16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:12px">
+        <div>
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:700">Regular price</div>
+          <div style="font-weight:700;font-size:15px;text-decoration:line-through;color:var(--muted)"><span id="waitlist-price">C$7.99/mo</span></div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:11px;color:var(--brand);text-transform:uppercase;letter-spacing:1px;font-weight:800">Your launch price</div>
+          <div style="font-weight:900;font-size:22px;color:var(--brand);letter-spacing:-0.5px"><span id="waitlist-launch-price">C$3.99/mo</span></div>
+        </div>
+      </div>
+      <input type="hidden" id="waitlist-plan" value="basic">
+      <label>Email</label>
+      <input type="email" id="waitlist-email" placeholder="you@example.com" style="margin-bottom:10px">
+      <label>Name <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+      <input type="text" id="waitlist-name" placeholder="Jane Doe" style="margin-bottom:14px">
+      <div id="waitlist-status" style="display:none;color:var(--brand);font-size:13px;margin-bottom:10px"></div>
+      <button class="btn-primary" id="waitlist-submit" onclick="submitWaitlist()" style="width:100%">Get 50% off + Early access</button>
+      <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:12px">We'll email you the moment BestApply.app opens. No spam, ever.</p>
+    </div>
+    <div id="waitlist-success" style="display:none;text-align:center;padding:12px 0">
+      <div style="font-size:56px;margin-bottom:12px">🎉</div>
+      <h3 style="margin:0 0 8px">You're in!</h3>
+      <p style="color:var(--muted);margin:0 0 8px">You're <b style="color:var(--brand);font-size:22px">#<span id="waitlist-position">?</span></b> on the list.</p>
+      <p style="color:var(--muted);margin:0 0 20px;font-size:13px">We'll email you before launch with your personal 50%-off code.</p>
+      <button class="btn-primary" onclick="closeWaitlist()" style="width:100%">Awesome — keep exploring</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const D = window.JOBFIT_DATA;
+
+// Answer languages (what language Claude replies in) ------------
+const ANSWER_LANGS = [
+  { code: 'en', name: 'English',   native: 'English' },
+  { code: 'fa', name: 'Persian',   native: 'فارسی' },
+  { code: 'fr', name: 'French',    native: 'Français' },
+  { code: 'zh', name: 'Chinese',   native: '中文' },
+  { code: 'ar', name: 'Arabic',    native: 'العربية' },
+  { code: 'es', name: 'Spanish',   native: 'Español' },
+  { code: 'pt', name: 'Portuguese',native: 'Português' },
+  { code: 'de', name: 'German',    native: 'Deutsch' },
+  { code: 'it', name: 'Italiano',  native: 'Italiano' },
+  { code: 'hi', name: 'Hindi',     native: 'हिन्दी' },
+  { code: 'ur', name: 'Urdu',      native: 'اردو' },
+  { code: 'ko', name: 'Korean',    native: '한국어' },
+  { code: 'ja', name: 'Japanese',  native: '日本語' },
+  { code: 'ru', name: 'Russian',   native: 'Русский' },
+  { code: 'tr', name: 'Turkish',   native: 'Türkçe' },
+  { code: 'pa', name: 'Punjabi',   native: 'ਪੰਜਾਬੀ' },
+  { code: 'tl', name: 'Tagalog',   native: 'Tagalog' },
+  { code: 'vi', name: 'Vietnamese',native: 'Tiếng Việt' },
+  { code: 'uk', name: 'Ukrainian', native: 'Українська' },
+  { code: 'nl', name: 'Dutch',     native: 'Nederlands' },
+];
+const RTL_LANGS = new Set(['fa','ar','ur','he']);
+
+// State ---------------------------------------------------------
+const STORE_KEY = 'bestapply.v1';
+const state = {
+  profile: { skills: [], courses: [], certs: [], languages: [], answerLang: 'en', tone: 'brutal' },
+  history: [],
+  apiKey: '',
+  plan: null,  // set by ensurePlan()
+  user: { email: '', name: '' },
+};
+function load() {
+  // One-time migration from the old jobfit.v1 key (rebrand: JobFit → BestApply)
+  try {
+    const legacy = localStorage.getItem('jobfit.v1');
+    if (legacy && !localStorage.getItem(STORE_KEY)) localStorage.setItem(STORE_KEY, legacy);
+  } catch {}
+  try { Object.assign(state, JSON.parse(localStorage.getItem(STORE_KEY) || '{}')); } catch {}
+  state.profile ||= {};
+  state.profile.skills ||= []; state.profile.courses ||= []; state.profile.certs ||= [];
+  state.profile.languages ||= [];
+  state.profile.answerLang ||= 'en';
+  state.profile.tone ||= 'brutal';
+  state.user ||= { email: '', name: '' };
+  ensurePlan();
+}
+function save() { localStorage.setItem(STORE_KEY, JSON.stringify(state)); renderUserPill(); }
+
+// Plan / entitlement (client-side for MVP; will move to worker later)
+function ensurePlan() {
+  if (!state.plan) state.plan = { type: 'free', remaining: 3, renewsAt: null };
+  // BYOK auto-upgrade: if user has their own key, treat as unlimited BYOK
+  if (state.apiKey && state.plan.type === 'free') state.plan = { type: 'byok', remaining: null, renewsAt: null };
+  if (!state.apiKey && state.plan.type === 'byok') state.plan = { type: 'free', remaining: 3, renewsAt: null };
+}
+const PLAN_INFO = {
+  free:  { label: 'Free',  remCap: 3,    color: 'free',  desc: 'Free tier · 3 analyses total' },
+  byok:  { label: 'BYOK',  remCap: null, color: 'byok',  desc: 'Bring-your-own-key · Unlimited' },
+  basic: { label: 'Basic', remCap: 20,   color: 'basic', desc: 'Basic · 20 analyses / month' },
+  pro:   { label: 'Pro',   remCap: null, color: 'pro',   desc: 'Pro · Unlimited' },
+};
+load();
+
+// Populate reference dropdowns/datalists ------------------------
+function populateStatic() {
+  const dl = (id, values) => {
+    const el = document.getElementById(id); el.innerHTML = '';
+    values.forEach(v => { const o = document.createElement('option'); o.value = v; el.appendChild(o); });
+  };
+  dl('dl-titles', D.jobTitles);
+  dl('dl-cities', D.canadianCities);
+  dl('dl-certs', D.commonCerts);
+
+  const permitSel = document.getElementById('p-permit');
+  D.workPermits.forEach(p => { const o = document.createElement('option'); o.textContent = p; permitSel.appendChild(o); });
+
+  const salarySel = document.getElementById('job-salary');
+  D.salaryBands.forEach(b => { const o = document.createElement('option'); o.value = b.code; o.textContent = b.label; salarySel.appendChild(o); });
+
+  const ansSel = document.getElementById('answer-lang');
+  ANSWER_LANGS.forEach(l => { const o = document.createElement('option'); o.value = l.code; o.textContent = `${l.native} — ${l.name}`; ansSel.appendChild(o); });
+  ansSel.value = state.profile.answerLang || 'en';
+  ansSel.onchange = () => { state.profile.answerLang = ansSel.value; save(); };
+  const toneSel = document.getElementById('answer-tone');
+  toneSel.value = state.profile.tone || 'brutal';
+  toneSel.onchange = () => { state.profile.tone = toneSel.value; save(); };
+}
+populateStatic();
+
+// User pill / plan modal ---------------------------------------
+function renderUserPill() {
+  const info = PLAN_INFO[state.plan.type];
+  const badge = document.getElementById('plan-badge');
+  const rem = document.getElementById('plan-rem');
+  const avatar = document.getElementById('user-avatar');
+  badge.className = 'plan-badge ' + info.color;
+  badge.textContent = info.label;
+  if (state.plan.remaining == null) rem.textContent = '∞';
+  else rem.textContent = state.plan.remaining + ' left';
+  const initials = (state.user.name || state.user.email || '?')[0].toUpperCase();
+  avatar.textContent = initials;
+}
+function openPlan() {
+  const info = PLAN_INFO[state.plan.type];
+  const usedPct = info.remCap ? Math.round(((info.remCap - (state.plan.remaining ?? 0)) / info.remCap) * 100) : 0;
+  document.getElementById('plan-title').textContent = state.user.email ? state.user.email : 'Your account';
+  document.getElementById('plan-body').innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--brand-dark));color:white;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px">${(state.user.name || state.user.email || '?')[0].toUpperCase()}</div>
+      <div><div style="font-weight:700">${state.user.name || 'Guest user'}</div><div style="color:var(--muted);font-size:13px">${state.user.email || 'Not signed in'}</div></div>
+    </div>
+    <div style="background:var(--bg);border-radius:12px;padding:14px 16px;margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-weight:700">${info.label} plan</span>
+        <span style="font-size:12px;color:var(--muted)">${info.desc}</span>
+      </div>
+      ${info.remCap ? `
+        <div style="height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin:6px 0">
+          <div style="height:100%;width:${usedPct}%;background:var(--brand);transition:.3s"></div>
+        </div>
+        <div style="font-size:12px;color:var(--muted)"><b style="color:var(--brand)">${state.plan.remaining}</b> of ${info.remCap} analyses left</div>
+      ` : `<div style="font-size:13px;color:var(--good);margin-top:4px">✓ Unlimited analyses</div>`}
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      ${!state.user.email ? `
+        <label>Email (optional — used for subscription)</label>
+        <input type="email" id="user-email-inp" placeholder="you@example.com" value="${state.user.email || ''}" style="padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:14px">
+        <button class="btn-ghost" onclick="signIn()" style="margin-top:6px">Save email</button>
+      ` : `
+        <button class="btn-ghost" onclick="signOut()">Sign out</button>
+      `}
+      ${state.plan.type === 'free' ? `<button class="btn-primary" onclick="buy('basic')">Upgrade — C$7.99/mo</button>` : ''}
+      ${state.plan.type === 'basic' ? `<button class="btn-primary" onclick="buy('pro')">Upgrade to Pro — C$14.99/mo</button>` : ''}
+    </div>`;
+  document.getElementById('plan-modal').classList.add('open');
+}
+function closePlan() { document.getElementById('plan-modal').classList.remove('open'); }
+function signIn() {
+  const em = document.getElementById('user-email-inp').value.trim();
+  if (!em) return;
+  state.user.email = em; state.user.name = em.split('@')[0]; save(); closePlan(); toast('Signed in ✓');
+}
+function signOut() { state.user = { email: '', name: '' }; save(); closePlan(); toast('Signed out'); }
+renderUserPill();
+
+// Navigation ----------------------------------------------------
+function go(v) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.view === v));
+  document.querySelectorAll('.view').forEach(el => el.classList.toggle('active', el.id === 'view-' + v));
+  if (v === 'profile') renderProfile();
+  if (v === 'history') renderHistory();
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => go(t.dataset.view));
+
+// Job input mode toggle ----------------------------------------
+document.querySelectorAll('#job-input-mode button').forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll('#job-input-mode button').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById('job-text-wrap').style.display = b.dataset.mode === 'text' ? 'block' : 'none';
+    document.getElementById('job-url-wrap').style.display = b.dataset.mode === 'url' ? 'block' : 'none';
+  };
+});
+
+// Profile -------------------------------------------------------
+function renderProfile() {
+  const p = state.profile;
+  ['name','title','years','loc','permit','target','experience','education'].forEach(k => {
+    const el = document.getElementById('p-' + k); if (el && p[k] != null) el.value = p[k];
+  });
+  ['skills','courses','certs'].forEach(k => renderChips(k));
+  renderLangs();
+  renderCompaniesSummary();
+}
+function renderCompaniesSummary() {
+  const section = document.getElementById('companies-section');
+  const grid = document.getElementById('companies-summary');
+  const byCo = {};
+  state.history.forEach(h => {
+    const c = (h.company || '').trim(); if (!c) return;
+    byCo[c] ||= { count: 0, last: 0, scores: [] };
+    byCo[c].count++; byCo[c].last = Math.max(byCo[c].last, h.ts); byCo[c].scores.push(h.score);
+  });
+  const items = Object.entries(byCo).sort((a,b) => b[1].count - a[1].count).slice(0, 24);
+  if (!items.length) { section.style.display = 'none'; return; }
+  section.style.display = '';
+  grid.innerHTML = items.map(([name, d]) => {
+    const avg = Math.round(d.scores.reduce((a,b)=>a+b,0) / d.scores.length);
+    const days = Math.round((Date.now() - d.last) / 86400000);
+    return `<div class="company-card"><div class="n">${d.count}×</div><div class="name">${esc(name)}</div><div class="last">avg fit ${avg} · last ${days === 0 ? 'today' : days + 'd ago'}</div></div>`;
+  }).join('');
+}
+function renderChips(key) {
+  const box = document.getElementById('chips-' + key);
+  box.innerHTML = '';
+  (state.profile[key] || []).forEach((v, i) => {
+    const chip = document.createElement('div'); chip.className = 'chip';
+    chip.innerHTML = `<span></span><button title="Remove">×</button>`;
+    chip.firstElementChild.textContent = v;
+    chip.lastElementChild.onclick = () => { state.profile[key].splice(i,1); save(); renderChips(key); };
+    box.appendChild(chip);
+  });
+}
+function addChip(key) {
+  const map = { skills: 'skill-input', courses: 'course-input', certs: 'cert-input' };
+  const inp = document.getElementById(map[key]);
+  const v = inp.value.trim(); if (!v) return;
+  (state.profile[key] ||= []).push(v);
+  inp.value = ''; save(); renderChips(key);
+}
+
+// Languages -----------------------------------------------------
+function renderLangs() {
+  const box = document.getElementById('lang-rows');
+  box.innerHTML = '';
+  (state.profile.languages || []).forEach((L, i) => box.appendChild(langRow(L, i)));
+  if (!state.profile.languages.length) addLangRow();
+}
+function langRow(L, i) {
+  const row = document.createElement('div'); row.className = 'lang-row';
+  const langSel = document.createElement('select');
+  D.languages.forEach(l => { const o = document.createElement('option'); o.value = l.code; o.textContent = `${l.native} — ${l.name}`; langSel.appendChild(o); });
+  langSel.value = L.code || 'en';
+  const lvlSel = document.createElement('select');
+  D.langLevels.forEach(lv => { const o = document.createElement('option'); o.value = lv.code; o.textContent = lv.label; lvlSel.appendChild(o); });
+  lvlSel.value = L.level || 'native';
+  const rm = document.createElement('button'); rm.className = 'rm'; rm.textContent = '×';
+  langSel.onchange = () => { state.profile.languages[i].code = langSel.value; save(); };
+  lvlSel.onchange = () => { state.profile.languages[i].level = lvlSel.value; save(); };
+  rm.onclick = () => { state.profile.languages.splice(i,1); save(); renderLangs(); };
+  row.append(langSel, lvlSel, rm);
+  return row;
+}
+function addLangRow() {
+  (state.profile.languages ||= []).push({ code: 'en', level: 'native' });
+  save(); renderLangs();
+}
+
+function saveProfile() {
+  const p = state.profile;
+  ['name','title','years','loc','permit','target','experience','education'].forEach(k => {
+    const el = document.getElementById('p-' + k); if (el) p[k] = el.value.trim();
+  });
+  save(); toast('Profile saved ✓');
+}
+
+// Resume upload → Claude extraction -----------------------------
+const drop = document.getElementById('resume-drop');
+const fileInput = document.getElementById('resume-file');
+['dragenter','dragover'].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.add('dragover'); }));
+['dragleave','drop'].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.remove('dragover'); }));
+drop.addEventListener('drop', ev => { const f = ev.dataTransfer.files[0]; if (f) handleResume(f); });
+fileInput.addEventListener('change', ev => { const f = ev.target.files[0]; if (f) handleResume(f); });
+
+async function handleResume(file) {
+  if (!state.apiKey) { openKeys(); toast('Add your API key first'); return; }
+  const progress = document.getElementById('resume-progress');
+  const status = document.getElementById('resume-status');
+  progress.classList.add('active'); status.textContent = 'Reading file…';
+  try {
+    let text = '';
+    if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
+      text = await pdfToText(file);
+    } else {
+      text = await file.text();
+    }
+    if (!text.trim()) throw new Error('No text extracted from the file');
+    status.textContent = 'Extracting with Claude…';
+    const extracted = await claudeExtractProfile(text);
+    applyExtracted(extracted);
+    status.textContent = '✓ Fields filled — review below and Save';
+    setTimeout(() => progress.classList.remove('active'), 3000);
+    toast('Resume parsed ✓');
+  } catch (e) {
+    console.error(e);
+    status.textContent = '✗ ' + e.message;
+    setTimeout(() => progress.classList.remove('active'), 4500);
+  }
+}
+
+async function pdfToText(file) {
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+  const pages = [];
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    pages.push(content.items.map(it => it.str).join(' '));
+  }
+  return pages.join('\n\n');
+}
+
+async function claudeExtractProfile(resumeText) {
+  const system = `Extract a Canadian job-seeker profile from the resume text. Output ONLY valid JSON with these keys (all optional; skip a field if unknown):
+{
+  "name": string,
+  "title": string,
+  "years": string,
+  "loc": string,
+  "permit": string,
+  "target": string,
+  "experience": string (2-4 sentences summary),
+  "education": string,
+  "skills": string[],
+  "courses": string[],
+  "certs": string[],
+  "languages": [{ "code": string (ISO 639-1), "level": one of "native","C2","C1","B2","B1","A2" }]
+}
+For "loc" prefer a Canadian city with province (e.g. "Toronto, ON"). For "title" prefer the person's current or most recent title.`;
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-api-key': state.apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001', max_tokens: 2048, system,
+      messages: [{ role: 'user', content: 'RESUME:\n\n' + resumeText.slice(0, 15000) }],
+    }),
+  });
+  if (!res.ok) throw new Error('Claude ' + res.status);
+  const data = await res.json();
+  const text = (data.content?.[0]?.text || '').trim();
+  const m = text.match(/\{[\s\S]*\}/); if (!m) throw new Error('AI did not return JSON');
+  return JSON.parse(m[0]);
+}
+
+function applyExtracted(e) {
+  const p = state.profile;
+  ['name','title','loc','permit','target','experience','education'].forEach(k => { if (e[k]) p[k] = e[k]; });
+  if (e.years) p.years = String(e.years);
+  ['skills','courses','certs'].forEach(k => { if (Array.isArray(e[k])) p[k] = e[k]; });
+  if (Array.isArray(e.languages) && e.languages.length) p.languages = e.languages;
+  save(); renderProfile();
+}
+
+// API keys ------------------------------------------------------
+function openKeys() { document.getElementById('api-key').value = state.apiKey || ''; document.getElementById('keys-modal').classList.add('open'); }
+function closeKeys() { document.getElementById('keys-modal').classList.remove('open'); }
+function saveKey() { state.apiKey = document.getElementById('api-key').value.trim(); ensurePlan(); save(); closeKeys(); toast('Key saved ✓'); }
+
+// Toast ---------------------------------------------------------
+function toast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 20px;border-radius:8px;z-index:200;font-weight:600;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,0.3)';
+  t.textContent = msg; document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2200);
+}
+
+// API base for BestApply-specific endpoints (waitlist today, payments later).
+// Runs on the shared Easy Prompt AI Worker so we don't stand up a second one.
+const API_BASE = 'https://api.easypromptai.net';
+
+// Phase-1 buy behaviour: no live checkout yet. Buttons open a waitlist modal
+// that promises 50% off launch pricing + early access when the paid tiers open.
+function buy(plan) { openWaitlist(plan); }
+
+function openWaitlist(plan) {
+  const label = plan === 'pro' ? 'Pro' : 'Basic';
+  const price = plan === 'pro' ? 'C$14.99/mo' : 'C$7.99/mo';
+  const launchPrice = plan === 'pro' ? 'C$7.49/mo' : 'C$3.99/mo';
+  document.getElementById('waitlist-plan').value = plan;
+  document.getElementById('waitlist-plan-label').textContent = label;
+  document.getElementById('waitlist-price').textContent = price;
+  document.getElementById('waitlist-launch-price').textContent = launchPrice;
+  document.getElementById('waitlist-email').value = state.user.email || '';
+  document.getElementById('waitlist-name').value = state.user.name || '';
+  document.getElementById('waitlist-status').textContent = '';
+  document.getElementById('waitlist-status').style.display = 'none';
+  document.getElementById('waitlist-body').style.display = 'block';
+  document.getElementById('waitlist-success').style.display = 'none';
+  document.getElementById('waitlist-modal').classList.add('open');
+  setTimeout(() => document.getElementById('waitlist-email').focus(), 50);
+}
+function closeWaitlist() { document.getElementById('waitlist-modal').classList.remove('open'); }
+async function submitWaitlist() {
+  const email = document.getElementById('waitlist-email').value.trim();
+  const name  = document.getElementById('waitlist-name').value.trim();
+  const plan  = document.getElementById('waitlist-plan').value;
+  if (!email || !email.includes('@')) { toast('Enter a valid email'); return; }
+  const btn = document.getElementById('waitlist-submit');
+  btn.disabled = true; btn.innerHTML = '<span class="loader"></span> Joining…';
+  document.getElementById('waitlist-status').style.display = 'none';
+  try {
+    const res = await fetch(API_BASE + '/api/bestapply/waitlist', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, name, plan, language: state.profile.answerLang || 'en', source: 'bestapply.app' }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+    // Remember them locally so we don't ask again + the plan pill can greet them by name.
+    if (!state.user.email) { state.user.email = email; state.user.name = name || email.split('@')[0]; save(); }
+    document.getElementById('waitlist-body').style.display = 'none';
+    document.getElementById('waitlist-success').style.display = 'block';
+    document.getElementById('waitlist-position').textContent = data.position || '?';
+  } catch (e) {
+    document.getElementById('waitlist-status').textContent = 'Something went wrong: ' + e.message + '. Please try again.';
+    document.getElementById('waitlist-status').style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.innerHTML = 'Get 50% off + Early access';
+  }
+}
+
+// Analyze -------------------------------------------------------
+async function analyze() {
+  ensurePlan();
+  if (!state.apiKey) { openKeys(); toast('Add your API key first'); return; }
+  const mode = document.querySelector('#job-input-mode button.active').dataset.mode;
+  const jobText = mode === 'text' ? document.getElementById('job-text').value.trim() : document.getElementById('job-url').value.trim();
+  if (!jobText) { toast('Paste the job first'); return; }
+  if (!state.profile.experience && !state.profile.title) { toast('Set up your profile first'); go('profile'); return; }
+
+  if (state.plan.remaining != null && state.plan.remaining <= 0) {
+    openPlan(); toast('You are out of analyses on the ' + state.plan.type + ' plan');
+    return;
+  }
+
+  const btn = document.getElementById('analyze-btn');
+  btn.disabled = true; btn.innerHTML = '<span class="loader"></span> Analyzing…';
+  document.getElementById('result-wrap').innerHTML = '';
+
+  const salaryCode = document.getElementById('job-salary').value;
+  const salaryBand = D.salaryBands.find(b => b.code === salaryCode);
+
+  const context = {
+    profile: state.profile,
+    jobLocation: document.getElementById('job-loc').value.trim(),
+    salaryExpectation: salaryBand ? salaryBand.label : '',
+    answerLang: state.profile.answerLang || 'en',
+    tone: state.profile.tone || 'brutal',
+    job: jobText, jobIsUrl: mode === 'url',
+  };
+  try {
+    const result = await callClaude(context);
+    if (state.plan.remaining != null) state.plan.remaining = Math.max(0, state.plan.remaining - 1);
+    const related = findRelated(result);
+    state.history.unshift({ ts: Date.now(), title: result.jobTitle || 'Unknown role', company: result.company || '', score: result.score, verdict: result.verdict, result });
+    if (state.history.length > 200) state.history.length = 200;
+    save();
+    renderResult(result, related);
+  } catch (e) {
+    document.getElementById('result-wrap').innerHTML = `<div class="result" style="border-color:var(--brand);color:var(--brand)"><b>Error:</b> ${e.message}</div>`;
+  } finally {
+    btn.disabled = false; btn.innerHTML = '🎯 Get my fit score';
+  }
+}
+
+// Memory: find prior analyses with the same company or a similar title
+function findRelated(r) {
+  const co = (r.company || '').toLowerCase().trim();
+  const tt = (r.jobTitle || '').toLowerCase().trim();
+  const out = { duplicate: null, sameCompany: [], sameTitle: [] };
+  if (!co && !tt) return out;
+  state.history.forEach(h => {
+    const hCo = (h.company || '').toLowerCase().trim();
+    const hTt = (h.title || '').toLowerCase().trim();
+    const sameCo = co && hCo && (hCo === co || hCo.includes(co) || co.includes(hCo));
+    const sameTt = tt && hTt && (hTt === tt || hTt.includes(tt) || tt.includes(hTt));
+    if (sameCo && sameTt && !out.duplicate) out.duplicate = h;
+    else if (sameCo) out.sameCompany.push(h);
+    else if (sameTt) out.sameTitle.push(h);
+  });
+  out.sameCompany = out.sameCompany.slice(0, 4);
+  out.sameTitle = out.sameTitle.slice(0, 3);
+  return out;
+}
+
+async function callClaude(ctx) {
+  const lang = ANSWER_LANGS.find(l => l.code === ctx.answerLang) || ANSWER_LANGS[0];
+  const toneLine = ctx.tone === 'balanced'    ? 'Be even-handed: neither downplay nor exaggerate.' :
+                   ctx.tone === 'encouraging' ? 'Be encouraging without hiding gaps; keep language warm.' :
+                                                 'Be brutally honest — spell out gaps and downsides bluntly.';
+  const system = `You are a senior Canadian career advisor. Given a job posting and a candidate profile, produce a realistic fit analysis. ${toneLine}
+Use Canada-specific context: work permit type, official-language proficiency (English/French), credential recognition, PGWP/BOWP, LMIA-exempt roles, Express Entry / NOC classifications, provincial regulatory bodies (PEO, WSIB, RECO, LLQP, etc.).
+
+IMPORTANT — OUTPUT LANGUAGE: Write every string VALUE in ${lang.name} (${lang.native}). Keep the JSON KEYS in English. "jobTitle" and "company" stay in the original language of the posting (do not translate proper nouns).
+
+Output ONLY valid JSON:
+{
+  "jobTitle": string, "company": string, "score": number (0-100),
+  "verdict": "GO" | "MAYBE" | "SKIP",
+  "verdictLine": string (one sentence, in ${lang.name}),
+  "explanation": string (2-3 sentences, in ${lang.name}),
+  "strengths": string[] (3-6 items, in ${lang.name}),
+  "gaps": string[] (3-6 items, in ${lang.name}),
+  "actions": string[] (3-5 items ranked by impact, in ${lang.name})
+}`;
+  const user = `CANDIDATE PROFILE:\n${JSON.stringify(ctx.profile, null, 2)}\n\nJOB LOCATION: ${ctx.jobLocation || 'not specified'}\nSALARY EXPECTATION: ${ctx.salaryExpectation || 'not specified'}\n\nJOB ${ctx.jobIsUrl ? 'URL' : 'DESCRIPTION'}:\n${ctx.job}\n\nProduce the JSON analysis now — remember, all text values in ${lang.name}.`;
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-api-key': state.apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+    body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 2048, system, messages: [{ role: 'user', content: user }] }),
+  });
+  if (!res.ok) throw new Error('Claude ' + res.status + ': ' + (await res.text()).slice(0, 200));
+  const data = await res.json();
+  const text = (data.content?.[0]?.text || '').trim();
+  const m = text.match(/\{[\s\S]*\}/); if (!m) throw new Error('AI did not return JSON');
+  return JSON.parse(m[0]);
+}
+
+function renderResult(r, related) {
+  const badge = r.verdict === 'GO' ? 'go' : r.verdict === 'MAYBE' ? 'wait' : 'skip';
+  const color = badge === 'go' ? 'var(--good)' : badge === 'wait' ? 'var(--warn)' : 'var(--brand)';
+  const label = r.verdict === 'GO' ? 'Apply' : r.verdict === 'MAYBE' ? 'Maybe' : 'Skip';
+  const circ = 2 * Math.PI * 60; const off = circ - (r.score / 100) * circ;
+  const rtl = RTL_LANGS.has(state.profile.answerLang || 'en') ? 'rtl' : 'ltr';
+
+  let alertHtml = '';
+  if (related && related.duplicate) {
+    const days = Math.round((Date.now() - related.duplicate.ts) / 86400000);
+    alertHtml = `<div class="memory-alert"><div class="icon">🧠</div><div><b>Déjà vu.</b> You already analyzed <b>${esc(related.duplicate.title)}</b> at <b>${esc(related.duplicate.company)}</b> ${days === 0 ? 'today' : days + ' day' + (days === 1 ? '' : 's') + ' ago'} — fit score was ${related.duplicate.score}. Save your analyses.</div></div>`;
+  } else if (related && related.sameCompany.length) {
+    alertHtml = `<div class="memory-alert"><div class="icon">🧠</div><div><b>${related.sameCompany.length + 1} interactions with ${esc(r.company)}.</b> You've analyzed ${related.sameCompany.length} other role${related.sameCompany.length === 1 ? '' : 's'} here — worth reviewing the pattern.</div></div>`;
+  }
+
+  let relatedHtml = '';
+  if (related && (related.sameCompany.length + related.sameTitle.length)) {
+    const rows = [
+      ...related.sameCompany.map(h => ({ ...h, why: 'Same company' })),
+      ...related.sameTitle.map(h => ({ ...h, why: 'Similar title' })),
+    ];
+    relatedHtml = `<div class="related-jobs"><h4>You've seen these before</h4>${rows.map((h, i) => {
+      const cls = h.verdict === 'GO' ? 'go' : h.verdict === 'MAYBE' ? 'wait' : 'skip';
+      const d = new Date(h.ts).toLocaleDateString();
+      const histIdx = state.history.indexOf(h);
+      return `<div class="rel" onclick="openHist(${histIdx})"><span class="mini-score ${cls}">${h.score}</span><div style="flex:1"><b>${esc(h.title)}</b> · ${esc(h.company || '')}</div><div style="color:var(--muted);font-size:11px">${esc(h.why)} · ${d}</div></div>`;
+    }).join('')}</div>`;
+  }
+
+  document.getElementById('result-wrap').innerHTML = `
+    ${alertHtml}
+    <div class="result" dir="${rtl}">
+      <div class="score-hero" dir="ltr">
+        <div class="score-ring">
+          <svg viewBox="0 0 140 140">
+            <circle cx="70" cy="70" r="60" stroke="var(--line)" stroke-width="14" fill="none"/>
+            <circle cx="70" cy="70" r="60" stroke="${color}" stroke-width="14" fill="none"
+              stroke-dasharray="${circ}" stroke-dashoffset="${off}" stroke-linecap="round"/>
+          </svg>
+          <div class="n"><b>${r.score}</b><s>fit score</s></div>
+        </div>
+        <div class="verdict" dir="${rtl}">
+          <span class="badge ${badge}" dir="ltr">${label}</span>
+          <h3>${esc(r.jobTitle || 'Job')} ${r.company ? '· ' + esc(r.company) : ''}</h3>
+          <p><b>${esc(r.verdictLine || '')}</b></p>
+          <p style="margin-top:8px">${esc(r.explanation || '')}</p>
+        </div>
+      </div>
+      <div class="breakdown">
+        <div class="col strengths"><h4>${rtl==='rtl'?'نقاط قوت شما برای این نقش':'Your strengths for this role'}</h4><ul>${(r.strengths || []).map(s => `<li>${esc(s)}</li>`).join('')}</ul></div>
+        <div class="col gaps"><h4>${rtl==='rtl'?'شکاف‌هایی که باید پر کنی':'Gaps you need to close'}</h4><ul>${(r.gaps || []).map(s => `<li>${esc(s)}</li>`).join('')}</ul></div>
+      </div>
+      <div class="action-list"><h4>${rtl==='rtl'?'برنامهٔ اقدام (به ترتیب اثر)':'Action plan (ranked by impact)'}</h4><ol>${(r.actions || []).map(s => `<li>${esc(s)}</li>`).join('')}</ol></div>
+      ${relatedHtml}
+    </div>`;
+  document.getElementById('result-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+
+// History -------------------------------------------------------
+function renderHistory() {
+  const box = document.getElementById('hist-list');
+  if (!state.history.length) {
+    box.innerHTML = `<div class="empty"><div class="icon">📊</div><p>Nothing yet. Analyze your first job to see it here.</p><button class="btn-primary" onclick="go('analyze')">Analyze a job</button></div>`;
+    return;
+  }
+  box.innerHTML = state.history.map((h, i) => {
+    const cls = h.verdict === 'GO' ? 'go' : h.verdict === 'MAYBE' ? 'wait' : 'skip';
+    const d = new Date(h.ts); const when = d.toLocaleDateString() + ' · ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return `<div class="hist-item" onclick="openHist(${i})">
+      <div class="score ${cls}">${h.score}</div>
+      <div style="flex:1"><div class="title">${esc(h.title)}${h.company ? ' · ' + esc(h.company) : ''}</div><div class="meta">${when}</div></div>
+      <div style="color:var(--muted)">›</div>
+    </div>`;
+  }).join('');
+}
+function openHist(i) { go('analyze'); const h = state.history[i]; renderResult(h.result, findRelated(h.result)); }
+
+// PWA -----------------------------------------------------------
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+
+</body>
+</html>
